@@ -10,6 +10,7 @@ import android.content.ClipData;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -121,7 +122,7 @@ public class ClassifyView extends FrameLayout {
 
     private boolean inMainRegion;
     private boolean inSubRegion;
-    private View mRecordView = mSelected;
+    private View mRecordView;
 
     private VelocityTracker mVelocityTracker;
 
@@ -326,6 +327,7 @@ public class ClassifyView extends FrameLayout {
                         L.d("handle event on long press:X: %1$s , Y: %2$s ", mInitialTouchX, mInitialTouchY);
                         inMainRegion = true;
                         mSelected = pressedView;
+                        mRecordView = pressedView;
                         pressedView.startDrag(ClipData.newPlainText(DESCRIPTION, MAIN),
                                 new ClassifyDragShadowBuilder(pressedView), mSelected, 0);
                     }
@@ -410,6 +412,7 @@ public class ClassifyView extends FrameLayout {
                         mInitialTouchY = MotionEventCompat.getY(e, index);
                         inSubRegion = true;
                         mSelected = pressedView;
+                        mRecordView = pressedView;
                         pressedView.startDrag(ClipData.newPlainText(
                                 DESCRIPTION, SUB),
                                 getShadowBuilder(pressedView), mSelected, 0);
@@ -555,6 +558,7 @@ public class ClassifyView extends FrameLayout {
                         mDragView.setX(mInitialTouchX - width / 2);
                         mDragView.setY(mInitialTouchY - height / 2);
                         mDragView.bringToFront();
+                        mElevationHelper.floatView(mMainRecyclerView,mDragView);
                     }
                     break;
                 case DragEvent.ACTION_DRAG_LOCATION:
@@ -616,6 +620,7 @@ public class ClassifyView extends FrameLayout {
                         mDragView.setX(mInitialTouchX - width / 2);
                         mDragView.setY(mInitialTouchY - height / 2 + marginTop);
                         mDragView.bringToFront();
+                        mElevationHelper.floatView(mSubRecyclerView,mDragView);
                     }
                     break;
                 case DragEvent.ACTION_DRAG_LOCATION:
@@ -670,9 +675,15 @@ public class ClassifyView extends FrameLayout {
                 recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, xOffset, yOffset);
             }
         } else {
-            PropertyValuesHolder xOffset = PropertyValuesHolder.ofFloat("x", mRecordView.getLeft());
-            PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", mRecordView.getTop());
-            recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, xOffset, yOffset);
+            if(inSubRegion){
+                PropertyValuesHolder xOffset = PropertyValuesHolder.ofFloat("x",mSubContainer.getLeft()+mRecordView.getLeft());
+                PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y",mSubContainer.getTop()+mRecordView.getTop());
+                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView,xOffset,yOffset);
+            }else {
+                PropertyValuesHolder xOffset = PropertyValuesHolder.ofFloat("x", mRecordView.getLeft());
+                PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", mRecordView.getTop());
+                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, xOffset, yOffset);
+            }
         }
         recoverAnimator.setDuration(mAnimationDuration);
         recoverAnimator.setInterpolator(sDragScrollInterpolator);
@@ -1035,4 +1046,39 @@ public class ClassifyView extends FrameLayout {
     protected DragShadowBuilder getShadowBuilder(View view) {
         return new ClassifyDragShadowBuilder(view);
     }
+    private ElevationHelper mElevationHelper = new ElevationHelper();
+    static class ElevationHelper {
+
+
+        public void floatView(RecyclerView recyclerView,View dragView){
+//            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+//                float maxElevation = findMaxElevation(recyclerView)+1f;
+//                dragView.setElevation(maxElevation);
+//            }else {
+                Drawable drawable = dragView.getBackground();
+                if(drawable instanceof DragDrawable){
+                    DragDrawable dragDrawable = (DragDrawable) drawable;
+                    dragDrawable.showShadow();
+                    dragView.setLayerType(View.LAYER_TYPE_SOFTWARE,dragDrawable.getPaint());
+                }
+//            }
+        }
+
+        private float findMaxElevation(RecyclerView recyclerView) {
+            final int childCount = recyclerView.getChildCount();
+            float max = 0;
+            for (int i = 0; i < childCount; i++) {
+                final View child = recyclerView.getChildAt(i);
+
+                final float elevation = ViewCompat.getElevation(child);
+                if (elevation > max) {
+                    max = elevation;
+                }
+            }
+            return max;
+        }
+    }
+
+
+
 }

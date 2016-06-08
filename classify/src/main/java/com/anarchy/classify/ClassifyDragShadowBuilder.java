@@ -33,4 +33,8 @@ public class ClassifyDragShadowBuilder extends View.DragShadowBuilder {
             shadowTouchPoint.set(shadowSize.x/2, shadowSize.y/2);
         }
     }
+
+    public void showShadow(){
+
+    }
 }
