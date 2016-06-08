@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ClassifyView">
+        <attr name="SubRatio" format="fraction"/>
+        <attr name="MainSpanCount" format="integer"/>
+        <attr name="SubSpanCount" format="integer"/>
+        <attr name="ShadowColor" format="color"/>
+        <attr name="AnimationDuration" format="integer"/>
+        <attr name="EdgeWidth" format="dimension"/>
+    </declare-styleable>
+    <declare-styleable name="InsertAbleGridView">
+        <attr name="RowCount" format="integer"/>
+        <attr name="ColumnCount" format="integer"/>
+        <attr name="RowGap" format="dimension"/>
+        <attr name="ColumnGap" format="dimension"/>
+        <attr name="InnerPadding" format="dimension"/>
+        <attr name="OutlinePadding" format="dimension"/>
+        <attr name="OutlineWidth" format="dimension"/>
+        <attr name="OutlineColor" format="color"/>
+    </declare-styleable>
+</resources>
