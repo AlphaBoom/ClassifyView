@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.VelocityTracker;
 import android.view.View;
 
+import com.anarchy.classify.ChangeInfo;
 import com.anarchy.classify.ClassifyView;
 
 import java.util.List;
@@ -17,18 +18,18 @@ import java.util.List;
  * <p/>
  * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
  */
-public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder,Sub extends SubRecyclerViewCallBack> extends RecyclerView.Adapter<VH> implements MainRecyclerViewCallBack<Sub> {
+public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub extends SubRecyclerViewCallBack> extends RecyclerView.Adapter<VH> implements MainRecyclerViewCallBack<Sub> {
     private final static int VELOCITY = 5;
     private int mSelectedPosition = -1;
 
     @Override
     public void setDragPosition(int position) {
-        if(position >= getItemCount()||position<-1) return;
-        if(position == -1 && mSelectedPosition != -1){
+        if (position >= getItemCount() || position < -1) return;
+        if (position == -1 && mSelectedPosition != -1) {
             int oldPosition = mSelectedPosition;
             mSelectedPosition = position;
             notifyItemChanged(oldPosition);
-        }else {
+        } else {
             mSelectedPosition = position;
             notifyItemChanged(mSelectedPosition);
         }
@@ -39,26 +40,47 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder,Sub ext
     public boolean onMergeStart(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
         VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
-        return onMergeStart(selectedViewHolder,targetViewHolder,selectedPosition,targetPosition);
+        return onMergeStart(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition);
     }
 
     @Override
     public void onMergeCancel(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
         VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
-        onMergeCancel(selectedViewHolder,targetViewHolder,selectedPosition,targetPosition);
+         onMergeCancel(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition);
     }
 
     @Override
-    public boolean onMerge(RecyclerView parent, int selectedPosition, int targetPosition) {
+    public void onMerged(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
         VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
-        return onMerge(selectedViewHolder,targetViewHolder,selectedPosition,targetPosition);
+        onMerged(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition);
+    }
+
+    @Override
+    public ChangeInfo onPrepareMerge(RecyclerView parent, int selectedPosition, int targetPosition) {
+        VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
+        VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
+        return onPrePareMerge(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition);
+    }
+
+    @Override
+    public void onStartMergeAnimation(RecyclerView parent, int selectedPosition, int targetPosition,int duration) {
+        VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
+        VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
+        onStartMergeAnimation(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition,duration);
     }
 
     public abstract boolean onMergeStart(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition);
-    public abstract void onMergeCancel(VH selectedViewHolder,VH targetViewHolder,int selectedPosition,int targetPosition);
-    public abstract boolean onMerge(VH selectedViewHolder,VH targetViewHolder,int selectedPosition,int targetPosition);
+
+    public abstract void onMergeCancel(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition);
+
+    public abstract void onMerged(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition);
+
+    public abstract ChangeInfo onPrePareMerge(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition);
+
+    public abstract void onStartMergeAnimation(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition,int duration);
+
     @Override
     public void onBindViewHolder(VH holder, int position, List<Object> payloads) {
         if (position == mSelectedPosition) {
@@ -79,28 +101,28 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder,Sub ext
     public int getCurrentState(View selectedView, View targetView, int x, int y,
                                VelocityTracker velocityTracker, int selectedPosition,
                                int targetPosition) {
-        if(velocityTracker == null) return ClassifyView.STATE_NONE;
+        if (velocityTracker == null) return ClassifyView.STATE_NONE;
         int left = x;
         int top = y;
         int right = left + selectedView.getWidth();
         int bottom = top + selectedView.getHeight();
-        if(canMergeItem(selectedPosition,targetPosition)){
-            if((Math.abs(left - targetView.getLeft())+Math.abs(right - targetView.getRight())+
-                    Math.abs(top - targetView.getTop())+ Math.abs(bottom - targetView.getBottom()))
-                    <(targetView.getWidth()+targetView.getHeight()
-            )/3){
-               return ClassifyView.STATE_MERGE;
+        if (canMergeItem(selectedPosition, targetPosition)) {
+            if ((Math.abs(left - targetView.getLeft()) + Math.abs(right - targetView.getRight()) +
+                    Math.abs(top - targetView.getTop()) + Math.abs(bottom - targetView.getBottom()))
+                    < (targetView.getWidth() + targetView.getHeight()
+            ) / 3) {
+                return ClassifyView.STATE_MERGE;
             }
         }
-        if((Math.abs(left - targetView.getLeft())+Math.abs(right - targetView.getRight())+
-                Math.abs(top - targetView.getTop())+ Math.abs(bottom - targetView.getBottom()))
-                <(targetView.getWidth()+targetView.getHeight()
-        )/2){
+        if ((Math.abs(left - targetView.getLeft()) + Math.abs(right - targetView.getRight()) +
+                Math.abs(top - targetView.getTop()) + Math.abs(bottom - targetView.getBottom()))
+                < (targetView.getWidth() + targetView.getHeight()
+        ) / 2) {
             velocityTracker.computeCurrentVelocity(100);
             float xVelocity = velocityTracker.getXVelocity();
             float yVelocity = velocityTracker.getYVelocity();
             float limit = getVelocity(targetView.getContext());
-            if(xVelocity < limit && yVelocity < limit){
+            if (xVelocity < limit && yVelocity < limit) {
                 return ClassifyView.STATE_MOVE;
             }
         }
@@ -110,7 +132,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder,Sub ext
     @Override
     public float getVelocity(Context context) {
         float density = context.getResources().getDisplayMetrics().density;
-        return density*VELOCITY + .5f;
+        return density * VELOCITY + .5f;
     }
 
     @Override

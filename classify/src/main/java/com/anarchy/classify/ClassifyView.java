@@ -10,6 +10,7 @@ import android.content.ClipData;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.SystemClock;
@@ -44,10 +45,10 @@ import java.util.List;
 
 /**
  * Version 1.0
- * <p/>
+ * <p>
  * Date: 16/6/1 14:16
  * Author: zhendong.wu@shoufuyou.com
- * <p/>
+ * <p>
  * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
  */
 public class ClassifyView extends FrameLayout {
@@ -122,7 +123,6 @@ public class ClassifyView extends FrameLayout {
 
     private boolean inMainRegion;
     private boolean inSubRegion;
-    private View mRecordView;
 
     private VelocityTracker mVelocityTracker;
 
@@ -327,7 +327,6 @@ public class ClassifyView extends FrameLayout {
                         L.d("handle event on long press:X: %1$s , Y: %2$s ", mInitialTouchX, mInitialTouchY);
                         inMainRegion = true;
                         mSelected = pressedView;
-                        mRecordView = pressedView;
                         pressedView.startDrag(ClipData.newPlainText(DESCRIPTION, MAIN),
                                 new ClassifyDragShadowBuilder(pressedView), mSelected, 0);
                     }
@@ -412,7 +411,6 @@ public class ClassifyView extends FrameLayout {
                         mInitialTouchY = MotionEventCompat.getY(e, index);
                         inSubRegion = true;
                         mSelected = pressedView;
-                        mRecordView = pressedView;
                         pressedView.startDrag(ClipData.newPlainText(
                                 DESCRIPTION, SUB),
                                 getShadowBuilder(pressedView), mSelected, 0);
@@ -536,6 +534,7 @@ public class ClassifyView extends FrameLayout {
         mHideSubAnim.start();
 
     }
+
     private boolean mergeSuccess = false;
 
     class MainDragListener implements View.OnDragListener {
@@ -552,13 +551,14 @@ public class ClassifyView extends FrameLayout {
                 case DragEvent.ACTION_DRAG_STARTED:
                     if (inMainRegion) {
                         obtainVelocityTracker();
+                        restoreDragView();
                         mDragView.setBackgroundDrawable(new DragDrawable(mSelected));
                         mDragView.setVisibility(VISIBLE);
                         mMainCallBack.setDragPosition(mSelectedPosition);
                         mDragView.setX(mInitialTouchX - width / 2);
                         mDragView.setY(mInitialTouchY - height / 2);
                         mDragView.bringToFront();
-                        mElevationHelper.floatView(mMainRecyclerView,mDragView);
+                        mElevationHelper.floatView(mMainRecyclerView, mDragView);
                     }
                     break;
                 case DragEvent.ACTION_DRAG_LOCATION:
@@ -574,9 +574,8 @@ public class ClassifyView extends FrameLayout {
                     invalidate();
                     break;
                 case DragEvent.ACTION_DRAG_ENDED:
-                    if(mergeSuccess){
+                    if (mergeSuccess) {
                         mergeSuccess = false;
-                        restoreToInitial();
                         break;
                     }
                     if (inMainRegion) {
@@ -587,10 +586,23 @@ public class ClassifyView extends FrameLayout {
                 case DragEvent.ACTION_DRAG_EXITED:
                     break;
                 case DragEvent.ACTION_DROP:
-                    if(inMergeState){
-                        if(mLastMergeStartPosition == -1) break;
-                        mergeSuccess = mMainCallBack.onMerge(mMainRecyclerView,mSelectedPosition,mLastMergeStartPosition);
+                    if (inMergeState) {
                         inMergeState = false;
+                        if (mLastMergeStartPosition == -1) break;
+                        ChangeInfo changeInfo = mMainCallBack.onPrepareMerge(mMainRecyclerView, mSelectedPosition, mLastMergeStartPosition);
+                        RecyclerView.ViewHolder target = mMainRecyclerView.findViewHolderForAdapterPosition(mLastMergeStartPosition);
+                        if (target == null || changeInfo == null) {
+                            mergeSuccess = false;
+                            break;
+                        }
+                        float scaleX = ((float) changeInfo.itemWidth)/((float) (mSelected.getWidth()-changeInfo.paddingLeft-changeInfo.paddingRight -2*changeInfo.outlinePadding));
+                        float scaleY = ((float) changeInfo.itemHeight)/((float) (mSelected.getHeight()-changeInfo.paddingTop-changeInfo.paddingBottom-2*changeInfo.outlinePadding));
+                        int targetX = (int) (target.itemView.getLeft() + changeInfo.left + changeInfo.paddingLeft - (changeInfo.paddingLeft+changeInfo.outlinePadding)*scaleX);
+                        int targetY = (int) (target.itemView.getTop() + changeInfo.top +changeInfo.paddingTop- (changeInfo.paddingTop+changeInfo.outlinePadding)*scaleY);
+                        mDragView.setPivotX(0);
+                        mDragView.setPivotY(0);
+                        mDragView.animate().x(targetX).y(targetY).scaleX(scaleX).scaleY(scaleY).setListener(mMergeAnimListener).setDuration(mAnimationDuration).start();
+                        mergeSuccess = true;
                     }
                     break;
             }
@@ -598,6 +610,24 @@ public class ClassifyView extends FrameLayout {
         }
     }
 
+    private AnimatorListenerAdapter mMergeAnimListener = new AnimatorListenerAdapter() {
+        @Override
+        public void onAnimationStart(Animator animation) {
+            mMainCallBack.onStartMergeAnimation(mMainRecyclerView, mSelectedPosition, mLastMergeStartPosition,mAnimationDuration);
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            mMainCallBack.onMerged(mMainRecyclerView, mSelectedPosition, mLastMergeStartPosition);
+            restoreToInitial();
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animation) {
+            mMainCallBack.onMerged(mMainRecyclerView, mSelectedPosition, mLastMergeStartPosition);
+            restoreToInitial();
+        }
+    };
 
     class SubDragListener implements View.OnDragListener {
         @Override
@@ -614,13 +644,14 @@ public class ClassifyView extends FrameLayout {
                 case DragEvent.ACTION_DRAG_STARTED:
                     if (inSubRegion) {
                         obtainVelocityTracker();
+                        restoreDragView();
                         mDragView.setBackgroundDrawable(new DragDrawable(mSelected));
                         mDragView.setVisibility(VISIBLE);
                         mSubCallBack.setDragPosition(mSelectedPosition);
                         mDragView.setX(mInitialTouchX - width / 2);
                         mDragView.setY(mInitialTouchY - height / 2 + marginTop);
                         mDragView.bringToFront();
-                        mElevationHelper.floatView(mSubRecyclerView,mDragView);
+                        mElevationHelper.floatView(mSubRecyclerView, mDragView);
                     }
                     break;
                 case DragEvent.ACTION_DRAG_LOCATION:
@@ -649,7 +680,6 @@ public class ClassifyView extends FrameLayout {
                         mSelectedPosition = mMainCallBack.onLeaveSubRegion(mSelectedPosition, new SubAdapterReference(mSubCallBack));
                         mMainCallBack.setDragPosition(mSelectedPosition);
                         mSubCallBack.setDragPosition(-1);
-                        mRecordView = null;
                     }
                     break;
                 case DragEvent.ACTION_DROP:
@@ -663,8 +693,20 @@ public class ClassifyView extends FrameLayout {
      * 做恢复到之前状态的动画
      */
     private void doRecoverAnimation() {
-        Animator recoverAnimator;
-        if (mRecordView == null) {
+        Animator recoverAnimator = null;
+        if (inSubRegion) {
+            RecyclerView.ViewHolder holder = mSubRecyclerView.findViewHolderForAdapterPosition(mSelectedPosition);
+            if (holder == null) {
+                PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", getHeight() + mSelected.getHeight());
+                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, yOffset);
+            } else {
+                PropertyValuesHolder xOffset = PropertyValuesHolder.ofFloat("x", mSubContainer.getLeft() + holder.itemView.getLeft());
+                PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", mSubContainer.getTop() + holder.itemView.getTop());
+                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, xOffset, yOffset);
+            }
+        }
+
+        if(inMainRegion){
             RecyclerView.ViewHolder holder = mMainRecyclerView.findViewHolderForAdapterPosition(mSelectedPosition);
             if (holder == null) {
                 PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", getHeight() + mSelected.getHeight());
@@ -674,17 +716,8 @@ public class ClassifyView extends FrameLayout {
                 PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", holder.itemView.getTop());
                 recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, xOffset, yOffset);
             }
-        } else {
-            if(inSubRegion){
-                PropertyValuesHolder xOffset = PropertyValuesHolder.ofFloat("x",mSubContainer.getLeft()+mRecordView.getLeft());
-                PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y",mSubContainer.getTop()+mRecordView.getTop());
-                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView,xOffset,yOffset);
-            }else {
-                PropertyValuesHolder xOffset = PropertyValuesHolder.ofFloat("x", mRecordView.getLeft());
-                PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", mRecordView.getTop());
-                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, xOffset, yOffset);
-            }
         }
+        if(recoverAnimator == null) return;
         recoverAnimator.setDuration(mAnimationDuration);
         recoverAnimator.setInterpolator(sDragScrollInterpolator);
         recoverAnimator.addListener(mRecoverAnimatorListener);
@@ -697,17 +730,27 @@ public class ClassifyView extends FrameLayout {
             restoreToInitial();
         }
     };
-    private void restoreToInitial(){
+
+    private void restoreToInitial() {
+
         if (inSubRegion) {
-            mDragView.setVisibility(GONE);
+            restoreDragView();
             mSubCallBack.setDragPosition(-1);
             inSubRegion = false;
         }
         if (inMainRegion) {
-            mDragView.setVisibility(GONE);
+            restoreDragView();
             mMainCallBack.setDragPosition(-1);
             inMainRegion = false;
         }
+    }
+
+    private void restoreDragView() {
+        mDragView.setVisibility(GONE);
+        mDragView.setScaleX(1f);
+        mDragView.setScaleY(1f);
+        mDragView.setTranslationX(0f);
+        mDragView.setTranslationX(0f);
     }
 
     /**
@@ -868,6 +911,8 @@ public class ClassifyView extends FrameLayout {
             if (state == STATE_MOVE) {
                 if (mSubCallBack.onMove(mSelectedPosition, targetPosition)) {
                     mSelectedPosition = targetPosition;
+                    RecyclerView.ViewHolder viewHolder = mSubRecyclerView.findViewHolderForAdapterPosition(mSelectedPosition);
+                    if(viewHolder != null) mSelected = viewHolder.itemView;
                     mSubCallBack.setDragPosition(targetPosition);
                     mSubCallBack.moved(mSelectedPosition, targetPosition);
                 }
@@ -892,8 +937,16 @@ public class ClassifyView extends FrameLayout {
                 }
             }
             if (state == STATE_MOVE) {
+                if(inMergeState && mLastMergeStartPosition != -1){
+                    //makeSure trigger mergeCancel
+                    mMainCallBack.onMergeCancel(mMainRecyclerView, mSelectedPosition, mLastMergeStartPosition);
+                    mLastMergeStartPosition = -1;
+                    inMergeState = false;
+                }
                 if (mMainCallBack.onMove(mSelectedPosition, targetPosition)) {
                     mSelectedPosition = targetPosition;
+                    RecyclerView.ViewHolder viewHolder = mMainRecyclerView.findViewHolderForAdapterPosition(mSelectedPosition);
+                    if(viewHolder != null) mSelected = viewHolder.itemView;
                     mMainCallBack.setDragPosition(targetPosition);
                     mMainCallBack.moved(mSelectedPosition, targetPosition);
                 }
@@ -1046,22 +1099,24 @@ public class ClassifyView extends FrameLayout {
     protected DragShadowBuilder getShadowBuilder(View view) {
         return new ClassifyDragShadowBuilder(view);
     }
+
     private ElevationHelper mElevationHelper = new ElevationHelper();
+
     static class ElevationHelper {
 
 
-        public void floatView(RecyclerView recyclerView,View dragView){
-//            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-//                float maxElevation = findMaxElevation(recyclerView)+1f;
-//                dragView.setElevation(maxElevation);
-//            }else {
+        public void floatView(RecyclerView recyclerView, View dragView) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                float maxElevation = findMaxElevation(recyclerView) + 1f;
+                dragView.setElevation(maxElevation);
+            } else {
                 Drawable drawable = dragView.getBackground();
-                if(drawable instanceof DragDrawable){
+                if (drawable instanceof DragDrawable) {
                     DragDrawable dragDrawable = (DragDrawable) drawable;
                     dragDrawable.showShadow();
-                    dragView.setLayerType(View.LAYER_TYPE_SOFTWARE,dragDrawable.getPaint());
+                    dragView.setLayerType(View.LAYER_TYPE_SOFTWARE, dragDrawable.getPaint());
                 }
-//            }
+            }
         }
 
         private float findMaxElevation(RecyclerView recyclerView) {
@@ -1078,7 +1133,6 @@ public class ClassifyView extends FrameLayout {
             return max;
         }
     }
-
 
 
 }

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.anarchy.classify.ChangeInfo;
 import com.anarchy.classify.R;
 import com.anarchy.classify.adapter.BaseMainAdapter;
 import com.anarchy.classify.adapter.BaseSubAdapter;
@@ -107,6 +108,7 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
         }
 
 
+
         @Override
         public boolean onMergeStart(VH selectedViewHolder, VH targetViewHolder,
                                     int selectedPosition, int targetPosition) {
@@ -129,11 +131,12 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
         }
 
         @Override
-        public boolean onMerge(VH selectedViewHolder, VH targetViewHolder,
+        public void onMerged(VH selectedViewHolder, VH targetViewHolder,
                                int selectedPosition, int targetPosition) {
+            L.d("on Merged:"+targetPosition);
             CanMergeView canMergeView = targetViewHolder.getCanMergeView();
             if (canMergeView != null) {
-                canMergeView.onMerge();
+                canMergeView.onMerged();
             }
             mData.get(targetPosition).add(mData.get(selectedPosition).get(0));
             mData.remove(selectedPosition);
@@ -143,7 +146,29 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
             }else {
                 notifyItemChanged(targetPosition);
             }
-            return true;
+        }
+
+        @Override
+        public ChangeInfo onPrePareMerge(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition) {
+            CanMergeView canMergeView = targetViewHolder.getCanMergeView();
+            if (canMergeView != null) {
+                ChangeInfo info = canMergeView.prepareMerge();
+                info.paddingLeft = selectedViewHolder.getPaddingLeft();
+                info.paddingRight = selectedViewHolder.getPaddingRight();
+                info.paddingTop = selectedViewHolder.getPaddingTop();
+                info.paddingBottom = selectedViewHolder.getPaddingBottom();
+                info.outlinePadding = canMergeView.getOutlinePadding();
+                return info;
+            }
+            return null;
+        }
+
+        @Override
+        public void onStartMergeAnimation(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition,int duration) {
+            CanMergeView canMergeView = targetViewHolder.getCanMergeView();
+            if (canMergeView != null) {
+                canMergeView.startMergeAnimation(duration);
+            }
         }
 
 
@@ -255,6 +280,10 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private CanMergeView mCanMergeView;
+        private int paddingLeft;
+        private int paddingRight;
+        private int paddingTop;
+        private int paddingBottom;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -262,6 +291,10 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
                 mCanMergeView = (CanMergeView) itemView;
             } else if (itemView instanceof ViewGroup) {
                 ViewGroup group = (ViewGroup) itemView;
+                paddingLeft = group.getPaddingLeft();
+                paddingRight = group.getPaddingRight();
+                paddingTop = group.getPaddingTop();
+                paddingBottom = group.getPaddingBottom();
                 //只遍历一层 寻找第一个符合条件的view
                 for (int i = 0; i < group.getChildCount(); i++) {
                     View child = group.getChildAt(i);
@@ -275,6 +308,22 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
 
         public CanMergeView getCanMergeView() {
             return mCanMergeView;
+        }
+
+        public int getPaddingLeft() {
+            return paddingLeft;
+        }
+
+        public int getPaddingRight() {
+            return paddingRight;
+        }
+
+        public int getPaddingTop() {
+            return paddingTop;
+        }
+
+        public int getPaddingBottom() {
+            return paddingBottom;
         }
     }
 }

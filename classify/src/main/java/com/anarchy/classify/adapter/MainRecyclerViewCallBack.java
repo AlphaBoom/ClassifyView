@@ -1,9 +1,12 @@
 package com.anarchy.classify.adapter;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.support.v7.widget.RecyclerView;
 import android.view.VelocityTracker;
 import android.view.View;
+
+import com.anarchy.classify.ChangeInfo;
 
 import java.util.List;
 
@@ -20,7 +23,9 @@ public interface MainRecyclerViewCallBack<Sub extends SubRecyclerViewCallBack> {
     boolean canDragOnLongPress(int position, View pressedView);
     boolean canDropOVer(int selectedPosition,int targetPosition);
     boolean onMergeStart(RecyclerView parent,int selectedPosition, int targetPosition);
-    boolean onMerge(RecyclerView parent,int selectedPosition,int targetPosition);
+    void onMerged(RecyclerView parent, int selectedPosition, int targetPosition);
+    ChangeInfo onPrepareMerge(RecyclerView parent, int selectedPosition, int targetPosition);
+    void onStartMergeAnimation(RecyclerView parent,int selectedPosition,int targetPosition,int duration);
     void onMergeCancel(RecyclerView parent,int selectedPosition,int targetPosition);
     boolean onMove(int selectedPosition,int targetPosition);
     void moved(int selectedPosition,int targetPosition);
