@@ -29,7 +29,8 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
     private SimpleMainAdapter mSimpleMainAdapter;
     private SimpleSubAdapter mSimpleSubAdapter;
 
-    public SimpleAdapter(List<List<T>> mData) {
+    public SimpleAdapter(List<List<T>> data) {
+        mData = data;
         mSimpleMainAdapter = new SimpleMainAdapter(this, mData);
         mSimpleSubAdapter = new SimpleSubAdapter(this);
     }
@@ -52,9 +53,30 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
     protected void onBindMainViewHolder(VH holder, int position) {
     }
 
-    protected void onBindSubViewHolder(VH holder, int position) {
+    protected void onBindSubViewHolder(VH holder, int mainPosition,int subPosition) {
     }
 
+
+    public void notifyItemInsert(int position){
+        mSimpleMainAdapter.notifyItemInserted(position);
+    }
+
+    public void notifyItemChanged(int position){
+        mSimpleMainAdapter.notifyItemChanged(position);
+    }
+
+    public void notifyItemRangeChanged(int position,int count){
+        mSimpleMainAdapter.notifyItemRangeChanged(position,count);
+    }
+
+    public void notifyItemRangeInsert(int position,int count){
+        mSimpleMainAdapter.notifyItemRangeInserted(position,count);
+    }
+
+
+    public void notifyDataSetChanged(){
+        mSimpleMainAdapter.notifyDataSetChanged();
+    }
     /**
      * @param parentIndex
      * @param index       if -1  in main region
@@ -92,7 +114,7 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
         public void onBindViewHolder(VH holder, int position) {
             CanMergeView canMergeView = holder.getCanMergeView();
             if (canMergeView != null) {
-                canMergeView.init(position, mData.get(position));
+                canMergeView.initMain(position, mData.get(position));
             }
             mSimpleAdapter.onBindMainViewHolder(holder, position);
         }
@@ -112,7 +134,7 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
         @Override
         public boolean onMergeStart(VH selectedViewHolder, VH targetViewHolder,
                                     int selectedPosition, int targetPosition) {
-            L.d("on mergeStart:" + targetPosition);
+            L.d("on mergeStart:(%1$s,%2$s)",selectedPosition,targetPosition);
             CanMergeView canMergeView = targetViewHolder.getCanMergeView();
             if (canMergeView != null) {
                 canMergeView.onMergeStart();
@@ -123,7 +145,7 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
         @Override
         public void onMergeCancel(VH selectedViewHolder, VH targetViewHolder,
                                   int selectedPosition, int targetPosition) {
-            L.d("on mergeCancel:" + targetPosition);
+            L.d("on mergeCancel:(%1$s,%2$s)",selectedPosition,targetPosition);
             CanMergeView canMergeView = targetViewHolder.getCanMergeView();
             if (canMergeView != null) {
                 canMergeView.onMergeCancel();
@@ -133,7 +155,7 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
         @Override
         public void onMerged(VH selectedViewHolder, VH targetViewHolder,
                                int selectedPosition, int targetPosition) {
-            L.d("on Merged:"+targetPosition);
+            L.d("on Merged:(%1$s,%2$s)",selectedPosition,targetPosition);
             CanMergeView canMergeView = targetViewHolder.getCanMergeView();
             if (canMergeView != null) {
                 canMergeView.onMerged();
@@ -150,6 +172,7 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
 
         @Override
         public ChangeInfo onPrePareMerge(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition) {
+            if(targetViewHolder == null || selectedViewHolder == null) return null;
             CanMergeView canMergeView = targetViewHolder.getCanMergeView();
             if (canMergeView != null) {
                 ChangeInfo info = canMergeView.prepareMerge();
@@ -239,11 +262,9 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
         public void onBindViewHolder(VH holder, int position) {
             CanMergeView canMergeView = holder.getCanMergeView();
             if (canMergeView != null) {
-                List<T> list = new ArrayList<>();
-                list.add(mData.get(position));
-                canMergeView.init(parentIndex, list);
+                canMergeView.initSub(parentIndex,position);
             }
-            mSimpleAdapter.onBindSubViewHolder(holder, position);
+            mSimpleAdapter.onBindSubViewHolder(holder,parentIndex,position);
         }
 
         @Override
@@ -269,6 +290,9 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
             notifyItemMoved(selectedPosition, targetPosition);
             T t = mData.remove(selectedPosition);
             mData.add(targetPosition, t);
+            if(parentIndex != -1) {
+                mSimpleMainAdapter.notifyItemChanged(parentIndex);
+            }
             return true;
         }
 
@@ -279,7 +303,7 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private CanMergeView mCanMergeView;
+        protected CanMergeView mCanMergeView;
         private int paddingLeft;
         private int paddingRight;
         private int paddingTop;

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+                android:orientation="vertical"
+                android:padding="6dp"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+    <ImageView
+        android:id="@+id/book_cover"
+        android:layout_width="80dp"
+        android:layout_height="80dp"/>
+    <TextView
+        android:id="@+id/text_title"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:maxLines="2"
+        android:layout_toRightOf="@id/book_cover"
+        tools:text="标题"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <TextView
+        android:layout_marginTop="5dp"
+        tools:text="summary"
+        android:maxLines="3"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textSize="14sp"
+        android:ellipsize="end"
+        android:layout_below="@id/text_title"
+        android:layout_alignLeft="@id/text_title"
+        android:id="@+id/text_summary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</RelativeLayout>

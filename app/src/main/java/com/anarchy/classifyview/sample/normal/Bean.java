@@ -1,4 +1,4 @@
-package com.anarchy.classifyview;
+package com.anarchy.classifyview.sample.normal;
 
 /**
  * Version 1.0

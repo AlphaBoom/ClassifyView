@@ -5,12 +5,14 @@ import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Paint;
 import android.graphics.Point;
 import android.support.v4.widget.ScrollerCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.ImageView;
 
 import com.anarchy.classify.ChangeInfo;
 import com.anarchy.classify.R;
@@ -32,7 +34,6 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     private int mInnerPadding;
     private BagDrawable mBagDrawable;
     private SimpleAdapter mSimpleAdapter;
-    private List mList;
     private int parentIndex;
     private ChangeInfo mReturnInfo = new ChangeInfo();
     private ScrollerCompat mScroller;
@@ -68,15 +69,15 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         int childCount = getChildCount();
-        int width = Math.max(r - l - getPaddingLeft()-getPaddingRight(),0);
-        int height = Math.max(b - t - getPaddingBottom()-getPaddingTop(),0);
+        int width = Math.max(r - l - getPaddingLeft()-getPaddingRight()-2*mOutLinePadding,0);
+        int height = Math.max(b - t - getPaddingBottom()-getPaddingTop()-2*mOutLinePadding,0);
         int itemWidth = getItemWidth(width);
         int itemHeight = getItemHeight(height);
         int itemTotal = mRowCount*mColumnCount;
         if(childCount>0){
             if(childCount == 1){
                 mBagDrawable.setKeepShow(false);
-                getChildAt(0).layout(getPaddingLeft(),getPaddingTop(),getPaddingLeft()+width,getPaddingTop()+height);
+                getChildAt(0).layout(getPaddingLeft()+mOutLinePadding,getPaddingTop()+mOutLinePadding,getPaddingLeft()+mOutLinePadding+width,getPaddingTop()+mOutLinePadding+height);
             }else {
                 mBagDrawable.setKeepShow(true);
                 int row,col;
@@ -85,18 +86,18 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
                     row = i/mColumnCount;
                     col = i%mColumnCount;
                     if(row < mRowCount){
-                        int left = getPaddingLeft()+mInnerPadding+col*(itemWidth+mColumnGap);
+                        int left = getPaddingLeft()+mInnerPadding+mOutLinePadding+col*(itemWidth+mColumnGap);
                         int right = left + itemWidth;
-                        int top = getPaddingTop()+mInnerPadding+row*(itemHeight + mRowGap);
+                        int top = getPaddingTop()+mInnerPadding+mOutLinePadding+row*(itemHeight + mRowGap);
                         int bottom = top+itemHeight;
                         child.layout(left,top,right,bottom);
                     }else if(i>=childCount-itemTotal && childCount%itemTotal != 0){
                         int newI = i%itemTotal;
                         row = newI/mColumnCount;
                         col = newI%mColumnCount;
-                        int left = getPaddingLeft()+mInnerPadding+col*(itemWidth+mColumnGap);
+                        int left = getPaddingLeft()+mInnerPadding+mOutLinePadding+col*(itemWidth+mColumnGap);
                         int right = left + itemWidth;
-                        int top = getHeight()+getPaddingTop()+mInnerPadding+row*(itemHeight + mRowGap);
+                        int top = getHeight()+getPaddingTop()+mInnerPadding+mOutLinePadding+row*(itemHeight + mRowGap);
                         int bottom = top+itemHeight;
                         child.layout(left,top,right,bottom);
                     }
@@ -106,12 +107,12 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
         }
     }
     private ValueAnimator createConvertAnimator(final View view){
-        int width = getWidth() - getPaddingLeft()-getPaddingRight();
-        int height = getHeight() - getPaddingBottom() - getPaddingTop();
-        PropertyValuesHolder left = PropertyValuesHolder.ofInt("left",view.getLeft(),getPaddingLeft()+mInnerPadding);
-        PropertyValuesHolder right = PropertyValuesHolder.ofInt("right",view.getRight(),getPaddingLeft()+mInnerPadding+getItemWidth(width));
-        PropertyValuesHolder top = PropertyValuesHolder.ofInt("top",view.getTop(),getPaddingTop()+mInnerPadding);
-        PropertyValuesHolder bottom = PropertyValuesHolder.ofInt("bottom",view.getBottom(),getPaddingTop()+mInnerPadding+getItemHeight(height));
+        int width = getWidth() - getPaddingLeft()-getPaddingRight()-2*mOutLinePadding;
+        int height = getHeight() - getPaddingBottom() - getPaddingTop()-2*mOutLinePadding;
+        PropertyValuesHolder left = PropertyValuesHolder.ofInt("left",view.getLeft(),getPaddingLeft()+mInnerPadding+mOutLinePadding);
+        PropertyValuesHolder right = PropertyValuesHolder.ofInt("right",view.getRight(),getPaddingLeft()+mInnerPadding+mOutLinePadding+getItemWidth(width));
+        PropertyValuesHolder top = PropertyValuesHolder.ofInt("top",view.getTop(),getPaddingTop()+mInnerPadding+mOutLinePadding);
+        PropertyValuesHolder bottom = PropertyValuesHolder.ofInt("bottom",view.getBottom(),getPaddingTop()+mInnerPadding+mOutLinePadding+getItemHeight(height));
         ValueAnimator animator = ObjectAnimator.ofPropertyValuesHolder(left,right,top,bottom);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -121,7 +122,6 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
                 int top = (int) animation.getAnimatedValue("top");
                 int bottom = (int) animation.getAnimatedValue("bottom");
                 view.layout(left,top,right,bottom);
-                L.d("do animation left:%1$d right:%2$d top:%3$d bottom:%4$d",left,right,top,bottom);
             }
         });
         animator.setInterpolator(new DecelerateInterpolator());
@@ -149,7 +149,6 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
 
     @Override
     public void onMergeStart() {
-        L.d("merge start:"+parentIndex);
         mBagDrawable.startMergeAnimation();
         if(getChildCount() >= mRowCount*mColumnCount){
             mScroller.startScroll(0,0,0,getHeight(),500);
@@ -167,7 +166,6 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
 
     @Override
     public void onMergeCancel() {
-        L.d("merge cancel:"+parentIndex);
         mBagDrawable.cancelMergeAnimation();
         if(getChildCount() >= mRowCount*mColumnCount){
             mScroller.startScroll(0,getHeight(),0,-getHeight(),500);
@@ -195,16 +193,17 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     public ChangeInfo prepareMerge() {
         int futureCount = getChildCount() + 1;
         if(futureCount > 1){
-            if(futureCount > mRowCount*mColumnCount) futureCount = futureCount%(mRowCount*mColumnCount+1);
+            if(futureCount > mRowCount*mColumnCount) futureCount = futureCount%(mRowCount*mColumnCount);
+            if(futureCount == 0) futureCount = mRowCount*mColumnCount;
             futureCount--;
             int row = futureCount/mColumnCount;
             int col = futureCount%mColumnCount;
-            int width = getWidth() - getPaddingLeft()-getPaddingRight();
-            int height = getHeight() - getPaddingTop() - getPaddingBottom();
+            int width = getWidth() - getPaddingLeft()-getPaddingRight()-2*mOutLinePadding;
+            int height = getHeight() - getPaddingTop() - getPaddingBottom()-2*mOutLinePadding;
             int itemWidth = getItemWidth(width);
             int itemHeight = getItemHeight(height);
-            int left = getPaddingLeft()+mInnerPadding+col*(itemWidth+mColumnGap);
-            int top = getPaddingTop()+mInnerPadding+row*(itemHeight + mRowGap);
+            int left = getPaddingLeft()+mInnerPadding+mOutLinePadding+col*(itemWidth+mColumnGap);
+            int top = getPaddingTop()+mInnerPadding+mOutLinePadding+row*(itemHeight + mRowGap);
             mReturnInfo.left = left;
             mReturnInfo.top = top;
             mReturnInfo.itemWidth = itemWidth;
@@ -220,10 +219,9 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     }
 
     @Override
-    public void init(int parentIndex, List list) {
+    public void initMain(int parentIndex, List list) {
         removeAllViewsInLayout();
         this.parentIndex = parentIndex;
-        mList = list;
         for(int i =0;i<list.size();i++){
             if(mSimpleAdapter!=null){
                 View child = mSimpleAdapter.getView(this,parentIndex,i);
@@ -235,9 +233,18 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     }
 
     @Override
+    public void initSub(int parentIndex, int subIndex) {
+        removeAllViewsInLayout();
+        this.parentIndex = parentIndex;
+        View child = mSimpleAdapter.getView(this,parentIndex,subIndex);
+        addViewInLayout(child,0,generateDefaultLayoutParams());
+        invalidate();
+        requestLayout();
+    }
+
+    @Override
     public int getOutlinePadding() {
         return mOutLinePadding;
     }
-
 
 }

@@ -3,11 +3,14 @@
               android:orientation="vertical"
               android:padding="10dp"
               android:layout_width="match_parent"
-              android:layout_height="120dp">
+              android:layout_height="wrap_content">
     <com.anarchy.classify.simple.widget.InsertAbleGridView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </com.anarchy.classify.simple.widget.InsertAbleGridView>
-
+        android:layout_height="100dp"/>
+    <TextView
+        android:layout_margin="5dp"
+        android:gravity="center"
+        android:id="@+id/text_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </LinearLayout>

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">ClassifyView</string>
+    <string-array name="list_name">
+        <item>基本效果</item>
+        <item>使用演示</item>
+    </string-array>
 </resources>

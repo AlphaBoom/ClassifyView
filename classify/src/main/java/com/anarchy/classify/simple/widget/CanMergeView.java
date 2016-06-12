@@ -49,10 +49,18 @@ public interface CanMergeView {
     void setAdapter(SimpleAdapter simpleAdapter);
 
     /**
-     * 初始化
+     * 初始化 主层级
      * @param list
      */
-    void init(int parentIndex,List list);
+    void initMain(int parentIndex, List list);
+
+    /**
+     * 初始化 次级层级
+     * @param parentIndex
+     * @param subIndex
+     */
+    void initSub(int parentIndex,int subIndex);
+
 
     int getOutlinePadding();
 }

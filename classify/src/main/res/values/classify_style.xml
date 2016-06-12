@@ -14,7 +14,7 @@
         <item name="RowGap">5dp</item>
         <item name="ColumnGap">5dp</item>
         <item name="OutlinePadding">8dp</item>
-        <item name="OutlineWidth">3dp</item>
+        <item name="OutlineWidth">1dp</item>
         <item name="OutlineColor">#d6a25e</item>
         <item name="InnerPadding">6dp</item>
     </style>
