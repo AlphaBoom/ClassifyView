@@ -30,12 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Version 1.0
  * <p/>
  * Date: 16/6/12 10:09
  * Author: zhendong.wu@shoufuyou.com
  * <p/>
- * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
  */
 public class DemonstrateFragment extends Fragment{
     private NetManager mNetManager = new NetManager();

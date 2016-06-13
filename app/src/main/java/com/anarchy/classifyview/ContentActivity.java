@@ -9,12 +9,10 @@ import com.anarchy.classifyview.sample.demonstrate.DemonstrateFragment;
 import com.anarchy.classifyview.sample.normal.NormalFragment;
 
 /**
- * Version 1.0
  * <p/>
  * Date: 16/6/12 09:40
  * Author: zhendong.wu@shoufuyou.com
  * <p/>
- * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
  */
 public class ContentActivity extends AppCompatActivity {
     private Class<? extends Fragment>[] mClasses = new Class[]{NormalFragment.class, DemonstrateFragment.class};

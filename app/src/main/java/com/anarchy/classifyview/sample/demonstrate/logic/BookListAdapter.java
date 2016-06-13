@@ -7,19 +7,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.anarchy.classify.simple.SimpleAdapter;
-import com.anarchy.classify.simple.widget.CanMergeView;
 import com.anarchy.classifyview.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 /**
- * Version 1.0
  * <p/>
  * Date: 16/6/12 14:38
  * Author: zhendong.wu@shoufuyou.com
  * <p/>
- * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
  */
 public class BookListAdapter extends SimpleAdapter<Book,BookListAdapter.ViewHolder> {
 

@@ -11,12 +11,10 @@ import com.anarchy.classify.ClassifyView;
 import java.util.List;
 
 /**
- * Version 1.0
  * <p/>
  * Date: 16/6/1 15:33
  * Author: zhendong.wu@shoufuyou.com
  * <p/>
- * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
  */
 public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub extends SubRecyclerViewCallBack> extends RecyclerView.Adapter<VH> implements MainRecyclerViewCallBack<Sub> {
     private final static int VELOCITY = 5;

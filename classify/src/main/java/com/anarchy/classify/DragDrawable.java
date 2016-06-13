@@ -13,12 +13,10 @@ import android.view.View;
 import com.anarchy.classify.util.L;
 
 /**
- * Version 1.0
  * <p/>
  * Date: 16/6/2 15:41
  * Author: zhendong.wu@shoufuyou.com
  * <p/>
- * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
  */
 public class DragDrawable extends Drawable {
     final private View mView;
