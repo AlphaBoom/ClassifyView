@@ -1,8 +1,25 @@
+#JitPack
+[![](https://jitpack.io/v/tianzhijiexian/DBinding.svg)](https://jitpack.io/#AlphaBoom/ClassifyView/0.2.0)
 # ClassifyView
 类似Launcher效果的拖拽合并的RecyclerView 
 #效果如下
 ![image](https://github.com/AlphaBoom/ClassifyView/blob/master/screenshot/classifyView.gif)
-
+#使用配置
+**Step one:**Add the JitPack repository to your build file
+```
+allprojects {
+		repositories {
+			...
+			maven { url "https://jitpack.io" }
+		}
+	  }
+```
+**Step two:**Add the dependency
+```
+    dependencies {
+	        compile 'com.github.AlphaBoom:ClassifyView:0.2.0'
+	}
+```
 #支持的自定义的属性
 ClassifyView attr
 
