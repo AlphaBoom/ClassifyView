@@ -170,7 +170,6 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
 
         @Override
         public ChangeInfo onPrePareMerge(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition) {
-            if(targetViewHolder == null || selectedViewHolder == null) return null;
             CanMergeView canMergeView = targetViewHolder.getCanMergeView();
             if (canMergeView != null) {
                 ChangeInfo info = canMergeView.prepareMerge();

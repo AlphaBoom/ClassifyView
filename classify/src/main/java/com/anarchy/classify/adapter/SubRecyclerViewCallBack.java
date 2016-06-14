@@ -12,14 +12,8 @@ import java.util.List;
  * Author: zhendong.wu@shoufuyou.com
  * <p/>
  */
-public interface SubRecyclerViewCallBack {
-    boolean canDragOnLongPress(int position, View pressedView);
-    /**
-     *
-     * @param position
-     * @param pressedView
-     */
-    void onItemClick(int position,View pressedView);
+public interface SubRecyclerViewCallBack extends BaseCallBack{
+
 
     /**
      * 下面进行数据初始化 和 显示
@@ -27,10 +21,6 @@ public interface SubRecyclerViewCallBack {
      */
     void initData(int parentIndex,List data);
 
-    void setDragPosition(int position);
-
-
-    boolean canDropOver(int selectedPosition,int targetPosition);
 
     boolean onMove(int selectedPosition,int targetPosition);
     void moved(int selectedPosition,int targetPosition);
@@ -41,22 +31,5 @@ public interface SubRecyclerViewCallBack {
      * @return
      */
     boolean canDragOut(int selectedPosition);
-
-    /**
-     * 返回判断移动需要的速度范围
-     * 单位默认100 如果你没有重写 {@link #getCurrentState(View, View, int, int, VelocityTracker, int, int)}这个方法
-     * @param context
-     * @return
-     */
-    float getVelocity(Context context);
-    /**
-     * 返回当前的状态 是移动 还是在merge范围中
-     * @param selectedView
-     * @param targetView
-     * @param x
-     * @param y
-     * @return
-     */
-    int getCurrentState(View selectedView, View targetView, int x, int y, VelocityTracker velocityTracker, int selectedPosition, int targetPosition);
 
 }
