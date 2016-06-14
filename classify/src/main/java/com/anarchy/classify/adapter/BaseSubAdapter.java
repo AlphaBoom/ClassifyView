@@ -27,17 +27,22 @@ public abstract class BaseSubAdapter<VH extends RecyclerView.ViewHolder> extends
 
     private int mSelectedPosition = -1;
     @Override
-    public void setDragPosition(int position) {
+    public void setDragPosition(int position,boolean shouldNotify) {
         if(position >= getItemCount()||position<-1) return;
         if(position == -1 && mSelectedPosition != -1){
 //            int oldPosition = mSelectedPosition;
             mSelectedPosition = position;
-            notifyDataSetChanged();
+            if(shouldNotify) notifyDataSetChanged();
 //            notifyItemChanged(oldPosition);
         }else {
             mSelectedPosition = position;
             notifyItemChanged(mSelectedPosition);
         }
+    }
+
+    @Override
+    public int getDragPosition() {
+        return mSelectedPosition;
     }
 
     @Override

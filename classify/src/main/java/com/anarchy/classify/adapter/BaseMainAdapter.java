@@ -21,12 +21,12 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
     private int mSelectedPosition = -1;
 
     @Override
-    public void setDragPosition(int position) {
+    public void setDragPosition(int position,boolean shouldNotify) {
         if (position >= getItemCount() || position < -1) return;
         if (position == -1 && mSelectedPosition != -1) {
             int oldPosition = mSelectedPosition;
             mSelectedPosition = position;
-            notifyItemChanged(oldPosition);
+            if(shouldNotify) notifyItemChanged(oldPosition);
         } else {
             mSelectedPosition = position;
             notifyItemChanged(mSelectedPosition);
@@ -35,9 +35,15 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
 
 
     @Override
+    public int getDragPosition() {
+        return mSelectedPosition;
+    }
+
+    @Override
     public boolean onMergeStart(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
         VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
+        if(selectedViewHolder == null || targetViewHolder == null) return false;
         return onMergeStart(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition);
     }
 
@@ -45,6 +51,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
     public void onMergeCancel(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
         VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
+        if(selectedViewHolder == null || targetViewHolder == null) return;
          onMergeCancel(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition);
     }
 
@@ -52,6 +59,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
     public void onMerged(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
         VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
+        if(selectedViewHolder == null || targetViewHolder == null) return;
         onMerged(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition);
     }
 
@@ -59,6 +67,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
     public ChangeInfo onPrepareMerge(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
         VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
+        if(selectedViewHolder == null || targetViewHolder == null) return null;
         return onPrePareMerge(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition);
     }
 
@@ -66,6 +75,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
     public void onStartMergeAnimation(RecyclerView parent, int selectedPosition, int targetPosition,int duration) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
         VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
+        if(selectedViewHolder == null || targetViewHolder == null) return;
         onStartMergeAnimation(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition,duration);
     }
 
@@ -90,10 +100,9 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
     }
 
     @Override
-    public boolean canDropOVer(int selectedPosition, int targetPosition) {
+    public boolean canDropOver(int selectedPosition, int targetPosition) {
         return true;
     }
-
 
     @Override
     public int getCurrentState(View selectedView, View targetView, int x, int y,

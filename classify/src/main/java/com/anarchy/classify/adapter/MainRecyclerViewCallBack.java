@@ -18,10 +18,8 @@ import java.util.List;
  * <p/>
  * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
  */
-public interface MainRecyclerViewCallBack<Sub extends SubRecyclerViewCallBack> {
-    void setDragPosition(int position);
-    boolean canDragOnLongPress(int position, View pressedView);
-    boolean canDropOVer(int selectedPosition,int targetPosition);
+public interface MainRecyclerViewCallBack<Sub extends SubRecyclerViewCallBack> extends BaseCallBack{
+
     boolean onMergeStart(RecyclerView parent,int selectedPosition, int targetPosition);
     void onMerged(RecyclerView parent, int selectedPosition, int targetPosition);
     ChangeInfo onPrepareMerge(RecyclerView parent, int selectedPosition, int targetPosition);
@@ -39,28 +37,6 @@ public interface MainRecyclerViewCallBack<Sub extends SubRecyclerViewCallBack> {
      */
     int onLeaveSubRegion(int selectedPosition,SubAdapterReference<Sub> subAdapterReference);
 
-    /**
-     * 返回判断移动需要的速度范围
-     * 单位默认100 如果你没有重写 {@link #getCurrentState(View, View, int, int, VelocityTracker, int, int)}这个方法
-     * @param context
-     * @return
-     */
-    float getVelocity(Context context);
-    /**
-     * 返回当前的状态 是移动 还是在merge范围中
-     * @param selectedView
-     * @param targetView
-     * @param x
-     * @param y
-     * @return
-     */
-    int getCurrentState(View selectedView, View targetView, int x, int y, VelocityTracker velocityTracker, int selectedPosition, int targetPosition);
-    /**
-     *
-     * @param position
-     * @param pressedView
-     */
-    void onItemClick(int position,View pressedView);
 
     /**
      * 是否要展开这个view
