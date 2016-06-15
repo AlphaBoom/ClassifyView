@@ -1,5 +1,5 @@
 #JitPack
-[![](https://jitpack.io/v/tianzhijiexian/DBinding.svg)](https://jitpack.io/#AlphaBoom/ClassifyView/0.2.0)
+[![](https://jitpack.io/v/AlphaBoom/ClassifyView.svg)](https://jitpack.io/#AlphaBoom/ClassifyView)
 # ClassifyView
 实现原理 ClassifyView包裹这一个RecyclerView，当点击这个RecyclerView会弹出一个Dialog 该Dialog的布局会传入另一个RecyclerView.拖动显示的View 需要使用 WindowManager 添加一个View作为显示。[Release0.2.0](https://github.com/AlphaBoom/ClassifyView/tree/0.2.0)版本是在一个view下，现在版本需要在不使用时调用 ClassifyView.onDestery()来释放在WindowManager中的资源。
 #效果如下
