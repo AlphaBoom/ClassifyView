@@ -18,4 +18,8 @@
         <item name="OutlineColor">#d6a25e</item>
         <item name="InnerPadding">6dp</item>
     </style>
+    <style name="DefaultAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_up</item>
+        <item name="android:windowExitAnimation">@anim/slide_down</item>
+    </style>
 </resources>
