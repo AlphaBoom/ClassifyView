@@ -39,14 +39,15 @@ public class DemonstrateFragment extends Fragment{
     private NetManager mNetManager = new NetManager();
     private List<List<Book>> mBooks = new ArrayList<>();
     private BookListAdapter mAdapter;
+    private ClassifyView mClassifyView;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.demonstrate_main,container,false);
         FloatingActionButton button = (FloatingActionButton) view.findViewById(R.id.add_button);
-        ClassifyView classifyView = (ClassifyView) view.findViewById(R.id.classify_view);
+        mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
         mAdapter = new BookListAdapter(mBooks);
-        classifyView.setAdapter(mAdapter);
+        mClassifyView.setAdapter(mAdapter);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,5 +108,12 @@ public class DemonstrateFragment extends Fragment{
             }
         });
         return view;
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mClassifyView.onDestroy();
     }
 }

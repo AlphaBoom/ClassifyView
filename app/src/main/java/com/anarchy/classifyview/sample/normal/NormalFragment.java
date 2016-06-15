@@ -20,11 +20,12 @@ import java.util.List;
  * <p/>
  */
 public class NormalFragment extends Fragment{
+    private ClassifyView mClassifyView;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.normal,container,false);
-        ClassifyView classifyView = (ClassifyView) view.findViewById(R.id.classify_view);
+        mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
         List<List<Bean>> data = new ArrayList<>();
         for(int i=0;i<30;i++){
             List<Bean> inner = new ArrayList<>();
@@ -38,7 +39,13 @@ public class NormalFragment extends Fragment{
             }
             data.add(inner);
         }
-        classifyView.setAdapter(new MyAdapter(data));
+        mClassifyView.setAdapter(new MyAdapter(data));
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mClassifyView.onDestroy();
     }
 }
