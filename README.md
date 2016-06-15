@@ -1,3 +1,5 @@
+#JitPack
+[![](https://jitpack.io/v/tianzhijiexian/DBinding.svg)](https://jitpack.io/#AlphaBoom/ClassifyView/0.2.0)
 # ClassifyView
 实现原理 ClassifyView包裹这一个RecyclerView，当点击这个RecyclerView会弹出一个Dialog 该Dialog的布局会传入另一个RecyclerView.拖动显示的View 需要使用 WindowManager 添加一个View作为显示。[Release0.2.0](https://github.com/AlphaBoom/ClassifyView/tree/0.2.0)版本是在一个view下，现在版本需要在不使用时调用 ClassifyView.onDestery()来释放在WindowManager中的资源。
 #效果如下
@@ -5,6 +7,26 @@
 
 
 ![image](https://github.com/AlphaBoom/ClassifyView/blob/master/screenshot/classifyView.gif)
+#配置依赖
+**Step one:**Add the JitPack repository to your build file
+
+```
+allprojects {
+		repositories {
+			...
+			maven { url "https://jitpack.io" }
+		}
+	  }
+```
+**Step two:**Add the dependency
+
+```
+    dependencies {
+	        compile 'com.github.AlphaBoom:ClassifyView:0.3.0'
+	}
+
+```
+
 #快速使用
 1. 继承SimpleAdapter
 
@@ -76,6 +98,7 @@ mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
         super.onDestroyView();
         mClassifyView.onDestroy();
     }
+
 ```
 #支持的自定义的属性
 ClassifyView attr
