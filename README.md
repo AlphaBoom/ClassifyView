@@ -1,11 +1,15 @@
 #JitPack
-[![](https://jitpack.io/v/tianzhijiexian/DBinding.svg)](https://jitpack.io/#AlphaBoom/ClassifyView/0.2.0)
+[![](https://jitpack.io/v/AlphaBoom/ClassifyView.svg)](https://jitpack.io/#AlphaBoom/ClassifyView)
 # ClassifyView
-类似Launcher效果的拖拽合并的RecyclerView 
+实现原理 ClassifyView包裹这一个RecyclerView，当点击这个RecyclerView会弹出一个Dialog 该Dialog的布局会传入另一个RecyclerView.拖动显示的View 需要使用 WindowManager 添加一个View作为显示。[Release0.2.0](https://github.com/AlphaBoom/ClassifyView/tree/0.2.0)版本是在一个view下，现在版本需要在不使用时调用 ClassifyView.onDestery()来释放在WindowManager中的资源。
 #效果如下
+>这是上个版本效果，最新效果使用dialog来展示次级目录所以不会被FloatingActionButton 遮挡住次级目录，其他效果一样。
+
+
 ![image](https://github.com/AlphaBoom/ClassifyView/blob/master/screenshot/classifyView.gif)
-#使用配置
+#配置依赖
 **Step one:**Add the JitPack repository to your build file
+
 ```
 allprojects {
 		repositories {
@@ -15,10 +19,86 @@ allprojects {
 	  }
 ```
 **Step two:**Add the dependency
+
 ```
     dependencies {
-	        compile 'com.github.AlphaBoom:ClassifyView:0.2.0'
+	        compile 'com.github.AlphaBoom:ClassifyView:0.3.0'
 	}
+
+```
+
+#快速使用
+1. 继承SimpleAdapter
+
+```
+   public class MyAdapter extends SimpleAdapter<Bean, MyAdapter.ViewHolder> {
+
+
+    public MyAdapter(List<List<Bean>> mData) {
+        super(mData);
+    }
+
+
+    @Override
+    protected ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item,parent,false);
+        return new MyAdapter.ViewHolder(view);
+    }
+
+    @Override
+    public View getView(ViewGroup parent, int mainPosition, int subPosition) {
+    //返回的View作为每一个Item的布局
+    /*布局内容自定义 例子中如下：
+    <View xmlns:android="http://schemas.android.com/apk/res/android"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="@drawable/round_shape"/>
+    */
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inner,parent,false);
+        return view;
+    }
+
+    @Override
+    protected void onItemClick(View view, int parentIndex, int index) {
+        Toast.makeText(view.getContext(),"parentIndex: "+parentIndex+"\nindex: "+index,Toast.LENGTH_SHORT).show();
+    }
+
+    static class ViewHolder extends SimpleAdapter.ViewHolder {
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+        }
+    }
+}
+``` 
+2.找到ClassifyView 并设置Adapter
+
+```
+mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
+        List<List<Bean>> data = new ArrayList<>();
+        for(int i=0;i<30;i++){
+            List<Bean> inner = new ArrayList<>();
+            if(i>10) {
+                int c = (int) (Math.random() * 15+1);
+                for(int j=0;j<c;j++){
+                    inner.add(new Bean());
+                }
+            }else {
+                inner.add(new Bean());
+            }
+            data.add(inner);
+        }
+        mClassifyView.setAdapter(new MyAdapter(data));
+```
+3.当界面关闭时调用(清除不用的资源)
+
+```
+ @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mClassifyView.onDestroy();
+    }
+
 ```
 #支持的自定义的属性
 ClassifyView attr
@@ -27,8 +107,7 @@ ClassifyView attr
 ------------- | -------------
 MainSpanCount  | 主层级目录的列数
 SubSpanCount  | 次级层级目录的列数
-ShadowColor | 展开次级目录时阴影的颜色
-AnimationDuration | 打开次级目录的动画及合并动画的时间
+AnimationDuration | 合并动画的时间
 SubRatio | 次级目录的高度占主层级的高度比例
 
 InsertAbleGridView(显示合并布局的View)
@@ -48,12 +127,16 @@ InnerPadding | 当内部有多个子View 时 与周围的边距
 
 ##继承ClassifyView 重写以下方法：
 
-1. *RecyclerView getMain(Context context, AttributeSet parentAttrs)*<br/>返回主层级使用的 RecyclerView。
-2. *RecyclerView getSub(Context context, AttributeSet parentAttrs)*返回次级层级使用的RecyclerView
-3. *View chooseTarget(View selected, List<View> swapTargets, int curX, int curY)*<br/> 当拖拽的View 覆盖到子View时会通过该方法在候选View中选择一个View 为目标View 之后的交互操作都会作用于当前所选择的View 及 这个目标View<br/>@param selected 当前选择的View<br/>@param swapTargets 候选的目标View(候选的目标View 为当前选择的View 能够覆盖到所有View)<br/>@param curX 当前选中View的X轴坐标<br/>@param curY 当前选中View的Y轴坐标
-4. `Drawable getDragDrawable(View view)`<br/>返回用于渲染当前拖动View的显示<br/>@param 当前选中的View<br/>@return 返回Drawable 用于设置拖拽View的背景
+1. **RecyclerView getMain(Context context, AttributeSet parentAttrs)**<br/>返回主层级使用的 RecyclerView。
+2. **RecyclerView getSub(Context context, AttributeSet parentAttrs)**返回次级层级使用的RecyclerView
+3. **View chooseTarget(View selected, List<View> swapTargets, int curX, int curY)**<br/> 当拖拽的View 覆盖到子View时会通过该方法在候选View中选择一个View 为目标View 之后的交互操作都会作用于当前所选择的View 及 这个目标View<br/><font color="green">@param selected</font> 当前选择的View<br/><font color="green">@param swapTargets</font> 候选的目标View(候选的目标View 为当前选择的View 能够覆盖到所有View)<br/><font color="green">@param curX</font> 当前选中View的X轴坐标<br/><font color="green">@param curY</font> 当前选中View的Y轴坐标
+4. **Drawable getDragDrawable(View view)**<br/>返回用于渲染当前拖动View的显示<br/><font color="green">@param view</font> 当前选中的View<br/><font color="green">@return drawable</font>返回Drawable 用于设置拖拽View的背景
+5. 自定义次级目录的布局：
+   * 自定义次级目录的Dialog：重写 **Dialog createSubDialog()**
+   * 自定义次级目录布局：重写**View getSubContent()**
+     <br/>**注意：**默认会在返回的View中查找有Tag 为 @String/sub_container 的View作为容器 如果没有 就已返回的View作为容器来添加次级目录的RecyclerView。 可以覆盖**ViewGroup findHaveSubTagContainer(ViewGroup group)**来重写查找容器的逻辑
 
-设置数据方式有两种方式：
+**设置数据方式有两种方式：**
 
 1. 使用 *ClassifyView.setAdapter(BaseMainAdapter mainAdapter, BaseSubAdapter subAdapter)*用于分别设置主层级及次级层级的适配器
 2. 使用 *setAdapter(BaseSimpleAdapter baseSimpleAdapter)*设置一个混合了主层级及次级层级的适配器，如何自定义可以参考 [SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)
@@ -90,7 +173,7 @@ void initData|用于初始化次级层级数据，初始化的数据来自于主
 boolean canDropOver | 对于次层级的item 能否拖动到主层级
 
 #结语
-**当前项目效果展现 使用[SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)，InsertAbleGridView 是配合SimpleAdapter的控件所写，所以本质是一个有两个RecyclerView的自定义View，支持拖拽item并提供相应回调。其他效果自行书写**
+**当前项目效果展现 使用[SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)，InsertAbleGridView 是配合SimpleAdapter的控件所写，所以本质是一个有两个RecyclerView的自定义View，支持拖拽item并提供相应回调。**
 
 
 

@@ -20,7 +20,6 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.transition.Fade;
 import android.util.AttributeSet;
 import android.view.DragEvent;
 import android.view.GestureDetector;
@@ -49,10 +48,10 @@ import java.util.List;
 import java.util.Queue;
 
 /**
- * <p>
+ * <p/>
  * Date: 16/6/1 14:16
  * Author: zhendong.wu@shoufuyou.com
- * <p>
+ * <p/>
  */
 public class ClassifyView extends FrameLayout {
     /**
@@ -120,6 +119,8 @@ public class ClassifyView extends FrameLayout {
     private Dialog mSubDialog;
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mDragLayoutParams;
+    private int mSubContainerWidth;
+    private int mSubContainerHeight;
     private int[] mMainLocation = new int[2];
     private int[] mSubLocation = new int[2];
     /**
@@ -194,6 +195,9 @@ public class ClassifyView extends FrameLayout {
     }
 
     public void onDestroy() {
+        if (mSubDialog != null && mSubDialog.isShowing()) {
+            mSubDialog.dismiss();
+        }
         mWindowManager.removeViewImmediate(mDragView);
     }
 
@@ -260,7 +264,6 @@ public class ClassifyView extends FrameLayout {
         mSubRecyclerView.addOnItemTouchListener(mSubItemTouchListener);
         mSubCallBack = subAdapter;
         mMainRecyclerView.setOnDragListener(new MainDragListener());
-        mSubRecyclerView.setOnDragListener(new SubDragListener());
     }
 
     /**
@@ -349,7 +352,7 @@ public class ClassifyView extends FrameLayout {
                         inMergeState = false;
                         break;
                 }
-                return false;
+                return mSelected != null;
             }
 
             @Override
@@ -358,6 +361,7 @@ public class ClassifyView extends FrameLayout {
                 int action = MotionEventCompat.getActionMasked(e);
                 switch (action) {
                     case MotionEvent.ACTION_MOVE:
+                        L.d("main move");
                         break;
                     case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP:
@@ -412,9 +416,14 @@ public class ClassifyView extends FrameLayout {
                         mInitialTouchY = MotionEventCompat.getY(e, index);
                         inSubRegion = true;
                         mSelected = pressedView;
-                        pressedView.startDrag(ClipData.newPlainText(
-                                DESCRIPTION, SUB),
-                                getShadowBuilder(pressedView), mSelected, 0);
+                        restoreDragView();
+                        obtainVelocityTracker();
+                        mDragView.setVisibility(VISIBLE);
+                        mDragView.setBackgroundDrawable(getDragDrawable(mSelected));
+                        mSubCallBack.setDragPosition(mSelectedPosition, true);
+                        mDragView.setX(mInitialTouchX - mSelected.getWidth() / 2 + mSubLocation[0]);
+                        mDragView.setY(mInitialTouchY - mSelected.getHeight() / 2 + mSubLocation[1]);
+                        mElevationHelper.floatView(mSubRecyclerView, mDragView);
                     }
                 }
             }
@@ -435,19 +444,77 @@ public class ClassifyView extends FrameLayout {
                         mSubActivePointerId = ACTIVE_POINTER_ID_NONE;
                         break;
                 }
-                return false;
+                return mSelected != null;
             }
 
             @Override
             public void onTouchEvent(RecyclerView rv, MotionEvent e) {
                 mSubGestureDetector.onTouchEvent(e);
+                float x = MotionEventCompat.getX(e, mSubActivePointerId);
+                float y = MotionEventCompat.getY(e, mSubActivePointerId);
+                float rawX = e.getRawX();
+                float rawY = e.getRawY();
+                int height = mSelected.getHeight();
+                int width = mSelected.getWidth();
                 int action = MotionEventCompat.getActionMasked(e);
                 switch (action) {
                     case MotionEvent.ACTION_MOVE:
+                        if (inSubRegion && (x < 0 || y < 0 || x > mSubContainerWidth  || y > mSubContainerHeight )) {
+                            L.d("onLeaveSubRegion:" + inSubRegion);
+                            //离开次级目录范围
+                            if (mSubCallBack.canDragOut(mSelectedPosition)) {
+                                inSubRegion = false;
+                                inMainRegion = true;
+                                hideSubContainer();
+                                mSelectedPosition = mMainCallBack.onLeaveSubRegion(mSelectedPosition, new SubAdapterReference(mSubCallBack));
+                                mMainCallBack.setDragPosition(mSelectedPosition, true);
+                                mSubCallBack.setDragPosition(-1, true);
+                                mSelectedStartX = mSelectedStartX + mSubLocation[0]-mMainLocation[0];
+                                mSelectedStartY = mSelectedStartY + mSubLocation[1]-mMainLocation[1];
+                            }
+                            break;
+                        }
+                        mVelocityTracker.addMovement(e);
+                        mDx = x - mInitialTouchX;
+                        mDy = y - mInitialTouchY;
+                        mDragView.setX(rawX - width / 2);
+                        mDragView.setY(rawY - height / 2);
+                        moveIfNecessary(mSelected);
+                        removeCallbacks(mScrollRunnable);
+                        mScrollRunnable.run();
                         break;
                     case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP:
                         mSubActivePointerId = ACTIVE_POINTER_ID_NONE;
+                        if (inSubRegion) {
+                            doRecoverAnimation();
+                        }
+                        if(inMainRegion){
+                            if (inMergeState) {
+                                inMergeState = false;
+                                if (mInMergeQueue.isEmpty()) break;
+                                mLastMergePosition = mInMergeQueue.poll();
+                                if (mSelectedPosition == mLastMergePosition) break;
+                                ChangeInfo changeInfo = mMainCallBack.onPrepareMerge(mMainRecyclerView, mSelectedPosition, mLastMergePosition);
+                                RecyclerView.ViewHolder target = mMainRecyclerView.findViewHolderForAdapterPosition(mLastMergePosition);
+                                if (target == null || changeInfo == null || target.itemView == mSelected) {
+                                    mergeSuccess = false;
+                                    break;
+                                }
+                                float scaleX = ((float) changeInfo.itemWidth) / ((float) (mSelected.getWidth() - changeInfo.paddingLeft - changeInfo.paddingRight - 2 * changeInfo.outlinePadding));
+                                float scaleY = ((float) changeInfo.itemHeight) / ((float) (mSelected.getHeight() - changeInfo.paddingTop - changeInfo.paddingBottom - 2 * changeInfo.outlinePadding));
+                                int targetX = (int) (mMainLocation[0] + target.itemView.getLeft() + changeInfo.left + changeInfo.paddingLeft - (changeInfo.paddingLeft + changeInfo.outlinePadding) * scaleX);
+                                int targetY = (int) (mMainLocation[1] + target.itemView.getTop() + changeInfo.top + changeInfo.paddingTop - (changeInfo.paddingTop + changeInfo.outlinePadding) * scaleY);
+                                mDragView.setPivotX(0);
+                                mDragView.setPivotY(0);
+                                L.d("targetX:%1$s,targetY:%2$s,scaleX:%3$s,scaleY:%4$s", targetX, targetY, scaleX, scaleY);
+                                mDragView.animate().x(targetX).y(targetY).scaleX(scaleX).scaleY(scaleY).setListener(mMergeAnimListener).setDuration(mAnimationDuration).start();
+                                mergeSuccess = true;
+                            }else {
+                                doRecoverAnimation();
+                            }
+                        }
+                        releaseVelocityTracker();
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
                         int pointerIndex = MotionEventCompat.getActionIndex(e);
@@ -471,6 +538,9 @@ public class ClassifyView extends FrameLayout {
 
     /**
      * 创建次级目录的弹窗
+     * 可以重写该方法修改弹窗的样式 及 动画
+     * 注意添加自定义View是无效的
+     * 自定义View需要重写{@link #getSubContent()}
      *
      * @return
      */
@@ -478,37 +548,13 @@ public class ClassifyView extends FrameLayout {
         Dialog dialog = new Dialog(getContext(), android.support.v7.appcompat.R.style.Base_Theme_AppCompat);
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-        if (Build.VERSION.SDK_INT >= 21) {
-            dialog.getWindow().setEnterTransition(new Fade().setDuration(mAnimationDuration));
-            dialog.getWindow().setExitTransition(new Fade().setDuration(mAnimationDuration));
-        }
         WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
         layoutParams.gravity = Gravity.BOTTOM;
         layoutParams.height = (int) (getHeight() * mSubRatio);
         layoutParams.dimAmount = 0.6f;
+        layoutParams.windowAnimations= R.style.DefaultAnimation;
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
-        return dialog;
-    }
-
-    /**
-     * @return 返回次级目录的跟布局
-     */
-    protected View getSubContent() {
-        return inflate(getContext(), R.layout.sub_content, null);
-    }
-
-    private Dialog initSubDialog() {
-        Dialog dialog = createSubDialog();
-        View content = getSubContent();
-        if (content instanceof ViewGroup) {
-            ViewGroup group = findHaveSubTagContainer((ViewGroup) content);
-            if (group == null) {
-                group = (ViewGroup) content;
-            }
-            group.addView(mSubRecyclerView);
-        }
-        dialog.setContentView(content);
         return dialog;
     }
 
@@ -530,6 +576,60 @@ public class ClassifyView extends FrameLayout {
         }
         return null;
     }
+
+    /**
+     * 返回的布局 可以定义一个tag作为容器被用来添加次级目录的RecyclerView
+     * 你可以修改这部分逻辑通过{@link #findHaveSubTagContainer(ViewGroup)}
+     *
+     * @return 返回次级目录的跟布局
+     */
+    protected View getSubContent() {
+        return inflate(getContext(), R.layout.sub_content, null);
+    }
+
+    private Dialog initSubDialog() {
+        Dialog dialog = createSubDialog();
+        View content = getSubContent();
+        if (content instanceof ViewGroup) {
+            ViewGroup group = findHaveSubTagContainer((ViewGroup) content);
+            if (group == null) {
+                group = (ViewGroup) content;
+            }
+            group.addView(mSubRecyclerView);
+        }
+        dialog.setContentView(content);
+        WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+        int width = params.width;
+        int height = params.height;
+        int screenWidth = getResources().getDisplayMetrics().widthPixels;
+        int screenHeight = getResources().getDisplayMetrics().widthPixels;
+        switch (width) {
+            case LayoutParams.MATCH_PARENT:
+                width = screenWidth;
+                break;
+            case LayoutParams.WRAP_CONTENT:
+                int childWidth = content.getLayoutParams().width;
+                width = getChildMeasureSpec(MeasureSpec.makeMeasureSpec(screenWidth, MeasureSpec.AT_MOST), 0, childWidth);
+                break;
+            default:
+                break;
+        }
+        switch (height) {
+            case LayoutParams.MATCH_PARENT:
+                height = screenHeight;
+                break;
+            case LayoutParams.WRAP_CONTENT:
+                int childHeight = content.getLayoutParams().height;
+                height = getChildMeasureSpec(MeasureSpec.makeMeasureSpec(screenHeight, MeasureSpec.AT_MOST), 0, childHeight);
+                break;
+            default:
+                break;
+        }
+        mSubContainerWidth = width;
+        mSubContainerHeight = height;
+        return dialog;
+    }
+
 
     /**
      * 显示次级窗口
@@ -559,7 +659,7 @@ public class ClassifyView extends FrameLayout {
      */
     private void hideSubContainer() {
         if (mSubDialog == null) return;
-        mSubDialog.dismiss();
+        mSubDialog.hide();
     }
 
     private boolean mergeSuccess = false;
@@ -619,7 +719,7 @@ public class ClassifyView extends FrameLayout {
                         inMergeState = false;
                         if (mInMergeQueue.isEmpty()) break;
                         mLastMergePosition = mInMergeQueue.poll();
-                        if(mSelectedPosition == mLastMergePosition) break;
+                        if (mSelectedPosition == mLastMergePosition) break;
                         ChangeInfo changeInfo = mMainCallBack.onPrepareMerge(mMainRecyclerView, mSelectedPosition, mLastMergePosition);
                         RecyclerView.ViewHolder target = mMainRecyclerView.findViewHolderForAdapterPosition(mLastMergePosition);
                         if (target == null || changeInfo == null || target.itemView == mSelected) {
@@ -666,66 +766,6 @@ public class ClassifyView extends FrameLayout {
         return new DragDrawable(view);
     }
 
-    class SubDragListener implements View.OnDragListener {
-        @Override
-        public boolean onDrag(View v, DragEvent event) {
-            if (mSelected == null) return false;
-            int action = event.getAction();
-            int width = mSelected.getWidth();
-            int height = mSelected.getHeight();
-            float x = event.getX();
-            float y = event.getY();
-            float centerX = x - width / 2;
-            float centerY = y - height / 2;
-            switch (action) {
-                case DragEvent.ACTION_DRAG_STARTED:
-                    if (inSubRegion) {
-                        restoreDragView();
-                        obtainVelocityTracker();
-                        mDragView.setVisibility(VISIBLE);
-                        mDragView.setBackgroundDrawable(getDragDrawable(mSelected));
-                        mSubCallBack.setDragPosition(mSelectedPosition, true);
-                        mDragView.setX(mInitialTouchX - width / 2 + mSubLocation[0]);
-                        mDragView.setY(mInitialTouchY - height / 2 + mSubLocation[1]);
-                        mDragView.bringToFront();
-                        mElevationHelper.floatView(mSubRecyclerView, mDragView);
-                    }
-                    break;
-                case DragEvent.ACTION_DRAG_LOCATION:
-                    mVelocityTracker.addMovement(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
-                            MotionEvent.ACTION_MOVE, x, y, 0));
-                    mDragView.setX(centerX + mSubLocation[0]);
-                    mDragView.setY(centerY + mSubLocation[1]);
-                    mDx = x - mInitialTouchX;
-                    mDy = y - mInitialTouchY;
-                    moveIfNecessary(mSelected);
-                    removeCallbacks(mScrollRunnable);
-                    mScrollRunnable.run();
-                    invalidate();
-                    break;
-                case DragEvent.ACTION_DRAG_ENDED:
-                    L.d("sub ended");
-                    if (inSubRegion) {
-                        doRecoverAnimation();
-                    }
-                    releaseVelocityTracker();
-                    break;
-                case DragEvent.ACTION_DRAG_EXITED:
-                    if (mSubCallBack.canDragOut(mSelectedPosition)) {
-                        inSubRegion = false;
-                        inMainRegion = true;
-                        hideSubContainer();
-                        mSelectedPosition = mMainCallBack.onLeaveSubRegion(mSelectedPosition, new SubAdapterReference(mSubCallBack));
-                        mMainCallBack.setDragPosition(mSelectedPosition, true);
-                        mSubCallBack.setDragPosition(-1, true);
-                    }
-                    break;
-                case DragEvent.ACTION_DROP:
-                    break;
-            }
-            return true;
-        }
-    }
 
     /**
      * 做恢复到之前状态的动画
@@ -775,7 +815,8 @@ public class ClassifyView extends FrameLayout {
     };
 
     private void restoreToInitial() {
-
+        mSelected = null;
+        mSelectedPosition = -1;
         if (inSubRegion) {
             restoreDragView();
             notifyDragCancel(mSubCallBack, mSubRecyclerView);
@@ -831,7 +872,7 @@ public class ClassifyView extends FrameLayout {
         int scrollX = 0;
         int scrollY = 0;
         if (lm.canScrollHorizontally()) {
-            int curX = (int) (mInitialTouchX + mDx - mSelected.getWidth() / 2);
+            int curX = (int) (mSelectedStartX + mDx );
             final int leftDiff = curX - mEdgeWidth - recyclerView.getPaddingLeft();
             if (mDx < 0 && leftDiff < 0) {
                 scrollX = leftDiff;
@@ -844,7 +885,7 @@ public class ClassifyView extends FrameLayout {
             }
         }
         if (lm.canScrollVertically()) {
-            int curY = (int) (mInitialTouchY + mDy - mSelected.getHeight() / 2);
+            int curY = (int) (mSelectedStartY + mDy );
             final int topDiff = curY - mEdgeWidth - recyclerView.getPaddingTop();
             if (mDy < 0 && topDiff < 0) {
                 scrollY = topDiff;
