@@ -6,6 +6,7 @@ import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.annotation.TargetApi;
 import android.app.Dialog;
+import android.app.admin.DevicePolicyManager;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -32,6 +33,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.anarchy.classify.adapter.BaseCallBack;
 import com.anarchy.classify.adapter.BaseMainAdapter;
@@ -184,7 +186,7 @@ public class ClassifyView extends FrameLayout {
         if (Build.VERSION.SDK_INT >= 19)
             mDragLayoutParams.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
         mDragLayoutParams.format = PixelFormat.TRANSPARENT;
-        mDragLayoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_STARTING;
+        mDragLayoutParams.type = WindowManager.LayoutParams.TYPE_TOAST;
         mWindowManager.addView(mDragView, mDragLayoutParams);
         setUpTouchListener(context);
     }
@@ -577,6 +579,10 @@ public class ClassifyView extends FrameLayout {
         return null;
     }
 
+
+    public void setDebugAble(boolean debugAble){
+        L.setDebugAble(debugAble);
+    }
     /**
      * 返回的布局 可以定义一个tag作为容器被用来添加次级目录的RecyclerView
      * 你可以修改这部分逻辑通过{@link #findHaveSubTagContainer(ViewGroup)}

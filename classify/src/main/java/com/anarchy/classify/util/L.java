@@ -12,7 +12,10 @@ import android.util.Log;
  */
 public class L {
     private static final String TAG = "ClassifyView";
-    private static final boolean DEBUG = true;
+    private static  boolean DEBUG = false;
+    public static void setDebugAble(boolean debugAble){
+        DEBUG = debugAble;
+    }
     public static void d(String msg){
         if(DEBUG){
             Log.d(TAG,msg);
