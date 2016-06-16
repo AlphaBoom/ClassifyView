@@ -16,11 +16,12 @@ import com.anarchy.classifyview.sample.normal.NormalFragment;
  */
 public class ContentActivity extends AppCompatActivity {
     private Class<? extends Fragment>[] mClasses = new Class[]{NormalFragment.class, DemonstrateFragment.class};
+    private int position;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_main);
-        int position = getIntent().getIntExtra(MainActivity.EXTRA_POSITION,0);
+        position = getIntent().getIntExtra(MainActivity.EXTRA_POSITION,0);
         try {
             getSupportFragmentManager().beginTransaction().add(R.id.container,mClasses[position].newInstance()).commit();
         } catch (InstantiationException e) {
