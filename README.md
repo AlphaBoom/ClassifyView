@@ -22,10 +22,11 @@ allprojects {
 
 ```
     dependencies {
-	        compile 'com.github.AlphaBoom:ClassifyView:0.3.0'
+	        compile 'com.github.AlphaBoom:ClassifyView:0.3.1'
 	}
 
 ```
+图示可能不是最新版本，最新版本查看[Latest release](https://github.com/AlphaBoom/ClassifyView/releases)
 
 #快速使用
 1. 继承SimpleAdapter
