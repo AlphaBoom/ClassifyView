@@ -16,7 +16,6 @@ import java.util.List;
  * Date: 16/6/1 15:34
  * Author: zhendong.wu@shoufuyou.com
  * <p>
- * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
  */
 public abstract class BaseSubAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> implements SubRecyclerViewCallBack {
     private final static int VELOCITY = 5;

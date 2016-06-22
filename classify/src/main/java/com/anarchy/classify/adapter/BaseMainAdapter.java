@@ -5,7 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.VelocityTracker;
 import android.view.View;
 
-import com.anarchy.classify.ChangeInfo;
+import com.anarchy.classify.MergeInfo;
+import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.ClassifyView;
 
 import java.util.List;
@@ -64,7 +65,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
     }
 
     @Override
-    public ChangeInfo onPrepareMerge(RecyclerView parent, int selectedPosition, int targetPosition) {
+    public MergeInfo onPrepareMerge(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
         VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
         if(selectedViewHolder == null || targetViewHolder == null) return null;
@@ -85,7 +86,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
 
     public abstract void onMerged(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition);
 
-    public abstract ChangeInfo onPrePareMerge(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition);
+    public abstract MergeInfo onPrePareMerge(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition);
 
     public abstract void onStartMergeAnimation(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition,int duration);
 

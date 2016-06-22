@@ -5,19 +5,15 @@ import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Paint;
-import android.graphics.Point;
 import android.support.v4.widget.ScrollerCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.ImageView;
 
-import com.anarchy.classify.ChangeInfo;
+import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.R;
 import com.anarchy.classify.simple.SimpleAdapter;
-import com.anarchy.classify.util.L;
 
 import java.util.List;
 

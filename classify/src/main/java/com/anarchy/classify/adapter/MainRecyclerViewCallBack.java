@@ -1,12 +1,9 @@
 package com.anarchy.classify.adapter;
 
-import android.content.Context;
-import android.graphics.Point;
 import android.support.v7.widget.RecyclerView;
-import android.view.VelocityTracker;
 import android.view.View;
 
-import com.anarchy.classify.ChangeInfo;
+import com.anarchy.classify.MergeInfo;
 
 import java.util.List;
 
@@ -16,21 +13,76 @@ import java.util.List;
  * Date: 16/6/1 15:10
  * Author: zhendong.wu@shoufuyou.com
  * <p/>
- * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
  */
 public interface MainRecyclerViewCallBack<Sub extends SubRecyclerViewCallBack> extends BaseCallBack{
-
+    /**
+     * 进入准备合并状态
+     * @param parent
+     * @param selectedPosition
+     * @param targetPosition
+     * @return
+     */
     boolean onMergeStart(RecyclerView parent,int selectedPosition, int targetPosition);
+
+    /**
+     * 合并结束
+     * @param parent
+     * @param selectedPosition
+     * @param targetPosition
+     */
     void onMerged(RecyclerView parent, int selectedPosition, int targetPosition);
-    ChangeInfo onPrepareMerge(RecyclerView parent, int selectedPosition, int targetPosition);
+
+    /**
+     * 准备执行合并
+     * @param parent
+     * @param selectedPosition
+     * @param targetPosition
+     * @return 返回执行合并动画所需参数
+     */
+    MergeInfo onPrepareMerge(RecyclerView parent, int selectedPosition, int targetPosition);
+
+    /**
+     * 合并动画开始
+     * @param parent
+     * @param selectedPosition
+     * @param targetPosition
+     * @param duration
+     */
     void onStartMergeAnimation(RecyclerView parent,int selectedPosition,int targetPosition,int duration);
+
+    /**
+     * 离开准备合并状态
+     * @param parent
+     * @param selectedPosition
+     * @param targetPosition
+     */
     void onMergeCancel(RecyclerView parent,int selectedPosition,int targetPosition);
+
+    /**
+     * 是否进行移动 可以在这里做数据改变
+     * @param selectedPosition
+     * @param targetPosition
+     * @return
+     */
     boolean onMove(int selectedPosition,int targetPosition);
+
+    /**
+     * 移动完成
+     * @param selectedPosition
+     * @param targetPosition
+     */
     void moved(int selectedPosition,int targetPosition);
+
+    /**
+     *
+     * @param selectedPosition
+     * @param targetPosition
+     * @return true 可以合并 false
+     */
     boolean canMergeItem(int selectedPosition, int targetPosition);
 
     /**
-     * 当次级目录移出范围时添加到 主目录
+     * 当次级目录移出范围时的回调
      * @param selectedPosition
      * @param subAdapterReference
      * @return 添加到主目录的位置
