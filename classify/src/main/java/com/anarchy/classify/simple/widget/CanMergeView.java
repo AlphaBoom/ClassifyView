@@ -1,8 +1,6 @@
 package com.anarchy.classify.simple.widget;
 
-import android.graphics.Point;
-
-import com.anarchy.classify.ChangeInfo;
+import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.simple.SimpleAdapter;
 
 import java.util.List;
