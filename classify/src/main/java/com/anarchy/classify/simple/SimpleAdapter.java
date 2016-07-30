@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.anarchy.classify.ChangeInfo;
+import com.anarchy.classify.MergeInfo;
 import com.anarchy.classify.R;
 import com.anarchy.classify.adapter.BaseMainAdapter;
 import com.anarchy.classify.adapter.BaseSubAdapter;
@@ -168,8 +168,18 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
             }
         }
 
+        /**
+         * @param selectedViewHolder
+         * @param targetViewHolder
+         * @param selectedPosition
+         * @param targetPosition
+         * @return
+         * @see ChangeInfo
+         * @see MergeInfo
+         */
         @Override
-        public ChangeInfo onPrePareMerge(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition) {
+        public MergeInfo onPrePareMerge(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition) {
+            if(selectedViewHolder == null || targetViewHolder == null) return null;
             CanMergeView canMergeView = targetViewHolder.getCanMergeView();
             if (canMergeView != null) {
                 ChangeInfo info = canMergeView.prepareMerge();
@@ -178,7 +188,11 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
                 info.paddingTop = selectedViewHolder.getPaddingTop();
                 info.paddingBottom = selectedViewHolder.getPaddingBottom();
                 info.outlinePadding = canMergeView.getOutlinePadding();
-                return info;
+                float scaleX = ((float) info.itemWidth) / ((float) (selectedViewHolder.itemView.getWidth() - info.paddingLeft - info.paddingRight - 2 * info.outlinePadding));
+                float scaleY = ((float) info.itemHeight) / ((float) (selectedViewHolder.itemView.getHeight() - info.paddingTop - info.paddingBottom - 2 * info.outlinePadding));
+                float targetX = targetViewHolder.itemView.getLeft() + info.left + info.paddingLeft - (info.paddingLeft + info.outlinePadding) * scaleX;
+                float targetY = targetViewHolder.itemView.getTop() + info.top + info.paddingTop - (info.paddingTop + info.outlinePadding) * scaleY;
+                return new MergeInfo(scaleX,scaleY,targetX,targetY);
             }
             return null;
         }

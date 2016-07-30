@@ -1,9 +1,5 @@
 package com.anarchy.classify.adapter;
 
-import android.content.Context;
-import android.view.VelocityTracker;
-import android.view.View;
-
 import java.util.List;
 
 /**

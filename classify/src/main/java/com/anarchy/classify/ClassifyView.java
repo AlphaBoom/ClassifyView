@@ -42,6 +42,7 @@ import com.anarchy.classify.adapter.MainRecyclerViewCallBack;
 import com.anarchy.classify.adapter.SubAdapterReference;
 import com.anarchy.classify.adapter.SubRecyclerViewCallBack;
 import com.anarchy.classify.simple.BaseSimpleAdapter;
+import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.util.L;
 
 import java.util.ArrayList;
@@ -186,7 +187,7 @@ public class ClassifyView extends FrameLayout {
         if (Build.VERSION.SDK_INT >= 19)
             mDragLayoutParams.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
         mDragLayoutParams.format = PixelFormat.TRANSPARENT;
-        mDragLayoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_STARTING;
+        mDragLayoutParams.type = WindowManager.LayoutParams.TYPE_TOAST;
         mWindowManager.addView(mDragView, mDragLayoutParams);
         setUpTouchListener(context);
     }
@@ -497,16 +498,16 @@ public class ClassifyView extends FrameLayout {
                                 if (mInMergeQueue.isEmpty()) break;
                                 mLastMergePosition = mInMergeQueue.poll();
                                 if (mSelectedPosition == mLastMergePosition) break;
-                                ChangeInfo changeInfo = mMainCallBack.onPrepareMerge(mMainRecyclerView, mSelectedPosition, mLastMergePosition);
+                                MergeInfo mergeInfo = mMainCallBack.onPrepareMerge(mMainRecyclerView, mSelectedPosition, mLastMergePosition);
                                 RecyclerView.ViewHolder target = mMainRecyclerView.findViewHolderForAdapterPosition(mLastMergePosition);
-                                if (target == null || changeInfo == null || target.itemView == mSelected) {
+                                if (target == null || mergeInfo == null || target.itemView == mSelected) {
                                     mergeSuccess = false;
                                     break;
                                 }
-                                float scaleX = ((float) changeInfo.itemWidth) / ((float) (mSelected.getWidth() - changeInfo.paddingLeft - changeInfo.paddingRight - 2 * changeInfo.outlinePadding));
-                                float scaleY = ((float) changeInfo.itemHeight) / ((float) (mSelected.getHeight() - changeInfo.paddingTop - changeInfo.paddingBottom - 2 * changeInfo.outlinePadding));
-                                int targetX = (int) (mMainLocation[0] + target.itemView.getLeft() + changeInfo.left + changeInfo.paddingLeft - (changeInfo.paddingLeft + changeInfo.outlinePadding) * scaleX);
-                                int targetY = (int) (mMainLocation[1] + target.itemView.getTop() + changeInfo.top + changeInfo.paddingTop - (changeInfo.paddingTop + changeInfo.outlinePadding) * scaleY);
+                                float scaleX = mergeInfo.scaleX;
+                                float scaleY = mergeInfo.scaleY;
+                                float targetX = mMainLocation[0] + mergeInfo.targetX;
+                                float targetY = mMainLocation[1] + mergeInfo.targetY;
                                 mDragView.setPivotX(0);
                                 mDragView.setPivotY(0);
                                 L.d("targetX:%1$s,targetY:%2$s,scaleX:%3$s,scaleY:%4$s", targetX, targetY, scaleX, scaleY);
@@ -579,6 +580,10 @@ public class ClassifyView extends FrameLayout {
         return null;
     }
 
+
+    public void setDebugAble(boolean debugAble){
+        L.setDebugAble(debugAble);
+    }
     /**
      * 返回的布局 可以定义一个tag作为容器被用来添加次级目录的RecyclerView
      * 你可以修改这部分逻辑通过{@link #findHaveSubTagContainer(ViewGroup)}
@@ -666,6 +671,9 @@ public class ClassifyView extends FrameLayout {
 
     private boolean mergeSuccess = false;
 
+    /**
+     * 监听在拖拽的View在主层级移动的逻辑处理
+     */
     class MainDragListener implements View.OnDragListener {
         @Override
         public boolean onDrag(View v, DragEvent event) {
@@ -722,16 +730,16 @@ public class ClassifyView extends FrameLayout {
                         if (mInMergeQueue.isEmpty()) break;
                         mLastMergePosition = mInMergeQueue.poll();
                         if (mSelectedPosition == mLastMergePosition) break;
-                        ChangeInfo changeInfo = mMainCallBack.onPrepareMerge(mMainRecyclerView, mSelectedPosition, mLastMergePosition);
+                        MergeInfo mergeInfo = mMainCallBack.onPrepareMerge(mMainRecyclerView, mSelectedPosition, mLastMergePosition);
                         RecyclerView.ViewHolder target = mMainRecyclerView.findViewHolderForAdapterPosition(mLastMergePosition);
-                        if (target == null || changeInfo == null || target.itemView == mSelected) {
+                        if (target == null || mergeInfo == null || target.itemView == mSelected) {
                             mergeSuccess = false;
                             break;
                         }
-                        float scaleX = ((float) changeInfo.itemWidth) / ((float) (mSelected.getWidth() - changeInfo.paddingLeft - changeInfo.paddingRight - 2 * changeInfo.outlinePadding));
-                        float scaleY = ((float) changeInfo.itemHeight) / ((float) (mSelected.getHeight() - changeInfo.paddingTop - changeInfo.paddingBottom - 2 * changeInfo.outlinePadding));
-                        int targetX = (int) (mMainLocation[0] + target.itemView.getLeft() + changeInfo.left + changeInfo.paddingLeft - (changeInfo.paddingLeft + changeInfo.outlinePadding) * scaleX);
-                        int targetY = (int) (mMainLocation[1] + target.itemView.getTop() + changeInfo.top + changeInfo.paddingTop - (changeInfo.paddingTop + changeInfo.outlinePadding) * scaleY);
+                        float scaleX = mergeInfo.scaleX;
+                        float scaleY = mergeInfo.scaleY;
+                        float targetX = mMainLocation[0]+mergeInfo.targetX;
+                        float targetY = mMainLocation[1]+mergeInfo.targetY;
                         mDragView.setPivotX(0);
                         mDragView.setPivotY(0);
                         L.d("targetX:%1$s,targetY:%2$s,scaleX:%3$s,scaleY:%4$s", targetX, targetY, scaleX, scaleY);
