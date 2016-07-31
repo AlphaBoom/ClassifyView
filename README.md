@@ -93,8 +93,8 @@ mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
 #更新说明
 * 0.4.0 更新
   
-   1. 添加了[InsertAbleGridView](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/widget/InsertAbleGridView.java) 复用View的逻辑,原先[SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)的`getView(ViewGroup parent,int mainPosition, int subPosition)`修改为`getView(ViewGroup parent, View convertView, int mainPosition, int subPosition)`使用复用View方式与ListView中的一样。
-   2. 添加了支持RecycledViewPool 可以使用ClassifyView 设置 `setShareViewPool(RecyclerView.RecycledViewPool viewPool)`,对于`SimpleAdapter`可以重写 `SimpleAdapter` 的 
+   * 添加了[InsertAbleGridView](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/widget/InsertAbleGridView.java) 复用View的逻辑,原先[SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)的`getView(ViewGroup parent,int mainPosition, int subPosition)`修改为`getView(ViewGroup parent, View convertView, int mainPosition, int subPosition)`使用,复用View方式与ListView中的一样。
+   * 添加了支持RecycledViewPool 可以使用ClassifyView 设置 `setShareViewPool(RecyclerView.RecycledViewPool viewPool)`,对于`SimpleAdapter`可以重写 `SimpleAdapter` 的 
    ```
     @Override
     public boolean isShareViewPool() {
@@ -102,7 +102,7 @@ mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
     }
    ```
   返回 True 即使用相同的ViewPool false 则保持 RecyclerView的默认行为。
-  3.移除了`ClassifyView.onDestroy()`方法
+  * 移除了`ClassifyView.onDestroy()`方法
 
 
 
