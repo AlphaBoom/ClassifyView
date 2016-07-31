@@ -95,13 +95,14 @@ mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
   
    * 添加了[InsertAbleGridView](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/widget/InsertAbleGridView.java) 复用View的逻辑,原先[SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)的`getView(ViewGroup parent,int mainPosition, int subPosition)`修改为`getView(ViewGroup parent, View convertView, int mainPosition, int subPosition)`使用,复用View方式与ListView中的一样。
    * 添加了支持RecycledViewPool 可以使用ClassifyView 设置 `setShareViewPool(RecyclerView.RecycledViewPool viewPool)`,对于`SimpleAdapter`可以重写 `SimpleAdapter` 的 
-   ```
-    @Override
-    public boolean isShareViewPool() {
-        return true;
-    }
-   ```
-  返回 True 即使用相同的ViewPool false 则保持 RecyclerView的默认行为。
+     
+     ```
+      @Override
+      public boolean isShareViewPool() {
+          return true;
+      }
+     ```
+     返回 True 即使用相同的ViewPool False 则保持 RecyclerView的默认行为。
   * 移除了`ClassifyView.onDestroy()`方法
 
 
