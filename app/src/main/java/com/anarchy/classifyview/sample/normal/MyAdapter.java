@@ -30,13 +30,10 @@ public class MyAdapter extends SimpleAdapter<Bean, MyAdapter.ViewHolder> {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
         return new MyAdapter.ViewHolder(view);
     }
-    private int count;
     @Override
     public View getView(ViewGroup parent, View convertView, int mainPosition, int subPosition) {
         if (convertView == null) {
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inner, parent, false);
-            L.d(count+"");
-            count++;
         }
         return convertView;
     }
