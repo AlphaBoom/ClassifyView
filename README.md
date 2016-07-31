@@ -1,11 +1,8 @@
 #JitPack
 [![](https://jitpack.io/v/AlphaBoom/ClassifyView.svg)](https://jitpack.io/#AlphaBoom/ClassifyView)
 # ClassifyView
-实现原理 ClassifyView包裹这一个RecyclerView，当点击这个RecyclerView会弹出一个Dialog 该Dialog的布局会传入另一个RecyclerView.拖动显示的View 需要使用 WindowManager 添加一个View作为显示。[Release0.2.0](https://github.com/AlphaBoom/ClassifyView/tree/0.2.0)版本是在一个view下，现在版本需要在不使用时调用 ClassifyView.onDestery()来释放在WindowManager中的资源。
+实现原理 ClassifyView包裹这一个RecyclerView，当点击这个RecyclerView会弹出一个Dialog 该Dialog的布局会传入另一个RecyclerView.
 #效果如下
->这是上个版本效果，最新效果使用dialog来展示次级目录所以不会被FloatingActionButton 遮挡住次级目录，其他效果一样。
-
-
 ![image](https://github.com/AlphaBoom/ClassifyView/blob/master/screenshot/classifyView.gif)
 #配置依赖
 **Step one:**Add the JitPack repository to your build file
@@ -22,11 +19,11 @@ allprojects {
 
 ```
     dependencies {
-	        compile 'com.github.AlphaBoom:ClassifyView:0.3.1'
+	        compile 'com.github.AlphaBoom:ClassifyView:0.4.0'
 	}
 
 ```
-图示可能不是最新版本，最新版本查看[Latest release](https://github.com/AlphaBoom/ClassifyView/releases)
+最新版本查看[Latest release](https://github.com/AlphaBoom/ClassifyView/releases)
 
 #快速使用
 1. 继承SimpleAdapter
@@ -45,9 +42,9 @@ allprojects {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item,parent,false);
         return new MyAdapter.ViewHolder(view);
     }
-
+    //convertView是缓存的View  如何使用这个convertView 参考ListView的使用步骤
     @Override
-    public View getView(ViewGroup parent, int mainPosition, int subPosition) {
+    public View getView(ViewGroup parent, View convertView, int mainPosition, int subPosition) {
     //返回的View作为每一个Item的布局
     /*布局内容自定义 例子中如下：
     <View xmlns:android="http://schemas.android.com/apk/res/android"
@@ -55,8 +52,10 @@ allprojects {
       android:layout_height="match_parent"
       android:background="@drawable/round_shape"/>
     */
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inner,parent,false);
-        return view;
+       if (convertView == null) {
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inner, parent, false);
+        }
+        return convertView;
     }
 
     @Override
@@ -91,16 +90,22 @@ mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
         }
         mClassifyView.setAdapter(new MyAdapter(data));
 ```
-3.当界面关闭时调用(清除不用的资源)
-
-```
- @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mClassifyView.onDestroy();
+#更新说明
+* 0.4.0 更新
+  
+   1. 添加了[InsertAbleGridView](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/widget/InsertAbleGridView.java) 复用View的逻辑,原先[SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)的`getView(ViewGroup parent,int mainPosition, int subPosition)`修改为`getView(ViewGroup parent, View convertView, int mainPosition, int subPosition)`使用复用View方式与ListView中的一样。
+   2. 添加了支持RecycledViewPool 可以使用ClassifyView 设置 `setShareViewPool(RecyclerView.RecycledViewPool viewPool)`,对于`SimpleAdapter`可以重写 `SimpleAdapter` 的 
+   ```
+    @Override
+    public boolean isShareViewPool() {
+        return true;
     }
+   ```
+  返回 True 即使用相同的ViewPool false 则保持 RecyclerView的默认行为。
+  3.移除了`ClassifyView.onDestroy()`方法
 
-```
+
+
 #支持的自定义的属性
 ClassifyView attr
 
