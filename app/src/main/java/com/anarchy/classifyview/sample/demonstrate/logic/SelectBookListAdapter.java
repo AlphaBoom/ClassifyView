@@ -34,6 +34,10 @@ public class SelectBookListAdapter extends RecyclerView.Adapter<SelectBookListAd
         notifyDataSetChanged();
     }
 
+    public List<Book> getBookList() {
+        return mBookList;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_select_list,parent,false);

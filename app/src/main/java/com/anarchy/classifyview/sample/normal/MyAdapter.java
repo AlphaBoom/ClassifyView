@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.anarchy.classify.simple.SimpleAdapter;
+import com.anarchy.classify.util.L;
 import com.anarchy.classifyview.R;
 
 import java.util.List;
@@ -24,23 +25,25 @@ public class MyAdapter extends SimpleAdapter<Bean, MyAdapter.ViewHolder> {
     }
 
 
-
-
     @Override
     protected ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
         return new MyAdapter.ViewHolder(view);
     }
-
+    private int count;
     @Override
-    public View getView(ViewGroup parent, int mainPosition, int subPosition) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inner,parent,false);
-        return view;
+    public View getView(ViewGroup parent, View convertView, int mainPosition, int subPosition) {
+        if (convertView == null) {
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_inner, parent, false);
+            L.d(count+"");
+            count++;
+        }
+        return convertView;
     }
 
     @Override
     protected void onItemClick(View view, int parentIndex, int index) {
-        Toast.makeText(view.getContext(),"parentIndex: "+parentIndex+"\nindex: "+index,Toast.LENGTH_SHORT).show();
+        Toast.makeText(view.getContext(), "parentIndex: " + parentIndex + "\nindex: " + index, Toast.LENGTH_SHORT).show();
     }
 
     static class ViewHolder extends SimpleAdapter.ViewHolder {
@@ -49,4 +52,5 @@ public class MyAdapter extends SimpleAdapter<Bean, MyAdapter.ViewHolder> {
             super(itemView);
         }
     }
+
 }

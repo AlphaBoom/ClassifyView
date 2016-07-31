@@ -18,7 +18,7 @@ import java.util.List;
  * <p/>
  */
 public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub extends SubRecyclerViewCallBack> extends RecyclerView.Adapter<VH> implements MainRecyclerViewCallBack<Sub> {
-    private final static int VELOCITY = 5;
+    private final static int VELOCITY = 1;
     private int mSelectedPosition = -1;
 
     @Override
@@ -40,6 +40,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
         return mSelectedPosition;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean onMergeStart(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
@@ -47,7 +48,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
         if(selectedViewHolder == null || targetViewHolder == null) return false;
         return onMergeStart(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition);
     }
-
+    @SuppressWarnings("unchecked")
     @Override
     public void onMergeCancel(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
@@ -55,7 +56,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
         if(selectedViewHolder == null || targetViewHolder == null) return;
          onMergeCancel(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition);
     }
-
+    @SuppressWarnings("unchecked")
     @Override
     public void onMerged(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
@@ -63,7 +64,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
         if(selectedViewHolder == null || targetViewHolder == null) return;
         onMerged(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition);
     }
-
+    @SuppressWarnings("unchecked")
     @Override
     public MergeInfo onPrepareMerge(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
@@ -71,7 +72,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
         if(selectedViewHolder == null || targetViewHolder == null) return null;
         return onPrePareMerge(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition);
     }
-
+    @SuppressWarnings("unchecked")
     @Override
     public void onStartMergeAnimation(RecyclerView parent, int selectedPosition, int targetPosition,int duration) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);

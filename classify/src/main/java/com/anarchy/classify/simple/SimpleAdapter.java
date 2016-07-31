@@ -43,6 +43,7 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
         return mSimpleSubAdapter;
     }
 
+    @SuppressWarnings("unchecked")
     protected VH onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.simple_item, parent, false);
         return (VH) new ViewHolder(view);
@@ -54,6 +55,10 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
     protected void onBindSubViewHolder(VH holder, int mainPosition,int subPosition) {
     }
 
+    @Override
+    public boolean isShareViewPool() {
+        return true;
+    }
 
     public void notifyItemInsert(int position){
         mSimpleMainAdapter.notifyItemInserted(position);
@@ -83,11 +88,14 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
     }
 
     /**
-     * 显示一个item的布局
-     *
+     * 用于显示{@link com.anarchy.classify.simple.widget.InsertAbleGridView} 的item布局
+     * @param parent 父View
+     * @param convertView 缓存的View 可能为null
+     * @param mainPosition 主层级位置
+     * @param subPosition 副层级位置
      * @return
      */
-    public abstract View getView(ViewGroup parent, int mainPosition, int subPosition);
+    public abstract View getView(ViewGroup parent,View convertView ,int mainPosition, int subPosition);
 
     class SimpleMainAdapter extends BaseMainAdapter<VH, SimpleSubAdapter> {
         private List<List<T>> mData;
@@ -112,7 +120,7 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
         public void onBindViewHolder(VH holder, int position) {
             CanMergeView canMergeView = holder.getCanMergeView();
             if (canMergeView != null) {
-                canMergeView.initMain(position, mData.get(position));
+                canMergeView.initOrUpdateMain(position, mData.get(position));
             }
             mSimpleAdapter.onBindMainViewHolder(holder, position);
         }
@@ -273,7 +281,7 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> impl
         public void onBindViewHolder(VH holder, int position) {
             CanMergeView canMergeView = holder.getCanMergeView();
             if (canMergeView != null) {
-                canMergeView.initSub(parentIndex,position);
+                canMergeView.initOrUpdateSub(parentIndex,position);
             }
             mSimpleAdapter.onBindSubViewHolder(holder,parentIndex,position);
         }

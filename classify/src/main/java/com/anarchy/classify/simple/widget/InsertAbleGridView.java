@@ -1,5 +1,7 @@
 package com.anarchy.classify.simple.widget;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
@@ -7,19 +9,23 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v4.widget.ScrollerCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.PopupWindow;
 
 import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.R;
 import com.anarchy.classify.simple.SimpleAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 显示merge状态及以列表形式排列子view
  * 接收一个 view 的集合 或则 图片的集合
+ *
  */
 public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     private int mRowCount;
@@ -30,6 +36,7 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     private int mInnerPadding;
     private BagDrawable mBagDrawable;
     private SimpleAdapter mSimpleAdapter;
+    private List<View> mRecycledViews;
     private int parentIndex;
     private ChangeInfo mReturnInfo = new ChangeInfo();
     private ScrollerCompat mScroller;
@@ -97,11 +104,11 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
                         int bottom = top+itemHeight;
                         child.layout(left,top,right,bottom);
                     }
-
                 }
             }
         }
     }
+    @Deprecated
     private ValueAnimator createConvertAnimator(final View view){
         int width = getWidth() - getPaddingLeft()-getPaddingRight()-2*mOutLinePadding;
         int height = getHeight() - getPaddingBottom() - getPaddingTop()-2*mOutLinePadding;
@@ -124,6 +131,20 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
         return animator;
     }
 
+    private Animator createTransformAnimator(final View view){
+        view.setPivotX(mInnerPadding);
+        view.setPivotY(mInnerPadding);
+        float width = view.getWidth();
+        float height = view.getHeight();
+        float scaleX = getItemWidth((int) width)/width;
+        float scaleY = getItemHeight((int) height)/height;
+        PropertyValuesHolder scaleXPvh = PropertyValuesHolder.ofFloat("scaleX",scaleX);
+        PropertyValuesHolder scaleYPvh = PropertyValuesHolder.ofFloat("scaleY",scaleY);
+        ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(view,scaleXPvh,scaleYPvh);
+        animator.setInterpolator(new DecelerateInterpolator());
+        return animator;
+    }
+
     private int getItemWidth(int width){
         return (width-2*mInnerPadding - (mColumnCount-1)*mRowGap)/mColumnCount;
     }
@@ -140,6 +161,24 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
             widthMeasureSpec = MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY);
         if (heightMode != MeasureSpec.EXACTLY)
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY);
+        int childCount = getChildCount();
+        int width = Math.max(widthSize - getPaddingLeft()-getPaddingRight()-2*mOutLinePadding,0);
+        int height = Math.max(heightSize- getPaddingBottom()-getPaddingTop()-2*mOutLinePadding,0);
+        int itemWidth = getItemWidth(width);
+        int itemHeight = getItemHeight(height);
+        if(childCount>0){
+            if(childCount == 1){
+                int widthSpec = MeasureSpec.makeMeasureSpec(width,MeasureSpec.EXACTLY);
+                int heightSpec = MeasureSpec.makeMeasureSpec(height,MeasureSpec.EXACTLY);
+                getChildAt(0).measure(widthSpec,heightSpec);
+            }else {
+                int widthSpec = MeasureSpec.makeMeasureSpec(itemWidth,MeasureSpec.EXACTLY);
+                int heightSpec = MeasureSpec.makeMeasureSpec(itemHeight,MeasureSpec.EXACTLY);
+                for(int i=0;i<getChildCount();i++){
+                    getChildAt(i).measure(widthSpec,heightSpec);
+                }
+            }
+        }
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
@@ -181,7 +220,7 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     public void startMergeAnimation(int duration) {
         if(getChildCount() == 1){
             View child = getChildAt(0);
-            createConvertAnimator(child).setDuration(duration).start();
+            createTransformAnimator(child).setDuration(duration).start();
         }
     }
 
@@ -215,32 +254,98 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     }
 
     @Override
-    public void initMain(int parentIndex, List list) {
-        removeAllViewsInLayout();
+    public void initOrUpdateMain(int parentIndex, List list) {
         this.parentIndex = parentIndex;
-        for(int i =0;i<list.size();i++){
-            if(mSimpleAdapter!=null){
-                View child = mSimpleAdapter.getView(this,parentIndex,i);
-                addViewInLayout(child,i,generateDefaultLayoutParams());
+        int requestCount = list.size();
+        int childCount = getChildCount();
+        initOrUpdateMainInternal(parentIndex, requestCount, childCount);
+    }
+
+    @Override
+    public void initOrUpdateSub(int parentIndex, int subIndex) {
+        this.parentIndex = parentIndex;
+        int childCount = getChildCount();
+        initOrUpdateSubInternal(parentIndex,1,childCount,subIndex);
+    }
+
+    private void initOrUpdateMainInternal(int parentIndex, int requestCount, int childCount) {
+        if(requestCount < childCount){
+            for(int i= childCount-1;i>requestCount-1;i--){
+                detachAnRecycleView(i);
+            }
+        }
+        int onePageShowCount = mRowCount*mColumnCount;
+        if(requestCount<onePageShowCount*2){
+            for(int i=0;i<requestCount;i++){
+                attachOrAddView(parentIndex,i,i);
+            }
+        }else {
+            for(int i=0;i<onePageShowCount;i++){
+                attachOrAddView(parentIndex,i,i);
+            }
+            for(int i=requestCount-onePageShowCount-1;i<requestCount;i++){
+                attachOrAddView(parentIndex,i,i-requestCount+2*onePageShowCount);
             }
         }
         invalidate();
         requestLayout();
     }
 
-    @Override
-    public void initSub(int parentIndex, int subIndex) {
-        removeAllViewsInLayout();
-        this.parentIndex = parentIndex;
-        View child = mSimpleAdapter.getView(this,parentIndex,subIndex);
-        addViewInLayout(child,0,generateDefaultLayoutParams());
+
+    private void initOrUpdateSubInternal(int parentIndex,int requestCount,int childCount,int subIndex){
+        if(requestCount < childCount){
+            for(int i= childCount-1;i>requestCount-1;i--){
+                detachAnRecycleView(i);
+            }
+        }
+        attachOrAddView(parentIndex,subIndex,0);
         invalidate();
         requestLayout();
     }
 
+    private void detachAnRecycleView(int index){
+        if(mRecycledViews == null) mRecycledViews = new ArrayList<>();
+        mRecycledViews.add(getChildAt(index));
+        detachViewFromParent(index);
+    }
+
+    private void attachAndReusedView(View child,int layoutPosition){
+        resetScale(child);
+        mRecycledViews.remove(child);
+        attachViewToParent(child,layoutPosition,generateDefaultLayoutParams());
+    }
+    private void attachOrAddView(int parentIndex, int subIndex,int layoutPosition){
+        if(layoutPosition > getChildCount()-1){
+            //需要创建 或者从 recycled 中获取一个View
+            View convertView = null;
+            if(mRecycledViews != null &&mRecycledViews.size() > 0){
+                convertView = mRecycledViews.get(mRecycledViews.size()-1);
+            }
+            View item = mSimpleAdapter.getView(this,convertView,parentIndex,subIndex);
+            if(convertView != null &&item == convertView){
+                attachAndReusedView(item,layoutPosition);
+            }else {
+                addViewInLayout(item,layoutPosition,generateDefaultLayoutParams());
+            }
+        }else {
+            View convertView = getChildAt(layoutPosition);
+            resetScale(convertView);
+            View item = mSimpleAdapter.getView(this,convertView,parentIndex,subIndex);
+            if(item != convertView){//返回了一个新的View
+                Log.w("InsertAbleGridView","should reuse cached view");
+                removeViewInLayout(convertView);
+                addViewInLayout(item,layoutPosition,generateDefaultLayoutParams());
+            }
+        }
+    }
     @Override
     public int getOutlinePadding() {
         return mOutLinePadding;
     }
 
+
+    static void resetScale(View view){
+        view.setScaleX(1f);
+        view.setScaleY(1f);
+    }
 }

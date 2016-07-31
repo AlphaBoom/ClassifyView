@@ -182,31 +182,32 @@ public class ClassifyView extends FrameLayout {
         addViewInLayout(mMainContainer, 0, mMainContainer.getLayoutParams());
         mDragView = new View(context);
         mDragView.setVisibility(GONE);
-        mDragLayoutParams = new WindowManager.LayoutParams();
-        mDragLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
-        if (Build.VERSION.SDK_INT >= 19)
-            mDragLayoutParams.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-        mDragLayoutParams.format = PixelFormat.TRANSPARENT;
-        mDragLayoutParams.type = WindowManager.LayoutParams.TYPE_TOAST;
-        mWindowManager.addView(mDragView, mDragLayoutParams);
+
         setUpTouchListener(context);
     }
+
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-    }
-
-    public void onDestroy() {
         if (mSubDialog != null && mSubDialog.isShowing()) {
             mSubDialog.dismiss();
         }
         mWindowManager.removeViewImmediate(mDragView);
     }
 
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
+        mDragLayoutParams = new WindowManager.LayoutParams();
+        mDragLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+        if (Build.VERSION.SDK_INT >= 19)
+            mDragLayoutParams.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        mDragLayoutParams.format = PixelFormat.TRANSPARENT;
+        mDragLayoutParams.type = WindowManager.LayoutParams.TYPE_TOAST;
+        mDragLayoutParams.token = this.getWindowToken();
+        mWindowManager.addView(mDragView, mDragLayoutParams);
     }
 
     @Override
@@ -245,7 +246,14 @@ public class ClassifyView extends FrameLayout {
         return mSubRecyclerView;
     }
 
-
+    /**
+     * 设置主层级与副层级使用一个RecycledViewPool
+     * @param viewPool
+     */
+    public void setShareViewPool(RecyclerView.RecycledViewPool viewPool){
+        getMainRecyclerView().setRecycledViewPool(viewPool);
+        getSubRecyclerView().setRecycledViewPool(viewPool);
+    }
     private View findChildView(RecyclerView recyclerView, MotionEvent event) {
         // first check elevated views, if none, then call RV
         final float x = event.getX();
@@ -274,6 +282,9 @@ public class ClassifyView extends FrameLayout {
      */
     public void setAdapter(BaseSimpleAdapter baseSimpleAdapter) {
         setAdapter(baseSimpleAdapter.getMainAdapter(), baseSimpleAdapter.getSubAdapter());
+        if(baseSimpleAdapter.isShareViewPool()){
+            setShareViewPool(new RecyclerView.RecycledViewPool());
+        }
     }
 
     public RecyclerView.LayoutManager getMainLayoutManager() {

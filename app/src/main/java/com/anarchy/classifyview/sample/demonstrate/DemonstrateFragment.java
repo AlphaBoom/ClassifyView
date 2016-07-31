@@ -35,58 +35,66 @@ import java.util.List;
  * Author: zhendong.wu@shoufuyou.com
  * <p/>
  */
-public class DemonstrateFragment extends Fragment{
+public class DemonstrateFragment extends Fragment {
     private NetManager mNetManager = new NetManager();
     private List<List<Book>> mBooks = new ArrayList<>();
     private BookListAdapter mAdapter;
     private ClassifyView mClassifyView;
+    private SelectBookListAdapter mSelectBookListAdapter;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable final ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.demonstrate_main,container,false);
+        View view = inflater.inflate(R.layout.demonstrate_main, container, false);
         FloatingActionButton button = (FloatingActionButton) view.findViewById(R.id.add_button);
         mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
         mAdapter = new BookListAdapter(mBooks);
         mClassifyView.setAdapter(mAdapter);
+        mClassifyView.setDebugAble(true);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 final AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
-                View content = LayoutInflater.from(v.getContext()).inflate(R.layout.select_book,null);
+                View content = LayoutInflater.from(v.getContext()).inflate(R.layout.select_book, null);
                 RecyclerView recyclerView = (RecyclerView) content.findViewById(R.id.select_list);
                 final ProgressBar progressBar = (ProgressBar) content.findViewById(R.id.progress_bar);
-                recyclerView.setLayoutManager(new GridLayoutManager(v.getContext(),2));
-                final SelectBookListAdapter selectBookListAdapter = new SelectBookListAdapter();
-                recyclerView.setAdapter(selectBookListAdapter);
+                recyclerView.setLayoutManager(new GridLayoutManager(v.getContext(), 2));
+                if (mSelectBookListAdapter == null)
+                    mSelectBookListAdapter = new SelectBookListAdapter();
+                recyclerView.setAdapter(mSelectBookListAdapter);
                 builder.setView(content);
                 final AlertDialog dialog = builder.show();
-                selectBookListAdapter.setItemClickListener(new SelectBookListAdapter.ItemClickListener() {
+                mSelectBookListAdapter.setItemClickListener(new SelectBookListAdapter.ItemClickListener() {
                     @Override
-                    public void onItemClick(View parent, int position,Book book) {
+                    public void onItemClick(View parent, int position, Book book) {
                         List<Book> books = new ArrayList<>();
                         books.add(book);
                         mBooks.add(books);
-                        mAdapter.notifyItemInsert(mBooks.size()-1);
-                        dialog.hide();
+                        mAdapter.notifyItemInsert(mBooks.size() - 1);
+                        dialog.dismiss();
                     }
                 });
+                if (mSelectBookListAdapter.getBookList() != null) {
+                    progressBar.setVisibility(View.GONE);
+                    return;
+                }
                 progressBar.setVisibility(View.VISIBLE);
                 mNetManager.getBookList(new BookListener() {
                     @Override
                     public void onSuccess(String result) {
-                        Log.d("wzd",result);
+                        Log.d("wzd", result);
                         progressBar.setVisibility(View.INVISIBLE);
                         List<Book> books = new ArrayList<>();
                         try {
                             JSONObject jsonObject = new JSONObject(result);
                             JSONArray jsonArray = jsonObject.optJSONArray("list");
-                            if(jsonArray != null){
-                                for(int i = 0;i<jsonArray.length();i++){
+                            if (jsonArray != null) {
+                                for (int i = 0; i < jsonArray.length(); i++) {
                                     JSONObject object = jsonArray.optJSONObject(i);
-                                    if(object != null){
+                                    if (object != null) {
                                         Book book = new Book();
                                         book.id = object.optString("id");
-                                        book.imageUrl = "http://tnfs.tngou.net/img"+object.optString("img");
+                                        book.imageUrl = "http://tnfs.tngou.net/img" + object.optString("img");
                                         book.name = object.optString("name");
                                         book.summary = object.optString("summary");
                                         books.add(book);
@@ -96,13 +104,13 @@ public class DemonstrateFragment extends Fragment{
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        selectBookListAdapter.setBookList(books);
+                        mSelectBookListAdapter.setBookList(books);
                     }
 
                     @Override
                     public void onFailure(Exception e) {
                         progressBar.setVisibility(View.INVISIBLE);
-                        Toast.makeText(getActivity(),"出错:"+e.getMessage(),Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "出错:" + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -114,6 +122,5 @@ public class DemonstrateFragment extends Fragment{
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mClassifyView.onDestroy();
     }
 }

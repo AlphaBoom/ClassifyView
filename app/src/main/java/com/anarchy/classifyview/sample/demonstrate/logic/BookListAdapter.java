@@ -1,5 +1,6 @@
 package com.anarchy.classifyview.sample.demonstrate.logic;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.anarchy.classify.simple.SimpleAdapter;
+import com.anarchy.classify.util.L;
 import com.anarchy.classifyview.R;
 import com.squareup.picasso.Picasso;
 
@@ -33,11 +35,19 @@ public class BookListAdapter extends SimpleAdapter<Book,BookListAdapter.ViewHold
     }
 
     @Override
-    public View getView(ViewGroup parent, int mainPosition, int subPosition) {
-        ImageView imageView = (ImageView) LayoutInflater.from(parent.getContext()).inflate(R.layout.item_book_inner,parent,false);
+    public View getView(ViewGroup parent,View convertView, int mainPosition, int subPosition) {
+        ItemViewHolder itemViewHolder;
+        if(convertView == null){
+            itemViewHolder = new ItemViewHolder();
+           convertView =  LayoutInflater.from(parent.getContext()).inflate(R.layout.item_book_inner,parent,false);
+            itemViewHolder.imageView = (ImageView) convertView.findViewById(com.anarchy.classify.R.id.image);
+            convertView.setTag(itemViewHolder);
+        }else {
+            itemViewHolder = (ItemViewHolder) convertView.getTag();
+        }
         String url = mData.get(mainPosition).get(subPosition).imageUrl;
-        Picasso.with(parent.getContext()).load(url).into(imageView);
-        return imageView;
+        Picasso.with(parent.getContext()).load(url).into(itemViewHolder.imageView);
+        return convertView;
     }
 
     @Override
@@ -61,5 +71,10 @@ public class BookListAdapter extends SimpleAdapter<Book,BookListAdapter.ViewHold
             super(itemView);
             name = (TextView) itemView.findViewById(R.id.text_name);
         }
+    }
+
+
+    static class ItemViewHolder{
+        ImageView imageView;
     }
 }

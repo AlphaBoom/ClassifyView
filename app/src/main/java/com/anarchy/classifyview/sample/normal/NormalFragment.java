@@ -40,12 +40,12 @@ public class NormalFragment extends Fragment{
             data.add(inner);
         }
         mClassifyView.setAdapter(new MyAdapter(data));
+        mClassifyView.setDebugAble(true);
         return view;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        mClassifyView.onDestroy();
     }
 }

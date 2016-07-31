@@ -14,4 +14,5 @@ import com.anarchy.classify.adapter.BaseSubAdapter;
 public interface BaseSimpleAdapter {
     BaseMainAdapter getMainAdapter();
     BaseSubAdapter getSubAdapter();
+    boolean isShareViewPool();
 }

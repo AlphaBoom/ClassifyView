@@ -18,7 +18,7 @@ import java.util.List;
  * <p>
  */
 public abstract class BaseSubAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> implements SubRecyclerViewCallBack {
-    private final static int VELOCITY = 5;
+    private final static int VELOCITY = 1;
     @Override
     public boolean canDragOnLongPress(int position, View pressedView) {
         return true;
