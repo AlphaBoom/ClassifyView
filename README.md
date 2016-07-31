@@ -1,6 +1,4 @@
-#JitPack
-[![](https://jitpack.io/v/AlphaBoom/ClassifyView.svg)](https://jitpack.io/#AlphaBoom/ClassifyView)
-# ClassifyView
+# ClassifyView [![](https://jitpack.io/v/AlphaBoom/ClassifyView.svg)](https://jitpack.io/#AlphaBoom/ClassifyView)[![Codewake](https://www.codewake.com/badges/ask_question.svg)](https://www.codewake.com/p/classifyview)
 实现原理 ClassifyView包裹这一个RecyclerView，当点击这个RecyclerView会弹出一个Dialog 该Dialog的布局会传入另一个RecyclerView.
 #效果如下
 ![image](https://github.com/AlphaBoom/ClassifyView/blob/master/screenshot/classifyView.gif)
