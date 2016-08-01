@@ -33,7 +33,7 @@ public class DragDrawable extends Drawable {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mPaint.setColor(Color.BLACK);
         mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setShadowLayer(5,8,8,0xFF808080);
+        mPaint.setShadowLayer(5,5,5,0xFF808080);
     }
     @Override
     public void draw(Canvas canvas) {

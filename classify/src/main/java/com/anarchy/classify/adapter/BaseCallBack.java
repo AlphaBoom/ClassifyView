@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.VelocityTracker;
 import android.view.View;
 
+import com.anarchy.classify.ClassifyView;
+
 /**
  * Version 1.0
  * <p>
@@ -51,6 +53,7 @@ public interface BaseCallBack {
      * @param y
      * @return
      */
+    @ClassifyView.MoveState
     int getCurrentState(View selectedView, View targetView, int x, int y, VelocityTracker velocityTracker, int selectedPosition, int targetPosition);
     /**
      * item 点击事件
