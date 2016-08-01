@@ -223,6 +223,8 @@ public class ClassifyView extends FrameLayout {
         mDragLayoutParams.type = WindowManager.LayoutParams.TYPE_TOAST;
         mDragLayoutParams.token = this.getWindowToken();
         mWindowManager.addView(mDragView, mDragLayoutParams);
+        mDragView.setPivotX(0);
+        mDragView.setPivotY(0);
     }
 
     @Override
@@ -537,8 +539,6 @@ public class ClassifyView extends FrameLayout {
                                 float scaleY = mergeInfo.scaleY;
                                 float targetX = mMainLocation[0] + mergeInfo.targetX;
                                 float targetY = mMainLocation[1] + mergeInfo.targetY;
-                                mDragView.setPivotX(0);
-                                mDragView.setPivotY(0);
                                 L.d("targetX:%1$s,targetY:%2$s,scaleX:%3$s,scaleY:%4$s", targetX, targetY, scaleX, scaleY);
                                 mDragView.animate().x(targetX).y(targetY).scaleX(scaleX).scaleY(scaleY).setListener(mMergeAnimListener).setDuration(mAnimationDuration).start();
                                 mergeSuccess = true;
