@@ -577,7 +577,7 @@ public class ClassifyView extends FrameLayout {
      * @return
      */
     protected Dialog createSubDialog() {
-        Dialog dialog = new Dialog(getContext(), android.support.v7.appcompat.R.style.Base_Theme_AppCompat);
+        Dialog dialog = new Dialog(getContext(),R.style.ClassifyViewTheme );
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
