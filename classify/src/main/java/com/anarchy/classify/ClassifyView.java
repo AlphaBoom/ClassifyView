@@ -22,6 +22,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -260,8 +261,7 @@ public class ClassifyView extends FrameLayout {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        getLocationOnScreen(mMainLocation);
-        fixHeight(mMainLocation);
+        getLocationAndFixHeight(this,mMainLocation);
     }
     @NonNull
     protected RecyclerView getMain(Context context, AttributeSet parentAttrs) {
@@ -718,8 +718,7 @@ public class ClassifyView extends FrameLayout {
             mSubDialog.setOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
-                    mSubRecyclerView.getLocationOnScreen(mSubLocation);
-                    fixHeight(mSubLocation);
+                    getLocationAndFixHeight(mSubRecyclerView,mSubLocation);
                 }
             });
             mSubDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -732,6 +731,10 @@ public class ClassifyView extends FrameLayout {
         mSubDialog.show();
     }
 
+    private void getLocationAndFixHeight(@NonNull View container,@NonNull int[] holder){
+        container.getLocationOnScreen(holder);
+        fixHeight(holder);
+    }
 
     private void fixHeight(@NonNull int[] ints) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
@@ -772,6 +775,8 @@ public class ClassifyView extends FrameLayout {
                         mDragView.setBackgroundDrawable(getDragDrawable(mSelected));
                         mDragView.setVisibility(VISIBLE);
                         mMainCallBack.setDragPosition(mSelectedPosition, true);
+                        //拖动开始之前修正位置
+                        getLocationAndFixHeight(ClassifyView.this,mMainLocation);
                         mDragView.setX(mInitialTouchX - width / 2 + mMainLocation[0]);
                         mDragView.setY(mInitialTouchY - height / 2 + mMainLocation[1]);
                         mElevationHelper.floatView(mMainRecyclerView, mDragView);
