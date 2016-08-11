@@ -17,7 +17,7 @@ allprojects {
 
 ```
     dependencies {
-	        compile 'com.github.AlphaBoom:ClassifyView:0.4.1'
+	        compile 'com.github.AlphaBoom:ClassifyView:0.4.3'
 	}
 
 ```
@@ -88,22 +88,61 @@ mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
         }
         mClassifyView.setAdapter(new MyAdapter(data));
 ```
-#更新说明
-* 0.4.0 更新
-  
-   * 添加了[InsertAbleGridView](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/widget/InsertAbleGridView.java) 复用View的逻辑,原先[SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)的`getView(ViewGroup parent,int mainPosition, int subPosition)`修改为`getView(ViewGroup parent, View convertView, int mainPosition, int subPosition)`使用,复用View方式与ListView中的一样。
-   * 添加了支持RecycledViewPool 可以使用ClassifyView 设置 `setShareViewPool(RecyclerView.RecycledViewPool viewPool)`,对于`SimpleAdapter`可以重写 `SimpleAdapter` 的 
-     
-     ```
-      @Override
-      public boolean isShareViewPool() {
-          return true;
-      }
-     ```
-     返回 True 即使用相同的ViewPool False 则保持 RecyclerView的默认行为。
-  * 移除了`ClassifyView.onDestroy()`方法
+#添加拖动状态监听
 
+设置监听
+```
+//添加监听
+public void addDragListener(DragListener listener){
+        mDragListeners.add(listener);
+    }
+//移除监听    
+public void removeDragListener(DragListener listener){
+        mDragListeners.remove(listener);
+    }
+//移除所有监听
+public void removeAllDragListener(){
+        mDragListeners.clear();
+    }
+/**
+ * 是否监听移动状态信息
+ * @param enable false disable true enable default true
+ */
+public void enableMoveListener(boolean enable){
+    mMoveListenerEnable = enable;
+ }    
+```
+具体监听回调
 
+```
+public interface DragListener{
+        /**
+         * 开始拖拽
+         * @param parent parent is ClassifyView
+         * @param startX start touch x 相对于 classify view
+         * @param startY start touch y 相对于 classify view
+         * @param region 拖动的区域   IN_MAIN_REGION  或 IN_SUB_REGION 
+         */
+        void onDragStart(ViewGroup parent,float startX,float startY,int region);
+
+        /**
+         * 拖拽结束(recover animation end)
+         */
+        void onDragEnd(ViewGroup parent,int region);
+
+        /**
+         * 释放被拖拽的View
+         */
+        void onDragRelease(ViewGroup parent,float releaseX,float releaseY,int region);
+
+        /**
+         * 拖动移动时的回调 
+         * @param touchX 触摸的X坐标
+         * @param touchY 触摸的Y坐标
+         */
+        void onMove(ViewGroup parent,float touchX,float touchY,int region);
+    }
+```
 
 #支持的自定义的属性
 ClassifyView attr
