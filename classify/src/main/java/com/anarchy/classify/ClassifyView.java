@@ -91,7 +91,7 @@ public class ClassifyView extends FrameLayout {
     private static final String DESCRIPTION = "Long press";
     private static final String MAIN = "main";
     private static final String SUB = "sub";
-    private static final long DEFAULT_DELAYED = 200;
+    private static final long DEFAULT_DELAYED = 150;
 
     private static final int CHANGE_DURATION = 100;
 
