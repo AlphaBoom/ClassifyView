@@ -19,7 +19,7 @@ import java.util.List;
  */
 public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub extends SubRecyclerViewCallBack> extends RecyclerView.Adapter<VH> implements MainRecyclerViewCallBack<Sub> {
     private final static int VELOCITY = 1;
-    private int mSelectedPosition = -1;
+    private int mSelectedPosition = SELECT_UNKNOWN;
 
     @Override
     public void setDragPosition(int position,boolean shouldNotify) {

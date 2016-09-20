@@ -14,6 +14,7 @@ import com.anarchy.classify.ClassifyView;
  * <p>
  */
 public interface BaseCallBack {
+    int SELECT_UNKNOWN = -1;
     /**
      * 设置当前拖动的位置位于Adapter
      * @see #getDragPosition()

@@ -24,7 +24,8 @@ public abstract class BaseSubAdapter<VH extends RecyclerView.ViewHolder> extends
         return true;
     }
 
-    private int mSelectedPosition = -1;
+    private int mSelectedPosition = SELECT_UNKNOWN;
+
     @Override
     public void setDragPosition(int position,boolean shouldNotify) {
         if(position >= getItemCount()||position<-1) return;

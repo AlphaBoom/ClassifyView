@@ -4,13 +4,15 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.RadialGradient;
+import android.graphics.Rect;
+import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
-import android.support.v4.view.ViewCompat;
+import android.support.annotation.NonNull;
 import android.view.View;
-
-import com.anarchy.classify.util.L;
 
 /**
  * <p/>
@@ -21,27 +23,45 @@ import com.anarchy.classify.util.L;
  * <p/>
  */
 public class DragDrawable extends Drawable {
+    private static final int KEY_SHADOW_COLOR = 0x1E000000;
+    private static final int FILL_SHADOW_COLOR = 0x3D000000;
+    private static final float Y_OFFSET = 1.75f;
+    final private static float SHADOW_RADIUS = 3.5f;
     final private View mView;
     final private Bitmap mBitmap;
-    private boolean showShadow;
     final private Paint mPaint;
-    public DragDrawable(View view){
+    private boolean showShadow;
+    private int shadowOffset;
+    private Rect mShadowRect;
+    public DragDrawable(@NonNull View view){
+        this(view,false);
+    }
+
+    public DragDrawable(@NonNull View view, boolean showShadow){
+        mShadowRect = new Rect();
+        this.showShadow = showShadow;
+        float density = view.getContext().getResources().getDisplayMetrics().density ;
+        this.shadowOffset = (int) (density * SHADOW_RADIUS);
         mView  = view;
         mView.setDrawingCacheEnabled(true);
+        mView.destroyDrawingCache();
         mView.buildDrawingCache();
         mBitmap = mView.getDrawingCache();
-        mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setColor(Color.BLACK);
-        mPaint.setStyle(Paint.Style.STROKE);
-        mPaint.setShadowLayer(5,5,5,0xFF808080);
+        mPaint = new Paint();
+        int radius = (getIntrinsicHeight()+getIntrinsicWidth())/2;
+        mPaint.setShader(new RadialGradient(getIntrinsicWidth()/2,getIntrinsicHeight()/2,radius,new int[]{FILL_SHADOW_COLOR,0},null, Shader.TileMode.CLAMP));
     }
+
+
     @Override
     public void draw(Canvas canvas) {
         if(mBitmap == null) {
             mView.draw(canvas);
         }else {
             if(showShadow){
-                canvas.drawBitmap(mBitmap, 0, 0, mPaint);
+//                mShadowRect.set(shadowOffset,shadowOffset,getIntrinsicWidth(),getIntrinsicHeight());
+//                canvas.drawRect(mShadowRect,mPaint);
+                canvas.drawBitmap(mBitmap, 0, 0, null);
             }else {
                 canvas.drawBitmap(mBitmap, 0, 0, null);
             }
@@ -64,18 +84,14 @@ public class DragDrawable extends Drawable {
 
     @Override
     public int getIntrinsicWidth() {
-        return mView.getWidth();
+        return showShadow?mView.getWidth()+shadowOffset :mView.getWidth();
     }
 
     @Override
     public int getIntrinsicHeight() {
-        return mView.getHeight();
+        return showShadow?mView.getHeight()+shadowOffset:mView.getHeight();
     }
 
-    public void showShadow(){
-        showShadow = true;
-        invalidateSelf();
-    }
 
     public Paint getPaint(){
         return mPaint;

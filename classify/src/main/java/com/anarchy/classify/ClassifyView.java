@@ -22,7 +22,6 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -78,9 +77,11 @@ public class ClassifyView extends FrameLayout {
     }
 
 
-
     public static int IN_MAIN_REGION = 0;
     public static int IN_SUB_REGION = 1;
+
+
+
 
 
     public boolean inScrollMode;
@@ -90,6 +91,7 @@ public class ClassifyView extends FrameLayout {
     private static final String DESCRIPTION = "Long press";
     private static final String MAIN = "main";
     private static final String SUB = "sub";
+    private static final long DEFAULT_DELAYED = 200;
 
     private static final int CHANGE_DURATION = 100;
 
@@ -487,7 +489,6 @@ public class ClassifyView extends FrameLayout {
                         mSubCallBack.setDragPosition(mSelectedPosition, true);
                         mDragView.setX(mInitialTouchX - mSelected.getWidth() / 2 + mSubLocation[0]);
                         mDragView.setY(mInitialTouchY - mSelected.getHeight() / 2 + mSubLocation[1]);
-                        mElevationHelper.floatView(mSubRecyclerView, mDragView);
                     }
                 }
             }
@@ -779,7 +780,6 @@ public class ClassifyView extends FrameLayout {
                         getLocationAndFixHeight(ClassifyView.this,mMainLocation);
                         mDragView.setX(mInitialTouchX - width / 2 + mMainLocation[0]);
                         mDragView.setY(mInitialTouchY - height / 2 + mMainLocation[1]);
-                        mElevationHelper.floatView(mMainRecyclerView, mDragView);
                         for(DragListener listener:mDragListeners){
                             listener.onDragStart(ClassifyView.this,mInitialTouchX,mInitialTouchY,IN_MAIN_REGION);
                         }
@@ -922,12 +922,12 @@ public class ClassifyView extends FrameLayout {
         mSelected = null;
         mSelectedPosition = -1;
         if (inSubRegion) {
-            restoreDragView();
+            restoreDragViewDelayed(DEFAULT_DELAYED);
             notifyDragCancel(mSubCallBack, mSubRecyclerView);
             inSubRegion = false;
         }
         if (inMainRegion) {
-            restoreDragView();
+            restoreDragViewDelayed(DEFAULT_DELAYED);
             notifyDragCancel(mMainCallBack, mMainRecyclerView);
             inMainRegion = false;
         }
@@ -948,12 +948,23 @@ public class ClassifyView extends FrameLayout {
         }
     }
 
+
     private void restoreDragView() {
         mDragView.setScaleX(1f);
         mDragView.setScaleY(1f);
         mDragView.setTranslationX(0f);
         mDragView.setTranslationX(0f);
         mDragView.setVisibility(GONE);
+    }
+
+
+    private void restoreDragViewDelayed(long delayed){
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                restoreDragView();
+            }
+        },delayed);
     }
 
     /**
@@ -1319,21 +1330,6 @@ public class ClassifyView extends FrameLayout {
     private ElevationHelper mElevationHelper = new ElevationHelper();
 
     static class ElevationHelper {
-
-
-        public void floatView(RecyclerView recyclerView, View dragView) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                float maxElevation = findMaxElevation(recyclerView) + 1f;
-                dragView.setElevation(maxElevation);
-            } else {
-                Drawable drawable = dragView.getBackground();
-                if (drawable instanceof DragDrawable) {
-                    DragDrawable dragDrawable = (DragDrawable) drawable;
-                    dragDrawable.showShadow();
-                    dragView.setLayerType(View.LAYER_TYPE_SOFTWARE, dragDrawable.getPaint());
-                }
-            }
-        }
 
         private float findMaxElevation(RecyclerView recyclerView) {
             final int childCount = recyclerView.getChildCount();
