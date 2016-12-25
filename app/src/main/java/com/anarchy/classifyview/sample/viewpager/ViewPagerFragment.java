@@ -1,6 +1,5 @@
 package com.anarchy.classifyview.sample.viewpager;
 
-import android.database.DatabaseUtils;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;

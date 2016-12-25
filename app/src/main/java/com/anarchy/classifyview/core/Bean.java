@@ -1,4 +1,4 @@
-package com.anarchy.classifyview.sample.normal;
+package com.anarchy.classifyview.core;
 
 /**
  * <p/>

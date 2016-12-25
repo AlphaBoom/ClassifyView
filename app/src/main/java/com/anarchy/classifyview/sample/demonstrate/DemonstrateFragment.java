@@ -82,7 +82,6 @@ public class DemonstrateFragment extends Fragment {
                 mNetManager.getBookList(new BookListener() {
                     @Override
                     public void onSuccess(String result) {
-                        Log.d("wzd", result);
                         progressBar.setVisibility(View.INVISIBLE);
                         List<Book> books = new ArrayList<>();
                         try {

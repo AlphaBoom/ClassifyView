@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <com.anarchy.classifyview.sample.layoutmanager.LinearVVClassifyView
+        android:id="@+id/classify_view_vv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </com.anarchy.classifyview.sample.layoutmanager.LinearVVClassifyView>
+    <ViewStub
+        android:id="@+id/stub_classify_view_hv"
+        android:layout="@layout/stub_classify_hv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <ViewStub
+        android:id="@+id/stub_classify_view_hh"
+        android:layout="@layout/stub_classify_hh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+</FrameLayout>
+</layout>

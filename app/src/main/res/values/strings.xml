@@ -4,5 +4,6 @@
         <item>基本效果</item>
         <item>使用演示</item>
         <item>配合ViewPager使用(Test)</item>
+        <item>使用其他类型的LayoutManager</item>
     </string-array>
 </resources>

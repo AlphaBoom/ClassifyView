@@ -33,6 +33,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
+import android.widget.PopupWindow;
 
 import com.anarchy.classify.adapter.BaseCallBack;
 import com.anarchy.classify.adapter.BaseMainAdapter;
@@ -148,6 +149,7 @@ public class ClassifyView extends FrameLayout {
     private int[] mMainLocation = new int[2];
     private int[] mSubLocation = new int[2];
     private boolean mMoveListenerEnable = true;
+    private boolean mDragViewIsShow = false;
     /**
      * 储存所有进入了merge状态的position
      */
@@ -203,7 +205,6 @@ public class ClassifyView extends FrameLayout {
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         addViewInLayout(mMainContainer, 0, mMainContainer.getLayoutParams());
         mDragView = new View(context);
-        mDragView.setVisibility(GONE);
         int id = getResources().getIdentifier("status_bar_height", "dimen", "android");
         if (id > 0) {
             mStatusBarHeight = getResources().getDimensionPixelSize(id);
@@ -241,7 +242,10 @@ public class ClassifyView extends FrameLayout {
         if (mSubDialog != null && mSubDialog.isShowing()) {
             mSubDialog.dismiss();
         }
-        mWindowManager.removeViewImmediate(mDragView);
+        if(mDragViewIsShow) {
+            mWindowManager.removeViewImmediate(mDragView);
+            mDragViewIsShow = false;
+        }
     }
 
 
@@ -255,7 +259,6 @@ public class ClassifyView extends FrameLayout {
         mDragLayoutParams.format = PixelFormat.TRANSPARENT;
         mDragLayoutParams.type = WindowManager.LayoutParams.TYPE_TOAST;
         mDragLayoutParams.token = this.getWindowToken();
-        mWindowManager.addView(mDragView, mDragLayoutParams);
         mDragView.setPivotX(0);
         mDragView.setPivotY(0);
     }
@@ -484,7 +487,8 @@ public class ClassifyView extends FrameLayout {
                         mSelected = pressedView;
                         restoreDragView();
                         obtainVelocityTracker();
-                        mDragView.setVisibility(VISIBLE);
+                        mWindowManager.addView(mDragView,mDragLayoutParams);
+                        mDragViewIsShow = true;
                         mDragView.setBackgroundDrawable(getDragDrawable(mSelected));
                         mSubCallBack.setDragPosition(mSelectedPosition, true);
                         mDragView.setX(mInitialTouchX - mSelected.getWidth() / 2 + mSubLocation[0]);
@@ -773,8 +777,9 @@ public class ClassifyView extends FrameLayout {
                     if (inMainRegion) {
                         restoreDragView();
                         obtainVelocityTracker();
+                        mWindowManager.addView(mDragView,mDragLayoutParams);
+                        mDragViewIsShow = true;
                         mDragView.setBackgroundDrawable(getDragDrawable(mSelected));
-                        mDragView.setVisibility(VISIBLE);
                         mMainCallBack.setDragPosition(mSelectedPosition, true);
                         //拖动开始之前修正位置
                         getLocationAndFixHeight(ClassifyView.this,mMainLocation);
@@ -954,7 +959,10 @@ public class ClassifyView extends FrameLayout {
         mDragView.setScaleY(1f);
         mDragView.setTranslationX(0f);
         mDragView.setTranslationX(0f);
-        mDragView.setVisibility(GONE);
+        if(mDragViewIsShow) {
+            mWindowManager.removeViewImmediate(mDragView);
+            mDragViewIsShow = false;
+        }
     }
 
 
