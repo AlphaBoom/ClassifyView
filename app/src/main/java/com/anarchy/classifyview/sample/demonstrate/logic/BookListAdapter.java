@@ -40,7 +40,7 @@ public class BookListAdapter extends SimpleAdapter<Book,BookListAdapter.ViewHold
         if(convertView == null){
             itemViewHolder = new ItemViewHolder();
            convertView =  LayoutInflater.from(parent.getContext()).inflate(R.layout.item_book_inner,parent,false);
-            itemViewHolder.imageView = (ImageView) convertView.findViewById(com.anarchy.classify.R.id.image);
+            itemViewHolder.imageView = (ImageView) convertView.findViewById(R.id.image);
             convertView.setTag(itemViewHolder);
         }else {
             itemViewHolder = (ItemViewHolder) convertView.getTag();

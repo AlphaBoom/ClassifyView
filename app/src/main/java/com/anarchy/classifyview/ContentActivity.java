@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import com.anarchy.classifyview.sample.demonstrate.DemonstrateFragment;
 import com.anarchy.classifyview.sample.normal.NormalFragment;
+import com.anarchy.classifyview.sample.viewpager.ViewPagerFragment;
 
 /**
  * <p/>
@@ -15,7 +16,7 @@ import com.anarchy.classifyview.sample.normal.NormalFragment;
  * <p/>
  */
 public class ContentActivity extends AppCompatActivity {
-    private Class<? extends Fragment>[] mClasses = new Class[]{NormalFragment.class, DemonstrateFragment.class};
+    private Class<? extends Fragment>[] mClasses = new Class[]{NormalFragment.class, DemonstrateFragment.class, ViewPagerFragment.class};
     private int position;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
