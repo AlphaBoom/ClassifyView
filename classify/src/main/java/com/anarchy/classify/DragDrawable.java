@@ -14,6 +14,8 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.view.View;
 
+import java.lang.ref.WeakReference;
+
 /**
  * <p/>
  * Date: 16/6/2 15:41
@@ -28,42 +30,49 @@ public class DragDrawable extends Drawable {
     private static final float Y_OFFSET = 1.75f;
     final private static float SHADOW_RADIUS = 3.5f;
     final private View mView;
-    final private Bitmap mBitmap;
+    private WeakReference<Bitmap> mBitmapWeakReference;
     final private Paint mPaint;
     private boolean showShadow;
     private int shadowOffset;
     private Rect mShadowRect;
-    public DragDrawable(@NonNull View view){
-        this(view,false);
+
+    public DragDrawable(@NonNull View view) {
+        this(view, false);
     }
 
-    public DragDrawable(@NonNull View view, boolean showShadow){
+    public DragDrawable(@NonNull View view, boolean showShadow) {
         mShadowRect = new Rect();
         this.showShadow = showShadow;
-        float density = view.getContext().getResources().getDisplayMetrics().density ;
+        float density = view.getContext().getResources().getDisplayMetrics().density;
         this.shadowOffset = (int) (density * SHADOW_RADIUS);
-        mView  = view;
+        mView = view;
         mView.setDrawingCacheEnabled(true);
         mView.destroyDrawingCache();
         mView.buildDrawingCache();
-        mBitmap = mView.getDrawingCache();
+        mBitmapWeakReference = new WeakReference<>(Bitmap.createBitmap(mView.getDrawingCache()));
         mPaint = new Paint();
-        int radius = (getIntrinsicHeight()+getIntrinsicWidth())/2;
-        mPaint.setShader(new RadialGradient(getIntrinsicWidth()/2,getIntrinsicHeight()/2,radius,new int[]{FILL_SHADOW_COLOR,0},null, Shader.TileMode.CLAMP));
+        int radius = (getIntrinsicHeight() + getIntrinsicWidth()) / 2;
+        mPaint.setShader(new RadialGradient(getIntrinsicWidth() / 2, getIntrinsicHeight() / 2, radius, new int[]{FILL_SHADOW_COLOR, 0}, null, Shader.TileMode.CLAMP));
     }
 
 
     @Override
     public void draw(Canvas canvas) {
-        if(mBitmap == null) {
-            mView.draw(canvas);
-        }else {
-            if(showShadow){
+        if (mBitmapWeakReference.get() == null || mBitmapWeakReference.get().isRecycled()) {
+            mView.setDrawingCacheEnabled(true);
+            mView.destroyDrawingCache();
+            mView.buildDrawingCache();
+            mBitmapWeakReference = new WeakReference<>(Bitmap.createBitmap(mView.getDrawingCache()));
+            if(mBitmapWeakReference.get() == null || mBitmapWeakReference.get().isRecycled()) {
+                mView.draw(canvas);
+            }
+        } else {
+            if (showShadow) {
 //                mShadowRect.set(shadowOffset,shadowOffset,getIntrinsicWidth(),getIntrinsicHeight());
 //                canvas.drawRect(mShadowRect,mPaint);
-                canvas.drawBitmap(mBitmap, 0, 0, null);
-            }else {
-                canvas.drawBitmap(mBitmap, 0, 0, null);
+                canvas.drawBitmap(mBitmapWeakReference.get(), 0, 0, null);
+            } else {
+                canvas.drawBitmap(mBitmapWeakReference.get(), 0, 0, null);
             }
         }
     }
@@ -84,16 +93,16 @@ public class DragDrawable extends Drawable {
 
     @Override
     public int getIntrinsicWidth() {
-        return showShadow?mView.getWidth()+shadowOffset :mView.getWidth();
+        return showShadow ? mView.getWidth() + shadowOffset : mView.getWidth();
     }
 
     @Override
     public int getIntrinsicHeight() {
-        return showShadow?mView.getHeight()+shadowOffset:mView.getHeight();
+        return showShadow ? mView.getHeight() + shadowOffset : mView.getHeight();
     }
 
 
-    public Paint getPaint(){
+    public Paint getPaint() {
         return mPaint;
     }
 }

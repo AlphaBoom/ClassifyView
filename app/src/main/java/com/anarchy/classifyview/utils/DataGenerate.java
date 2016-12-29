@@ -12,7 +12,7 @@ import java.util.List;
  * Description:
  */
 
-public class SimpleBeanGenerate {
+public class DataGenerate {
     public static List<List<Bean>> generateBean(){
         List<List<Bean>> data = new ArrayList<>();
         for(int i=0;i<30;i++){
@@ -29,4 +29,5 @@ public class SimpleBeanGenerate {
         }
         return data;
     }
+
 }

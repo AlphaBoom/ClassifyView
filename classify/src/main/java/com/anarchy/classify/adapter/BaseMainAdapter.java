@@ -6,7 +6,6 @@ import android.view.VelocityTracker;
 import android.view.View;
 
 import com.anarchy.classify.MergeInfo;
-import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.ClassifyView;
 
 import java.util.List;
@@ -110,7 +109,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
     public int getCurrentState(View selectedView, View targetView, int x, int y,
                                VelocityTracker velocityTracker, int selectedPosition,
                                int targetPosition) {
-        if (velocityTracker == null) return ClassifyView.STATE_NONE;
+        if (velocityTracker == null) return ClassifyView.MOVE_STATE_NONE;
         int left = x;
         int top = y;
         int right = left + selectedView.getWidth();
@@ -120,7 +119,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
                     Math.abs(top - targetView.getTop()) + Math.abs(bottom - targetView.getBottom()))
                     < (targetView.getWidth() + targetView.getHeight()
             ) / 3) {
-                return ClassifyView.STATE_MERGE;
+                return ClassifyView.MOVE_STATE_MERGE;
             }
         }
         if ((Math.abs(left - targetView.getLeft()) + Math.abs(right - targetView.getRight()) +
@@ -132,10 +131,10 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
             float yVelocity = velocityTracker.getYVelocity();
             float limit = getVelocity(targetView.getContext());
             if (xVelocity < limit && yVelocity < limit) {
-                return ClassifyView.STATE_MOVE;
+                return ClassifyView.MOVE_STATE_MOVE;
             }
         }
-        return ClassifyView.STATE_NONE;
+        return ClassifyView.MOVE_STATE_NONE;
     }
 
     @Override

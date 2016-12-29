@@ -2,6 +2,7 @@ package com.anarchy.classifyview.sample.layoutmanager;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,8 +42,8 @@ public class LinearHHClassifyView extends ClassifyView {
         RecyclerView recyclerView = new RecyclerView(context);
         recyclerView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         recyclerView.setLayoutManager(new LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false));
-        RecyclerView.ItemAnimator itemAnimator = new ClassifyItemAnimator();
-        itemAnimator.setChangeDuration(100);
+        RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+        itemAnimator.setChangeDuration(10);
         recyclerView.setItemAnimator(itemAnimator);
         return recyclerView;
     }
@@ -53,8 +54,8 @@ public class LinearHHClassifyView extends ClassifyView {
         RecyclerView recyclerView = new RecyclerView(context);
         recyclerView.setLayoutParams(new RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         recyclerView.setLayoutManager(new LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false));
-        RecyclerView.ItemAnimator itemAnimator = new ClassifyItemAnimator();
-        itemAnimator.setChangeDuration(100);
+        RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+        itemAnimator.setChangeDuration(10);
         recyclerView.setItemAnimator(itemAnimator);
         return recyclerView;
     }

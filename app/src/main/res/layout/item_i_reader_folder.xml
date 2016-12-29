@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+    <data>
+        <import type="android.text.TextUtils"/>
+        <import type="android.view.View"/>
+        <variable
+            name="inEditMode"
+            type="boolean"/>
+        <variable
+            name="book"
+            type="com.anarchy.classifyview.sample.ireader.vm.IReaderMockViewModel"/>
+    </data>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content">
+
+    <com.anarchy.classifyview.sample.ireader.widget.IReaderFolder
+        android:id="@+id/i_reader_folder"
+        android:clipToPadding="false"
+        android:layout_width="125dp"
+        android:layout_height="180dp"
+        android:layout_gravity="center"
+        android:padding="15dp">
+
+        <View
+            android:id="@id/i_reader_folder_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#b7b7b7"
+            android:visibility="gone"/>
+
+        <android.support.v7.widget.GridLayout
+            android:padding="8dp"
+            app:columnCount="2"
+            app:rowCount="2"
+            android:visibility="gone"
+            android:id="@id/i_reader_folder_grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </android.support.v7.widget.GridLayout>
+
+        <FrameLayout
+            android:visibility="@{book.folder?View.GONE:View.VISIBLE}"
+            android:id="@id/i_reader_folder_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </FrameLayout>
+
+        <CheckBox
+            android:id="@id/i_reader_folder_check_box"
+            android:visibility="@{inEditMode?(book.folder?View.GONE:View.VISIBLE):View.GONE, default=gone}"
+            android:layout_marginTop="-15dp"
+            android:layout_marginRight="-15dp"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@id/i_reader_folder_tag"
+            android:layout_width="95dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="#878787"
+            android:gravity="center"
+            android:text="分类"
+            android:textColor="#FFF"
+            android:visibility="gone"/>
+    </com.anarchy.classifyview.sample.ireader.widget.IReaderFolder>
+
+</FrameLayout>
+</layout>

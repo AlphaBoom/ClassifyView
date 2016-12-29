@@ -1,7 +1,7 @@
 package com.anarchy.classify.simple.widget;
 
 import com.anarchy.classify.simple.ChangeInfo;
-import com.anarchy.classify.simple.SimpleAdapter;
+import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
 
 import java.util.List;
 
@@ -42,15 +42,15 @@ public interface CanMergeView {
     ChangeInfo prepareMerge();
     /**
      * 设置适配器
-     * @param simpleAdapter
+     * @param primitiveSimpleAdapter
      */
-    void setAdapter(SimpleAdapter simpleAdapter);
+    void setAdapter(PrimitiveSimpleAdapter primitiveSimpleAdapter);
 
     /**
      * 初始化或更新主层级
-     * @param list
+     * @param requestCount 需要显示里面有几个子view
      */
-    void initOrUpdateMain(int parentIndex, List list);
+    void initOrUpdateMain(int parentIndex, int requestCount);
 
     /**
      * 初始化或更新次级层级

@@ -73,7 +73,7 @@ public abstract class BaseSubAdapter<VH extends RecyclerView.ViewHolder> extends
     public int getCurrentState(View selectedView, View targetView, int x, int y,
                                VelocityTracker velocityTracker, int selectedPosition,
                                int targetPosition) {
-        if(velocityTracker == null) return ClassifyView.STATE_NONE;
+        if(velocityTracker == null) return ClassifyView.MOVE_STATE_NONE;
         int left = x;
         int top = y;
         int right = left + selectedView.getWidth();
@@ -87,10 +87,10 @@ public abstract class BaseSubAdapter<VH extends RecyclerView.ViewHolder> extends
             float yVelocity = velocityTracker.getYVelocity();
             float limit = getVelocity(targetView.getContext());
             if(xVelocity < limit && yVelocity < limit){
-                return ClassifyView.STATE_MOVE;
+                return ClassifyView.MOVE_STATE_MOVE;
             }
         }
-        return ClassifyView.STATE_NONE;
+        return ClassifyView.MOVE_STATE_NONE;
     }
 
     @Override

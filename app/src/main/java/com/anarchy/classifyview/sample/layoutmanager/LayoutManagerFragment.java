@@ -13,11 +13,12 @@ import android.view.ViewGroup;
 import android.view.ViewStub;
 
 import com.anarchy.classifyview.R;
+import com.anarchy.classifyview.core.BaseFragment;
 import com.anarchy.classifyview.core.MyAdapter;
 import com.anarchy.classifyview.databinding.FragmentLayoutmanagerBinding;
 import com.anarchy.classifyview.databinding.StubClassifyHhBinding;
 import com.anarchy.classifyview.databinding.StubClassifyHvBinding;
-import com.anarchy.classifyview.utils.SimpleBeanGenerate;
+import com.anarchy.classifyview.utils.DataGenerate;
 
 /**
  * User:  Anarchy
@@ -26,7 +27,7 @@ import com.anarchy.classifyview.utils.SimpleBeanGenerate;
  * Description:
  */
 
-public class LayoutManagerFragment extends Fragment {
+public class LayoutManagerFragment extends BaseFragment {
     private FragmentLayoutmanagerBinding mBinding;
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,7 +39,7 @@ public class LayoutManagerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_layoutmanager,container,false);
-        mBinding.classifyViewVv.setAdapter(new MyAdapter(SimpleBeanGenerate.generateBean()));
+        mBinding.classifyViewVv.setAdapter(new MyAdapter(DataGenerate.generateBean()));
         return mBinding.getRoot();
     }
 
@@ -70,7 +71,7 @@ public class LayoutManagerFragment extends Fragment {
                         @Override
                         public void onInflate(ViewStub stub, View inflated) {
                             StubClassifyHhBinding binding = (StubClassifyHhBinding) mBinding.stubClassifyViewHh.getBinding();
-                            binding.classifyViewHh.setAdapter(new MyAdapter(SimpleBeanGenerate.generateBean()));
+                            binding.classifyViewHh.setAdapter(new HHAdapter(DataGenerate.generateBean()));
                         }
                     });
                     mBinding.stubClassifyViewHh.getViewStub().inflate();
@@ -85,7 +86,7 @@ public class LayoutManagerFragment extends Fragment {
                         @Override
                         public void onInflate(ViewStub stub, View inflated) {
                             StubClassifyHvBinding binding = (StubClassifyHvBinding) mBinding.stubClassifyViewHv.getBinding();
-                            binding.classifyViewHv.setAdapter(new MyAdapter(SimpleBeanGenerate.generateBean()));
+                            binding.classifyViewHv.setAdapter(new HVAdapter(DataGenerate.generateBean()));
                         }
                     });
                     mBinding.stubClassifyViewHv.getViewStub().inflate();

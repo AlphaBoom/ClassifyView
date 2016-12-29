@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.anarchy.classifyview.R;
+import com.anarchy.classifyview.core.BaseFragment;
 import com.anarchy.classifyview.databinding.FragmentViewpagerBinding;
 import com.anarchy.classifyview.sample.normal.NormalFragment;
 
@@ -22,7 +23,7 @@ import com.anarchy.classifyview.sample.normal.NormalFragment;
  * <p>
  * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
  */
-public class ViewPagerFragment extends Fragment{
+public class ViewPagerFragment extends BaseFragment{
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {

@@ -33,7 +33,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
-import android.widget.PopupWindow;
 
 import com.anarchy.classify.adapter.BaseCallBack;
 import com.anarchy.classify.adapter.BaseMainAdapter;
@@ -62,26 +61,38 @@ public class ClassifyView extends FrameLayout {
     /**
      * 不做处理的状态
      */
-    public static final int STATE_NONE = 0;
+    public static final int MOVE_STATE_NONE = 0;
     /**
      * 当前状态为 可移动
      */
-    public static final int STATE_MOVE = 1;
+    public static final int MOVE_STATE_MOVE = 1;
     /**
      * 当前状态为 可合并
      */
-    public static final int STATE_MERGE = 2;
+    public static final int MOVE_STATE_MERGE = 2;
 
-    @IntDef({STATE_NONE, STATE_MOVE, STATE_MERGE})
+    @IntDef({MOVE_STATE_NONE, MOVE_STATE_MOVE, MOVE_STATE_MERGE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface MoveState {
     }
+    @IntDef({IN_MAIN_REGION,IN_SUB_REGION, UNKNOWN_REGION})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface Region{
 
+    }
+    @IntDef({STATE_IDLE,STATE_DRAG, STATE_SETTLE})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface State{
 
-    public static int IN_MAIN_REGION = 0;
-    public static int IN_SUB_REGION = 1;
+    }
 
+    public static final int STATE_IDLE = 0;
+    public static final int STATE_DRAG = 1;
+    public static final int STATE_SETTLE = 2;
 
+    public static final int UNKNOWN_REGION = 0;
+    public static final int IN_MAIN_REGION = 1;
+    public static final int IN_SUB_REGION = 2;
 
 
 
@@ -94,7 +105,7 @@ public class ClassifyView extends FrameLayout {
     private static final String SUB = "sub";
     private static final long DEFAULT_DELAYED = 150;
 
-    private static final int CHANGE_DURATION = 100;
+    private static final int CHANGE_DURATION = 10;
 
 
     /**
@@ -150,6 +161,10 @@ public class ClassifyView extends FrameLayout {
     private int[] mSubLocation = new int[2];
     private boolean mMoveListenerEnable = true;
     private boolean mDragViewIsShow = false;
+    @State
+    private int mState;
+    @Region
+    private int mRegion;
     /**
      * 储存所有进入了merge状态的position
      */
@@ -158,8 +173,7 @@ public class ClassifyView extends FrameLayout {
      * 触发滑动距离
      */
     private int mEdgeWidth;
-    private boolean inMainRegion;
-    private boolean inSubRegion;
+
 
     private VelocityTracker mVelocityTracker;
 
@@ -214,24 +228,24 @@ public class ClassifyView extends FrameLayout {
     }
 
 
-
-    public void addDragListener(DragListener listener){
+    public void addDragListener(DragListener listener) {
         mDragListeners.add(listener);
     }
 
-    public void removeDragListener(DragListener listener){
+    public void removeDragListener(DragListener listener) {
         mDragListeners.remove(listener);
     }
 
-    public void removeAllDragListener(){
+    public void removeAllDragListener() {
         mDragListeners.clear();
     }
 
     /**
      * 是否开启移动监听
+     *
      * @param enable false disable true enable
      */
-    public void enableMoveListener(boolean enable){
+    public void enableMoveListener(boolean enable) {
         mMoveListenerEnable = enable;
     }
 
@@ -242,7 +256,7 @@ public class ClassifyView extends FrameLayout {
         if (mSubDialog != null && mSubDialog.isShowing()) {
             mSubDialog.dismiss();
         }
-        if(mDragViewIsShow) {
+        if (mDragViewIsShow) {
             mWindowManager.removeViewImmediate(mDragView);
             mDragViewIsShow = false;
         }
@@ -266,8 +280,9 @@ public class ClassifyView extends FrameLayout {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        getLocationAndFixHeight(this,mMainLocation);
+        getLocationAndFixHeight(this, mMainLocation);
     }
+
     @NonNull
     protected RecyclerView getMain(Context context, AttributeSet parentAttrs) {
         RecyclerView recyclerView = new RecyclerView(context);
@@ -368,7 +383,7 @@ public class ClassifyView extends FrameLayout {
                 if (pressedView == null) return false;
                 int position = mMainRecyclerView.getChildAdapterPosition(pressedView);
                 List list = mMainCallBack.explodeItem(position, pressedView);
-                if (list == null || list.size() < 2) {
+                if (list == null) {
                     mMainCallBack.onItemClick(position, pressedView);
                     return true;
                 } else {
@@ -397,7 +412,8 @@ public class ClassifyView extends FrameLayout {
                         mInitialTouchX = MotionEventCompat.getX(e, index);
                         mInitialTouchY = MotionEventCompat.getY(e, index);
                         L.d("handle event on long press:X: %1$s , Y: %2$s ", mInitialTouchX, mInitialTouchY);
-                        inMainRegion = true;
+                        mRegion = IN_MAIN_REGION;
+//                        inMainRegion = true;
                         mSelected = pressedView;
                         pressedView.startDrag(ClipData.newPlainText(DESCRIPTION, MAIN),
                                 new ClassifyDragShadowBuilder(pressedView), mSelected, 0);
@@ -476,6 +492,10 @@ public class ClassifyView extends FrameLayout {
                 int pointerId = MotionEventCompat.getPointerId(e, 0);
                 if (pointerId == mSubActivePointerId) {
                     if (mSubCallBack.canDragOnLongPress(position, pressedView)) {
+                        if(mState == STATE_DRAG) {
+                            L.d("already have item in drag state");
+                            return;
+                        }
                         mSelectedPosition = position;
                         mSelectedStartX = pressedView.getLeft();
                         mSelectedStartY = pressedView.getTop();
@@ -483,16 +503,14 @@ public class ClassifyView extends FrameLayout {
                         int index = MotionEventCompat.findPointerIndex(e, mSubActivePointerId);
                         mInitialTouchX = MotionEventCompat.getX(e, index);
                         mInitialTouchY = MotionEventCompat.getY(e, index);
-                        inSubRegion = true;
+                        mRegion = IN_SUB_REGION;
                         mSelected = pressedView;
                         restoreDragView();
                         obtainVelocityTracker();
-                        mWindowManager.addView(mDragView,mDragLayoutParams);
-                        mDragViewIsShow = true;
-                        mDragView.setBackgroundDrawable(getDragDrawable(mSelected));
-                        mSubCallBack.setDragPosition(mSelectedPosition, true);
-                        mDragView.setX(mInitialTouchX - mSelected.getWidth() / 2 + mSubLocation[0]);
-                        mDragView.setY(mInitialTouchY - mSelected.getHeight() / 2 + mSubLocation[1]);
+                        float targetX = mInitialTouchX - mSelected.getWidth() / 2 + mSubLocation[0];
+                        float targetY = mInitialTouchY - mSelected.getHeight() / 2 + mSubLocation[1];
+                        doStartDragWithAnimation(mSelected, targetX, targetY, mSubLocation, mSelectedPosition, mSubCallBack);
+                        mState = STATE_DRAG;
                     }
                 }
             }
@@ -518,6 +536,7 @@ public class ClassifyView extends FrameLayout {
 
             @Override
             public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+                if(mSelected == null) return;
                 mSubGestureDetector.onTouchEvent(e);
                 float x = MotionEventCompat.getX(e, mSubActivePointerId);
                 float y = MotionEventCompat.getY(e, mSubActivePointerId);
@@ -528,12 +547,10 @@ public class ClassifyView extends FrameLayout {
                 int action = MotionEventCompat.getActionMasked(e);
                 switch (action) {
                     case MotionEvent.ACTION_MOVE:
-                        if (inSubRegion && (x < 0 || y < 0 || x > mSubContainerWidth || y > mSubContainerHeight)) {
-                            L.d("onLeaveSubRegion:" + inSubRegion);
+                        if (mRegion == IN_SUB_REGION && (x < 0 || y < 0 || x > mSubContainerWidth || y > mSubContainerHeight)) {
                             //离开次级目录范围
                             if (mSubCallBack.canDragOut(mSelectedPosition)) {
-                                inSubRegion = false;
-                                inMainRegion = true;
+                                mRegion = IN_MAIN_REGION;
                                 hideSubContainer();
                                 mSelectedPosition = mMainCallBack.onLeaveSubRegion(mSelectedPosition, new SubAdapterReference(mSubCallBack));
                                 mMainCallBack.setDragPosition(mSelectedPosition, true);
@@ -543,7 +560,8 @@ public class ClassifyView extends FrameLayout {
                             }
                             break;
                         }
-                        mVelocityTracker.addMovement(e);
+                        if (mVelocityTracker != null)
+                            mVelocityTracker.addMovement(e);
                         mDx = x - mInitialTouchX;
                         mDy = y - mInitialTouchY;
                         mDragView.setX(rawX - width / 2);
@@ -551,22 +569,23 @@ public class ClassifyView extends FrameLayout {
                         moveIfNecessary(mSelected);
                         removeCallbacks(mScrollRunnable);
                         mScrollRunnable.run();
-                        if(mMoveListenerEnable){
-                            for(DragListener listener:mDragListeners){
-                                listener.onMove(ClassifyView.this,x,y,IN_SUB_REGION);
+                        if (mMoveListenerEnable) {
+                            for (DragListener listener : mDragListeners) {
+                                listener.onMove(ClassifyView.this, x, y, IN_SUB_REGION);
                             }
                         }
                         break;
                     case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP:
                         mSubActivePointerId = ACTIVE_POINTER_ID_NONE;
-                        if (inSubRegion) {
+                        if (mRegion == IN_SUB_REGION) {
                             doRecoverAnimation();
-                            for(DragListener listener:mDragListeners){
-                                listener.onDragRelease(ClassifyView.this,x,y,IN_SUB_REGION);
+                            mState = STATE_SETTLE;
+                            for (DragListener listener : mDragListeners) {
+                                listener.onDragRelease(ClassifyView.this, x, y, IN_SUB_REGION);
                             }
                         }
-                        if (inMainRegion) {
+                        if (mRegion == IN_MAIN_REGION) {
                             if (inMergeState) {
                                 inMergeState = false;
                                 if (mInMergeQueue.isEmpty()) break;
@@ -588,8 +607,9 @@ public class ClassifyView extends FrameLayout {
                             } else {
                                 doRecoverAnimation();
                             }
-                            for(DragListener listener:mDragListeners){
-                                listener.onDragRelease(ClassifyView.this,x,y,IN_MAIN_REGION);
+                            mState = STATE_SETTLE;
+                            for (DragListener listener : mDragListeners) {
+                                listener.onDragRelease(ClassifyView.this, x, y, IN_MAIN_REGION);
                             }
                         }
                         releaseVelocityTracker();
@@ -623,7 +643,7 @@ public class ClassifyView extends FrameLayout {
      * @return
      */
     protected Dialog createSubDialog() {
-        Dialog dialog = new Dialog(getContext(),R.style.ClassifyViewTheme );
+        Dialog dialog = new Dialog(getContext(), R.style.ClassifyViewTheme);
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
@@ -723,7 +743,7 @@ public class ClassifyView extends FrameLayout {
             mSubDialog.setOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
-                    getLocationAndFixHeight(mSubRecyclerView,mSubLocation);
+                    getLocationAndFixHeight(mSubRecyclerView, mSubLocation);
                 }
             });
             mSubDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -736,7 +756,7 @@ public class ClassifyView extends FrameLayout {
         mSubDialog.show();
     }
 
-    private void getLocationAndFixHeight(@NonNull View container,@NonNull int[] holder){
+    private void getLocationAndFixHeight(@NonNull View container, @NonNull int[] holder) {
         container.getLocationOnScreen(holder);
         fixHeight(holder);
     }
@@ -774,19 +794,21 @@ public class ClassifyView extends FrameLayout {
             float centerY = y - height / 2;
             switch (action) {
                 case DragEvent.ACTION_DRAG_STARTED:
-                    if (inMainRegion) {
+                    if (mRegion == IN_MAIN_REGION) {
+                        if(mState == STATE_DRAG){
+                            L.d("already have item in drag state");
+                            return false;
+                        }
                         restoreDragView();
                         obtainVelocityTracker();
-                        mWindowManager.addView(mDragView,mDragLayoutParams);
-                        mDragViewIsShow = true;
-                        mDragView.setBackgroundDrawable(getDragDrawable(mSelected));
-                        mMainCallBack.setDragPosition(mSelectedPosition, true);
                         //拖动开始之前修正位置
-                        getLocationAndFixHeight(ClassifyView.this,mMainLocation);
-                        mDragView.setX(mInitialTouchX - width / 2 + mMainLocation[0]);
-                        mDragView.setY(mInitialTouchY - height / 2 + mMainLocation[1]);
-                        for(DragListener listener:mDragListeners){
-                            listener.onDragStart(ClassifyView.this,mInitialTouchX,mInitialTouchY,IN_MAIN_REGION);
+                        getLocationAndFixHeight(ClassifyView.this, mMainLocation);
+                        float targetX = mInitialTouchX - width / 2 + mMainLocation[0];
+                        float targetY = mInitialTouchY - height / 2 + mMainLocation[1];
+                        doStartDragWithAnimation(mSelected, targetX, targetY, mMainLocation, mSelectedPosition, mMainCallBack);
+                        mState = STATE_DRAG;
+                        for (DragListener listener : mDragListeners) {
+                            listener.onDragStart(ClassifyView.this, mInitialTouchX, mInitialTouchY, IN_MAIN_REGION);
                         }
                     }
                     break;
@@ -801,9 +823,9 @@ public class ClassifyView extends FrameLayout {
                     removeCallbacks(mScrollRunnable);
                     mScrollRunnable.run();
                     invalidate();
-                    if(mMoveListenerEnable){
-                        for(DragListener listener:mDragListeners){
-                            listener.onMove(ClassifyView.this,x,y,IN_MAIN_REGION);
+                    if (mMoveListenerEnable) {
+                        for (DragListener listener : mDragListeners) {
+                            listener.onMove(ClassifyView.this, x, y, IN_MAIN_REGION);
                         }
                     }
                     break;
@@ -813,7 +835,7 @@ public class ClassifyView extends FrameLayout {
                         mergeSuccess = false;
                         break;
                     }
-                    if (inMainRegion) {
+                    if (mRegion == IN_MAIN_REGION) {
                         doRecoverAnimation();
                     }
                     releaseVelocityTracker();
@@ -873,12 +895,75 @@ public class ClassifyView extends FrameLayout {
     }
 
 
+    private void doStartDragWithAnimation(final View selected, final float targetX, final float targetY, @NonNull int[] fixWindowLocation, final int selectedPosition, final BaseCallBack callBack) {
+        final int recordRegion = mRegion;//记录当前位置 动画中让位置信息处于位置区域
+        selected.animate().x(targetX - fixWindowLocation[0]).y(targetY - fixWindowLocation[1]).setDuration(200).setListener(new AnimatorListenerAdapter() {
+            /**
+             * {@inheritDoc}
+             *
+             * @param animation
+             */
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                disappearViewDelayed(selected,DEFAULT_DELAYED,recordRegion);
+                addDragViewToWindow(targetX, targetY, selectedPosition, callBack);
+            }
+
+            /**
+             * {@inheritDoc}
+             *
+             * @param animation
+             */
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                selected.animate().setListener(null);
+                disappearViewDelayed(selected,DEFAULT_DELAYED,recordRegion);
+                addDragViewToWindow(targetX, targetY, selectedPosition, callBack);
+            }
+
+
+            /**
+             * {@inheritDoc}
+             *
+             * @param animation
+             */
+            @Override
+            public void onAnimationStart(Animator animation) {
+                selected.setVisibility(View.VISIBLE);
+                mRegion = UNKNOWN_REGION;
+
+            }
+        }).start();
+    }
+
+
+    private void disappearViewDelayed(final View selectedView, long delayedTime, final int recordRegion) {
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                selectedView.setVisibility(View.GONE);
+                selectedView.setTranslationX(0);
+                selectedView.setTranslationY(0);
+                mRegion = recordRegion;
+            }
+        }, delayedTime);
+    }
+
+    private void addDragViewToWindow(float targetX, float targetY, int selectedPosition, BaseCallBack callBack) {
+        mWindowManager.addView(mDragView, mDragLayoutParams);
+        mDragViewIsShow = true;
+        mDragView.setBackgroundDrawable(getDragDrawable(mSelected));
+        callBack.setDragPosition(selectedPosition, true);
+        mDragView.setX(targetX);
+        mDragView.setY(targetY);
+    }
+
     /**
      * 做恢复到之前状态的动画
      */
     private void doRecoverAnimation() {
         Animator recoverAnimator = null;
-        if (inSubRegion) {
+        if (mRegion == IN_SUB_REGION) {
             RecyclerView.ViewHolder holder = mSubRecyclerView.findViewHolderForAdapterPosition(mSelectedPosition);
             if (holder == null) {
                 PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", getHeight() + mSelected.getHeight() + mSubLocation[1]);
@@ -890,7 +975,7 @@ public class ClassifyView extends FrameLayout {
             }
         }
 
-        if (inMainRegion) {
+        if (mRegion == IN_MAIN_REGION) {
             RecyclerView.ViewHolder holder = mMainRecyclerView.findViewHolderForAdapterPosition(mSelectedPosition);
             if (holder == null) {
                 PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", getHeight() + mSelected.getHeight() + mMainLocation[1]);
@@ -912,8 +997,8 @@ public class ClassifyView extends FrameLayout {
         @Override
         public void onAnimationEnd(Animator animation) {
             restoreToInitial();
-            for(DragListener listener:mDragListeners){
-                listener.onDragEnd(ClassifyView.this,inMainRegion?IN_MAIN_REGION:IN_SUB_REGION);
+            for (DragListener listener : mDragListeners) {
+                listener.onDragEnd(ClassifyView.this, mRegion == IN_MAIN_REGION ? IN_MAIN_REGION : IN_SUB_REGION);
             }
         }
 
@@ -924,17 +1009,18 @@ public class ClassifyView extends FrameLayout {
     };
 
     private void restoreToInitial() {
+        mState = STATE_IDLE;
         mSelected = null;
         mSelectedPosition = -1;
-        if (inSubRegion) {
+        if (mRegion == IN_SUB_REGION) {
             restoreDragViewDelayed(DEFAULT_DELAYED);
             notifyDragCancel(mSubCallBack, mSubRecyclerView);
-            inSubRegion = false;
+            mRegion = UNKNOWN_REGION;
         }
-        if (inMainRegion) {
+        if (mRegion == IN_MAIN_REGION) {
             restoreDragViewDelayed(DEFAULT_DELAYED);
             notifyDragCancel(mMainCallBack, mMainRecyclerView);
-            inMainRegion = false;
+            mRegion = UNKNOWN_REGION;
         }
     }
 
@@ -959,20 +1045,20 @@ public class ClassifyView extends FrameLayout {
         mDragView.setScaleY(1f);
         mDragView.setTranslationX(0f);
         mDragView.setTranslationX(0f);
-        if(mDragViewIsShow) {
+        if (mDragViewIsShow) {
             mWindowManager.removeViewImmediate(mDragView);
             mDragViewIsShow = false;
         }
     }
 
 
-    private void restoreDragViewDelayed(long delayed){
+    private void restoreDragViewDelayed(long delayed) {
         postDelayed(new Runnable() {
             @Override
             public void run() {
                 restoreDragView();
             }
-        },delayed);
+        }, delayed);
     }
 
     /**
@@ -980,10 +1066,10 @@ public class ClassifyView extends FrameLayout {
      */
     private boolean scrollIfNecessary() {
         RecyclerView recyclerView = null;
-        if (inMainRegion) {
+        if (mRegion == IN_MAIN_REGION) {
             recyclerView = mMainRecyclerView;
         }
-        if (inSubRegion) {
+        if (mRegion == IN_SUB_REGION) {
             recyclerView = mSubRecyclerView;
         }
         if (recyclerView == null) return false;
@@ -1128,11 +1214,11 @@ public class ClassifyView extends FrameLayout {
         if (swapTargets.size() == 0) return;
         View target = chooseTarget(view, swapTargets, x, y);
         if (target == null) return;
-        if (inSubRegion) {//次级目录下 没有merge形式
+        if (mRegion == IN_SUB_REGION) {//次级目录下 没有merge形式
             int targetPosition = mSubRecyclerView.getChildAdapterPosition(target);
             int state = mSubCallBack.getCurrentState(mSelected, target, x, y, mVelocityTracker, mSelectedPosition,
                     targetPosition);
-            if (state == STATE_MOVE) {
+            if (state == MOVE_STATE_MOVE) {
                 if (mSubCallBack.onMove(mSelectedPosition, targetPosition)) {
                     mSelectedPosition = targetPosition;
                     RecyclerView.ViewHolder viewHolder = mSubRecyclerView.findViewHolderForAdapterPosition(mSelectedPosition);
@@ -1142,7 +1228,7 @@ public class ClassifyView extends FrameLayout {
                 }
             }
         }
-        if (inMainRegion) {//在主层级下 有merge状况 以及次级目录拖动到主层级的状况
+        if (mRegion == IN_MAIN_REGION) {//在主层级下 有merge状况 以及次级目录拖动到主层级的状况
             int targetPosition = mMainRecyclerView.getChildAdapterPosition(target);
             while (!mInMergeQueue.isEmpty() && mInMergeQueue.peek() != targetPosition) {
                 int i = mInMergeQueue.poll();
@@ -1151,9 +1237,9 @@ public class ClassifyView extends FrameLayout {
             }
             int state = mMainCallBack.getCurrentState(mSelected, target, x, y, mVelocityTracker, mSelectedPosition,
                     targetPosition);
-            boolean mergeState = state == STATE_MERGE;
+            boolean mergeState = state == MOVE_STATE_MERGE;
             if (!inScrollMode && mergeState ^ inMergeState) {
-                if(mSelectedPosition == targetPosition) return;
+                if (mSelectedPosition == targetPosition) return;
                 if (mergeState) {
                     if (mMainCallBack.onMergeStart(mMainRecyclerView, mSelectedPosition, targetPosition)) {
                         inMergeState = true;
@@ -1169,7 +1255,7 @@ public class ClassifyView extends FrameLayout {
                     }
                 }
             }
-            if (state == STATE_MOVE) {
+            if (state == MOVE_STATE_MOVE) {
                 if (inMergeState && !mInMergeQueue.isEmpty()) {
                     //makeSure trigger mergeCancel
                     while (!mInMergeQueue.isEmpty()) {
@@ -1208,11 +1294,11 @@ public class ClassifyView extends FrameLayout {
         int bottom = top + view.getHeight();
         RecyclerView.LayoutManager lm = null;
         RecyclerView recyclerView = null;
-        if (inMainRegion) {
+        if (mRegion == IN_MAIN_REGION) {
             lm = getMainLayoutManager();
             recyclerView = mMainRecyclerView;
         }
-        if (inSubRegion) {
+        if (mRegion == IN_SUB_REGION) {
             lm = getSubLayoutManager();
             recyclerView = mSubRecyclerView;
         }
@@ -1229,10 +1315,10 @@ public class ClassifyView extends FrameLayout {
             }
             int targetPosition = recyclerView.getChildAdapterPosition(child);
             //检验目标位置是否能移动
-            if (inMainRegion) {
+            if (mRegion == IN_MAIN_REGION) {
                 if (!mMainCallBack.canDropOver(mSelectedPosition, targetPosition)) continue;
             }
-            if (inSubRegion) {
+            if (mRegion == IN_SUB_REGION) {
                 if (!mSubCallBack.canDropOver(mSelectedPosition, targetPosition)) continue;
             }
             mSwapTargets.add(child);
@@ -1355,32 +1441,34 @@ public class ClassifyView extends FrameLayout {
     }
 
 
-    public interface DragListener{
+    public interface DragListener {
         /**
          * 开始拖拽
+         *
          * @param parent parent is ClassifyView
          * @param startX start touch x relative classify view
          * @param startY start touch y relative classify view
          * @param region start drag  region either  main or sub
          */
-        void onDragStart(ViewGroup parent,float startX,float startY,int region);
+        void onDragStart(ViewGroup parent, float startX, float startY, int region);
 
         /**
          * 拖拽结束(recover animation end)
          */
-        void onDragEnd(ViewGroup parent,int region);
+        void onDragEnd(ViewGroup parent, int region);
 
         /**
          * 释放被拖拽的View
          */
-        void onDragRelease(ViewGroup parent,float releaseX,float releaseY,int region);
+        void onDragRelease(ViewGroup parent, float releaseX, float releaseY, int region);
 
         /**
          * move callback by touch location
+         *
          * @param touchX 触摸的X坐标
          * @param touchY 触摸的Y坐标
          */
-        void onMove(ViewGroup parent,float touchX,float touchY,int region);
+        void onMove(ViewGroup parent, float touchX, float touchY, int region);
     }
 
 }

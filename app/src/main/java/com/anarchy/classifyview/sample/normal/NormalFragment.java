@@ -9,8 +9,9 @@ import android.view.ViewGroup;
 
 import com.anarchy.classify.ClassifyView;
 import com.anarchy.classifyview.R;
+import com.anarchy.classifyview.core.BaseFragment;
 import com.anarchy.classifyview.core.MyAdapter;
-import com.anarchy.classifyview.utils.SimpleBeanGenerate;
+import com.anarchy.classifyview.utils.DataGenerate;
 
 /**
  * <p/>
@@ -18,14 +19,14 @@ import com.anarchy.classifyview.utils.SimpleBeanGenerate;
  * Author: zhendong.wu@shoufuyou.com
  * <p/>
  */
-public class NormalFragment extends Fragment{
+public class NormalFragment extends BaseFragment{
     private ClassifyView mClassifyView;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.normal,container,false);
         mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
-        mClassifyView.setAdapter(new MyAdapter(SimpleBeanGenerate.generateBean()));
+        mClassifyView.setAdapter(new MyAdapter(DataGenerate.generateBean()));
         mClassifyView.setDebugAble(true);
         return view;
     }

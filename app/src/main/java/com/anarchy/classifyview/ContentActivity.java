@@ -5,7 +5,9 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
+import com.anarchy.classifyview.core.BaseFragment;
 import com.anarchy.classifyview.sample.demonstrate.DemonstrateFragment;
+import com.anarchy.classifyview.sample.ireader.IReaderMockFragment;
 import com.anarchy.classifyview.sample.layoutmanager.LayoutManagerFragment;
 import com.anarchy.classifyview.sample.normal.NormalFragment;
 import com.anarchy.classifyview.sample.viewpager.ViewPagerFragment;
@@ -17,19 +19,30 @@ import com.anarchy.classifyview.sample.viewpager.ViewPagerFragment;
  * <p/>
  */
 public class ContentActivity extends AppCompatActivity {
-    private Class<? extends Fragment>[] mClasses = new Class[]{NormalFragment.class, DemonstrateFragment.class, ViewPagerFragment.class, LayoutManagerFragment.class};
+    private Class<? extends Fragment>[] mClasses = new Class[]{NormalFragment.class,
+            DemonstrateFragment.class, ViewPagerFragment.class, LayoutManagerFragment.class};//,IReaderMockFragment.class
     private int position;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_main);
-        position = getIntent().getIntExtra(MainActivity.EXTRA_POSITION,0);
+        position = getIntent().getIntExtra(MainActivity.EXTRA_POSITION, 0);
         try {
-            getSupportFragmentManager().beginTransaction().add(R.id.container,mClasses[position].newInstance()).commit();
+            getSupportFragmentManager().beginTransaction().add(R.id.container, mClasses[position].newInstance()).commit();
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+        if (!(fragment instanceof BaseFragment && ((BaseFragment) fragment).onBackPressed())) {
+            super.onBackPressed();
         }
     }
 }

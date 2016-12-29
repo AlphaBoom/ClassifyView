@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="i_reader_folder_bg" type="id"/>
+    <item name="i_reader_folder_tag" type="id"/>
+    <item name="i_reader_folder_grid" type="id"/>
+    <item name="i_reader_folder_content" type="id"/>
+    <item name="i_reader_folder_check_box" type="id"/>
+</resources>

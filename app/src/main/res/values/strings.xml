@@ -1,9 +1,20 @@
 <resources>
     <string name="app_name">ClassifyView</string>
+    <string name="i_reader_title">模拟掌阅书架</string>
+    <string name="i_reader_finish">完成</string>
+    <string name="i_reader_last_read">最近阅读</string>
+    <string name="i_reader_all_select">全选</string>
+    <string name="i_reader_delete">删除</string>
+    <string name="i_reader_move">移动至</string>
+    <string name="i_reader_share">分享</string>
+    <string name="i_reader_book_order">加入书单</string>
+    <string name="i_reader_detail">详情</string>
     <string-array name="list_name">
         <item>基本效果</item>
         <item>使用演示</item>
         <item>配合ViewPager使用(Test)</item>
         <item>使用其他类型的LayoutManager</item>
+        <!--<item>模仿IRead的书架效果</item>-->
     </string-array>
+
 </resources>

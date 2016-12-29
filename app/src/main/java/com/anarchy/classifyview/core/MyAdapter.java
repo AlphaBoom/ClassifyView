@@ -6,8 +6,12 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.anarchy.classify.simple.SimpleAdapter;
+import com.anarchy.classify.simple.widget.InsertAbleGridView;
 import com.anarchy.classifyview.R;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -26,9 +30,11 @@ public class MyAdapter extends SimpleAdapter<Bean, MyAdapter.ViewHolder> {
 
     @Override
     protected ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_sample_vertical, parent, false);
         return new MyAdapter.ViewHolder(view);
     }
+
+
     @Override
     public View getView(ViewGroup parent, View convertView, int mainPosition, int subPosition) {
         if (convertView == null) {

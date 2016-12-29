@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.anarchy.classify.ClassifyView;
 import com.anarchy.classifyview.R;
+import com.anarchy.classifyview.core.BaseFragment;
 import com.anarchy.classifyview.sample.demonstrate.logic.Book;
 import com.anarchy.classifyview.sample.demonstrate.logic.BookListAdapter;
 import com.anarchy.classifyview.sample.demonstrate.logic.BookListener;
@@ -35,7 +36,7 @@ import java.util.List;
  * Author: zhendong.wu@shoufuyou.com
  * <p/>
  */
-public class DemonstrateFragment extends Fragment {
+public class DemonstrateFragment extends BaseFragment {
     private NetManager mNetManager = new NetManager();
     private List<List<Book>> mBooks = new ArrayList<>();
     private BookListAdapter mAdapter;

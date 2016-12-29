@@ -29,6 +29,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:gridlayout-v7:23.3.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile project(':classify')
     compile 'com.android.support:design:23.3.0'

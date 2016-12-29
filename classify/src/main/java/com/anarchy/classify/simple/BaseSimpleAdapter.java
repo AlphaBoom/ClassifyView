@@ -3,6 +3,8 @@ package com.anarchy.classify.simple;
 import com.anarchy.classify.adapter.BaseMainAdapter;
 import com.anarchy.classify.adapter.BaseSubAdapter;
 
+import java.util.List;
+
 /**
  * Version 1.0
  * <p>

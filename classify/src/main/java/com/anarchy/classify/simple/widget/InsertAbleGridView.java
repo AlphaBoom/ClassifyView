@@ -1,7 +1,6 @@
 package com.anarchy.classify.simple.widget;
 
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
@@ -13,10 +12,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.PopupWindow;
 
 import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.R;
+import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
 import com.anarchy.classify.simple.SimpleAdapter;
 
 import java.util.ArrayList;
@@ -35,7 +34,7 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     private int mOutLinePadding;
     private int mInnerPadding;
     private BagDrawable mBagDrawable;
-    private SimpleAdapter mSimpleAdapter;
+    private PrimitiveSimpleAdapter mPrimitiveSimpleAdapter;
     private List<View> mRecycledViews;
     private int parentIndex;
     private ChangeInfo mReturnInfo = new ChangeInfo();
@@ -249,14 +248,13 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     }
 
     @Override
-    public void setAdapter(SimpleAdapter simpleAdapter) {
-        mSimpleAdapter = simpleAdapter;
+    public void setAdapter(PrimitiveSimpleAdapter primitiveSimpleAdapter) {
+        mPrimitiveSimpleAdapter = primitiveSimpleAdapter;
     }
 
     @Override
-    public void initOrUpdateMain(int parentIndex, List list) {
+    public void initOrUpdateMain(int parentIndex, int requestCount) {
         this.parentIndex = parentIndex;
-        int requestCount = list.size();
         int childCount = getChildCount();
         initOrUpdateMainInternal(parentIndex, requestCount, childCount);
     }
@@ -321,7 +319,7 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
             if(mRecycledViews != null &&mRecycledViews.size() > 0){
                 convertView = mRecycledViews.get(mRecycledViews.size()-1);
             }
-            View item = mSimpleAdapter.getView(this,convertView,parentIndex,subIndex);
+            View item = mPrimitiveSimpleAdapter.getView(this,convertView,parentIndex,subIndex);
             if(convertView != null &&item == convertView){
                 attachAndReusedView(item,layoutPosition);
             }else {
@@ -330,7 +328,7 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
         }else {
             View convertView = getChildAt(layoutPosition);
             resetScale(convertView);
-            View item = mSimpleAdapter.getView(this,convertView,parentIndex,subIndex);
+            View item = mPrimitiveSimpleAdapter.getView(this,convertView,parentIndex,subIndex);
             if(item != convertView){//返回了一个新的View
                 Log.w("InsertAbleGridView","should reuse cached view");
                 removeViewInLayout(convertView);
