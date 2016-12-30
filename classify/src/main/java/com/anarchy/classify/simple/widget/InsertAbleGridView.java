@@ -15,6 +15,7 @@ import android.view.animation.DecelerateInterpolator;
 
 import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.R;
+import com.anarchy.classify.simple.FolderAdapter;
 import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
 import com.anarchy.classify.simple.SimpleAdapter;
 
@@ -37,6 +38,8 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     private PrimitiveSimpleAdapter mPrimitiveSimpleAdapter;
     private List<View> mRecycledViews;
     private int parentIndex;
+//    private SimpleAdapter mSimpleAdapter;
+    private FolderAdapter mFolderAdapter;
     private ChangeInfo mReturnInfo = new ChangeInfo();
     private ScrollerCompat mScroller;
     public InsertAbleGridView(Context context) {
@@ -250,6 +253,13 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     @Override
     public void setAdapter(PrimitiveSimpleAdapter primitiveSimpleAdapter) {
         mPrimitiveSimpleAdapter = primitiveSimpleAdapter;
+        mFolderAdapter=null;
+    }
+
+    @Override
+    public void setAdapter(FolderAdapter folderAdapter) {
+        mFolderAdapter = folderAdapter;
+        mPrimitiveSimpleAdapter=null;
     }
 
     @Override
@@ -259,6 +269,13 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
         initOrUpdateMainInternal(parentIndex, requestCount, childCount);
     }
 
+    @Override
+    public void initOrUpdateMain(int parentIndex, List list) {
+        this.parentIndex = parentIndex;
+        int requestCount = list.size();
+        int childCount = getChildCount();
+        initOrUpdateMainInternal(parentIndex, requestCount, childCount);
+    }
     @Override
     public void initOrUpdateSub(int parentIndex, int subIndex) {
         this.parentIndex = parentIndex;
@@ -319,7 +336,15 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
             if(mRecycledViews != null &&mRecycledViews.size() > 0){
                 convertView = mRecycledViews.get(mRecycledViews.size()-1);
             }
-            View item = mPrimitiveSimpleAdapter.getView(this,convertView,parentIndex,subIndex);
+            View item =null;
+            if(mPrimitiveSimpleAdapter!=null){
+                item = mPrimitiveSimpleAdapter.getView(this,convertView,parentIndex,subIndex);
+            }else if(mFolderAdapter!=null){
+                item = mFolderAdapter.getView(this,convertView,parentIndex,subIndex);
+            }
+            if(item==null){
+                return;
+            }
             if(convertView != null &&item == convertView){
                 attachAndReusedView(item,layoutPosition);
             }else {
@@ -328,7 +353,15 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
         }else {
             View convertView = getChildAt(layoutPosition);
             resetScale(convertView);
-            View item = mPrimitiveSimpleAdapter.getView(this,convertView,parentIndex,subIndex);
+            View item =null;
+            if(mPrimitiveSimpleAdapter!=null){
+                item = mPrimitiveSimpleAdapter.getView(this,convertView,parentIndex,subIndex);
+            }else if(mFolderAdapter!=null){
+                item = mFolderAdapter.getView(this,convertView,parentIndex,subIndex);
+            }
+            if(item==null){
+                return;
+            }
             if(item != convertView){//返回了一个新的View
                 Log.w("InsertAbleGridView","should reuse cached view");
                 removeViewInLayout(convertView);

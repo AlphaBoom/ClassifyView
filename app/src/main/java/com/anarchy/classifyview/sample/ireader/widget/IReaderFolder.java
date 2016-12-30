@@ -15,6 +15,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.anarchy.classify.simple.ChangeInfo;
+import com.anarchy.classify.simple.FolderAdapter;
 import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
 import com.anarchy.classify.simple.SimpleAdapter;
 import com.anarchy.classify.simple.widget.CanMergeView;
@@ -186,6 +187,11 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
 
     }
 
+    @Override
+    public void setAdapter(FolderAdapter folderAdapter) {
+
+    }
+
     /**
      * 初始化或更新主层级
      *
@@ -194,6 +200,11 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
      */
     @Override
     public void initOrUpdateMain(int parentIndex, int requestCount) {
+
+    }
+
+    @Override
+    public void initOrUpdateMain(int parentIndex, List list) {
 
     }
 

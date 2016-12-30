@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.anarchy.classify.MergeInfo;
+import com.anarchy.classify.bean.BaseBean;
 
 import java.util.List;
 
@@ -98,4 +99,6 @@ public interface MainRecyclerViewCallBack<Sub extends SubRecyclerViewCallBack> e
      * 通知这是一个点击item的事件,其他情况会根据返回的List 通知 subAdapter 进行数据更新并打开显示subview的窗口
      */
     List explodeItem(int position, View pressedView);
+
+    BaseBean explodeItem(int position);
 }

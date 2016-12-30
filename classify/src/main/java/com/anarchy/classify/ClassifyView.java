@@ -40,7 +40,9 @@ import com.anarchy.classify.adapter.BaseSubAdapter;
 import com.anarchy.classify.adapter.MainRecyclerViewCallBack;
 import com.anarchy.classify.adapter.SubAdapterReference;
 import com.anarchy.classify.adapter.SubRecyclerViewCallBack;
+import com.anarchy.classify.bean.BaseBean;
 import com.anarchy.classify.simple.BaseSimpleAdapter;
+import com.anarchy.classify.util.Constants;
 import com.anarchy.classify.util.L;
 
 import java.lang.annotation.Retention;
@@ -382,10 +384,22 @@ public class ClassifyView extends FrameLayout {
                 View pressedView = findChildView(mMainRecyclerView, e);
                 if (pressedView == null) return false;
                 int position = mMainRecyclerView.getChildAdapterPosition(pressedView);
-                List list = mMainCallBack.explodeItem(position, pressedView);
+                BaseBean baseBean=null;
+                List list =null;
+                if(Constants.isFolderAdapter){
+                    baseBean=mMainCallBack.explodeItem(position);
+                    list=baseBean.getBookList();
+                }else{
+                    list = mMainCallBack.explodeItem(position, pressedView);
+                }
                 if (list == null) {
-                    mMainCallBack.onItemClick(position, pressedView);
-                    return true;
+                    if(baseBean.isGroup){
+                        mSubCallBack.initData(position, list);
+                        showSubContainer();
+                        return true;
+                    }else{
+                        mMainCallBack.onItemClick(position, pressedView);
+                        return true;}
                 } else {
                     mSubCallBack.initData(position, list);
                     showSubContainer();

@@ -10,6 +10,7 @@ import com.anarchy.classifyview.sample.demonstrate.DemonstrateFragment;
 import com.anarchy.classifyview.sample.ireader.IReaderMockFragment;
 import com.anarchy.classifyview.sample.layoutmanager.LayoutManagerFragment;
 import com.anarchy.classifyview.sample.normal.NormalFragment;
+import com.anarchy.classifyview.sample.normalfolder.NormalFolderFragment;
 import com.anarchy.classifyview.sample.viewpager.ViewPagerFragment;
 
 /**
@@ -20,7 +21,7 @@ import com.anarchy.classifyview.sample.viewpager.ViewPagerFragment;
  */
 public class ContentActivity extends AppCompatActivity {
     private Class<? extends Fragment>[] mClasses = new Class[]{NormalFragment.class,
-            DemonstrateFragment.class, ViewPagerFragment.class, LayoutManagerFragment.class};//,IReaderMockFragment.class
+            DemonstrateFragment.class, ViewPagerFragment.class, LayoutManagerFragment.class,IReaderMockFragment.class,NormalFolderFragment.class};//,IReaderMockFragment.class
     private int position;
 
     @Override

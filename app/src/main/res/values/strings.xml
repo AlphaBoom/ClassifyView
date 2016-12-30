@@ -14,7 +14,8 @@
         <item>使用演示</item>
         <item>配合ViewPager使用(Test)</item>
         <item>使用其他类型的LayoutManager</item>
-        <!--<item>模仿IRead的书架效果</item>-->
+        <item>模仿IRead的书架效果</item>
+        <item>文件夹效果</item>
     </string-array>
 
 </resources>
