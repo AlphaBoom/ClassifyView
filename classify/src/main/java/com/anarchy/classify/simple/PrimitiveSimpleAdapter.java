@@ -9,6 +9,7 @@ import com.anarchy.classify.MergeInfo;
 import com.anarchy.classify.adapter.BaseMainAdapter;
 import com.anarchy.classify.adapter.BaseSubAdapter;
 import com.anarchy.classify.adapter.SubAdapterReference;
+import com.anarchy.classify.bean.BaseBean;
 import com.anarchy.classify.simple.widget.CanMergeView;
 
 import java.util.List;
@@ -284,6 +285,11 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
         @Override
         public List<Sub> explodeItem(int position, View pressedView) {
             return PrimitiveSimpleAdapter.this.explode(position, pressedView);
+        }
+
+        @Override
+        public BaseBean explodeItem(int position) {
+            return null;
         }
 
         @Override
