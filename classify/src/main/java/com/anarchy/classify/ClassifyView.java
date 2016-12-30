@@ -38,11 +38,8 @@ import com.anarchy.classify.adapter.BaseCallBack;
 import com.anarchy.classify.adapter.BaseMainAdapter;
 import com.anarchy.classify.adapter.BaseSubAdapter;
 import com.anarchy.classify.adapter.MainRecyclerViewCallBack;
-import com.anarchy.classify.adapter.SubAdapterReference;
 import com.anarchy.classify.adapter.SubRecyclerViewCallBack;
-import com.anarchy.classify.bean.BaseBean;
 import com.anarchy.classify.simple.BaseSimpleAdapter;
-import com.anarchy.classify.util.Constants;
 import com.anarchy.classify.util.L;
 
 import java.lang.annotation.Retention;
@@ -384,22 +381,10 @@ public class ClassifyView extends FrameLayout {
                 View pressedView = findChildView(mMainRecyclerView, e);
                 if (pressedView == null) return false;
                 int position = mMainRecyclerView.getChildAdapterPosition(pressedView);
-                BaseBean baseBean=null;
-                List list =null;
-                if(Constants.isFolderAdapter){
-                    baseBean=mMainCallBack.explodeItem(position);
-                    list=baseBean.getBookList();
-                }else{
-                    list = mMainCallBack.explodeItem(position, pressedView);
-                }
+                List list = mMainCallBack.explodeItem(position, pressedView);
                 if (list == null) {
-                    if(baseBean.isGroup){
-                        mSubCallBack.initData(position, list);
-                        showSubContainer();
-                        return true;
-                    }else{
-                        mMainCallBack.onItemClick(position, pressedView);
-                        return true;}
+                    mMainCallBack.onItemClick(position, pressedView);
+                    return true;
                 } else {
                     mSubCallBack.initData(position, list);
                     showSubContainer();
@@ -566,7 +551,7 @@ public class ClassifyView extends FrameLayout {
                             if (mSubCallBack.canDragOut(mSelectedPosition)) {
                                 mRegion = IN_MAIN_REGION;
                                 hideSubContainer();
-                                mSelectedPosition = mMainCallBack.onLeaveSubRegion(mSelectedPosition, new SubAdapterReference(mSubCallBack));
+                                mSelectedPosition = mMainCallBack.onLeaveSubRegion(mSelectedPosition, mSubCallBack);
                                 mMainCallBack.setDragPosition(mSelectedPosition, true);
                                 mSubCallBack.setDragPosition(-1, true);
                                 mSelectedStartX = mSelectedStartX + mSubLocation[0] - mMainLocation[0];

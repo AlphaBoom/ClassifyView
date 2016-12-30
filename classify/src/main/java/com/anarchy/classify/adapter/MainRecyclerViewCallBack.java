@@ -4,7 +4,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.anarchy.classify.MergeInfo;
-import com.anarchy.classify.bean.BaseBean;
 
 import java.util.List;
 
@@ -85,20 +84,25 @@ public interface MainRecyclerViewCallBack<Sub extends SubRecyclerViewCallBack> e
     /**
      * 当次级目录移出范围时的回调
      * @param selectedPosition
-     * @param subAdapterReference
+     * @param subAdapter
      * @return 添加到主目录的位置
      */
-    int onLeaveSubRegion(int selectedPosition,SubAdapterReference<Sub> subAdapterReference);
+    int onLeaveSubRegion(int selectedPosition,Sub subAdapter);
 
-
+    /**
+     * 是否展开当前项
+     * @param position
+     * @return
+     */
+    boolean canExplodeItem(int position, View pressedView);
     /**
      * 是否要展开这个view
      * @param position
      * @param pressedView
      * @return 如果返回空 则不会展开 之后会调用 {@link #onItemClick(int, View)}
      * 通知这是一个点击item的事件,其他情况会根据返回的List 通知 subAdapter 进行数据更新并打开显示subview的窗口
+     * @deprecated 使用数据无关类型的回调 {@link #canExplodeItem(int, View)}
      */
     List explodeItem(int position, View pressedView);
 
-    BaseBean explodeItem(int position);
 }

@@ -9,11 +9,15 @@ import java.util.List;
  * <p/>
  */
 public interface SubRecyclerViewCallBack extends BaseCallBack{
-
-
+    /**
+     * 准备展开副层级
+     * @param parentPosition 主层级点击的位置
+     */
+    void prepareExplodeItem(int parentPosition);
     /**
      * 下面进行数据初始化 和 显示
      * @param data
+     * @deprecated {@link #prepareExplodeItem(int)}
      */
     void initData(int parentIndex,List data);
 

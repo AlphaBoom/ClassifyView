@@ -41,6 +41,16 @@ public abstract class BaseSubAdapter<VH extends RecyclerView.ViewHolder> extends
     }
 
     @Override
+    public void initData(int parentIndex, List data) {
+        prepareExplodeItem(parentIndex);
+    }
+
+    @Override
+    public void prepareExplodeItem(int parentPosition) {
+
+    }
+
+    @Override
     public int getDragPosition() {
         return mSelectedPosition;
     }

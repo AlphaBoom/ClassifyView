@@ -1,6 +1,6 @@
 package com.anarchy.classify.simple;
 
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,11 +8,7 @@ import android.view.ViewGroup;
 import com.anarchy.classify.MergeInfo;
 import com.anarchy.classify.adapter.BaseMainAdapter;
 import com.anarchy.classify.adapter.BaseSubAdapter;
-import com.anarchy.classify.adapter.SubAdapterReference;
-import com.anarchy.classify.bean.BaseBean;
 import com.anarchy.classify.simple.widget.CanMergeView;
-
-import java.util.List;
 
 /**
  * 一种常用的方式，主层级与负层级使用相同的布局元素创建
@@ -119,12 +115,21 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
     protected abstract int getSubItemCount(int parentPosition);
 
     /**
-     * @see BaseMainAdapter#explodeItem(int, View)
-     * @param position 主层级的位置
-     * @param pressedView 被点击的view 如果不为空则为点击操作触发弹出副层级窗口
+     * 返回副层级的数据源
+     * @param parentPosition
      * @return
      */
-    protected abstract List<Sub> explode(int position,@Nullable View pressedView);
+    @NonNull
+    protected abstract Sub getSubSource(int parentPosition);
+
+    /**
+     * 能否弹出次级窗口
+     * @param position  主层级点击的位置
+     * @param pressedView 点击的view
+     * @return
+     */
+    protected abstract boolean canExplodeItem(int position,View pressedView);
+
 
     /**
      * 在主层级触发move事件 在这里进行数据改变
@@ -132,6 +137,14 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
      * @param targetPosition 要移动到的位置
      */
     protected abstract void onMove(int selectedPosition, int targetPosition);
+
+    /**
+     * 副层级数据移动处理
+     * @param sub 副层级数据源
+     * @param selectedPosition 当前选择的item位置
+     * @param targetPosition 要移动到的位置
+     */
+    protected abstract void onSubMove(Sub sub,int selectedPosition,int targetPosition);
 
     /**
      * 两个选项能否合并
@@ -149,10 +162,11 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
 
     /**
      * 从副层级移除的元素
-     * @param sub
+     * @param sub 副层级数据源
+     * @param selectedPosition 将要冲副层级移除的数据
      * @return 返回的数为添加到主层级的位置
      */
-    protected abstract int onLeaveSubRegion(Sub sub);
+    protected abstract int onLeaveSubRegion(Sub sub,int selectedPosition);
     /**
      * 主层级数据绑定
      *
@@ -227,7 +241,9 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
         return true;
     }
 
-
+    /**
+     * 简单的实现主层级的Adapter
+     */
     private class SimpleMainAdapter extends BaseMainAdapter<VH, SimpleSubAdapter> {
 
         @Override
@@ -274,22 +290,16 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
         }
 
         @Override
-        public int onLeaveSubRegion(int selectedPosition, SubAdapterReference<SimpleSubAdapter> subAdapterReference) {
-            SimpleSubAdapter simpleSubAdapter = subAdapterReference.getAdapter();
-            Sub sub = simpleSubAdapter.getData().remove(selectedPosition);
-            int parentTargetPosition = PrimitiveSimpleAdapter.this.onLeaveSubRegion(sub);
+        public int onLeaveSubRegion(int selectedPosition, SimpleSubAdapter simpleSubAdapter) {
+            int parentTargetPosition = PrimitiveSimpleAdapter.this.onLeaveSubRegion(simpleSubAdapter.getData(),selectedPosition);
             if(simpleSubAdapter.getParentPosition() != -1) notifyItemChanged(simpleSubAdapter.getParentPosition());
             return parentTargetPosition;
         }
 
-        @Override
-        public List<Sub> explodeItem(int position, View pressedView) {
-            return PrimitiveSimpleAdapter.this.explode(position, pressedView);
-        }
 
         @Override
-        public BaseBean explodeItem(int position) {
-            return null;
+        public boolean canExplodeItem(int position, View pressedView) {
+            return PrimitiveSimpleAdapter.this.canExplodeItem(position,pressedView);
         }
 
         @Override
@@ -363,9 +373,12 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
         }
     }
 
+    /**
+     * 简单实现副层级的Adapter
+     */
     private class SimpleSubAdapter extends BaseSubAdapter<VH> {
         private int mParentPosition = -1;
-        private List<Sub> mData;
+        private Sub mData;
 
         @Override
         public VH onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -388,19 +401,18 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
 
         @Override
         public int getItemCount() {
-            if (mData == null) return 0;
-            return mData.size();
+            return getSubItemCount(mParentPosition);
         }
 
-        @SuppressWarnings("unchecked")
+
         @Override
-        public void initData(int parentIndex, List data) {
-            mParentPosition = parentIndex;
-            mData = data;
+        public void prepareExplodeItem(int parentPosition) {
+            mParentPosition = parentPosition;
+            mData = PrimitiveSimpleAdapter.this.getSubSource(parentPosition);
             notifyDataSetChanged();
         }
 
-        public List<Sub> getData() {
+        public Sub getData() {
             return mData;
         }
 
@@ -411,7 +423,7 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
         @Override
         public boolean onMove(int selectedPosition, int targetPosition) {
             notifyItemMoved(selectedPosition, targetPosition);
-            mData.add(targetPosition, mData.remove(selectedPosition));
+            PrimitiveSimpleAdapter.this.onSubMove(mData,selectedPosition,targetPosition);
             if(mParentPosition != -1) {
                 mSimpleMainAdapter.notifyItemChanged(mParentPosition);
             }

@@ -42,7 +42,6 @@
         </android.support.v7.widget.GridLayout>
 
         <FrameLayout
-            android:visibility="@{book.folder?View.GONE:View.VISIBLE}"
             android:id="@id/i_reader_folder_content"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -51,7 +50,6 @@
 
         <CheckBox
             android:id="@id/i_reader_folder_check_box"
-            android:visibility="@{inEditMode?(book.folder?View.GONE:View.VISIBLE):View.GONE, default=gone}"
             android:layout_marginTop="-15dp"
             android:layout_marginRight="-15dp"
             android:layout_alignParentRight="true"

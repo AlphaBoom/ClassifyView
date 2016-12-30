@@ -13,11 +13,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.DecelerateInterpolator;
 
-import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.R;
-import com.anarchy.classify.simple.FolderAdapter;
+import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
-import com.anarchy.classify.simple.SimpleAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,8 +36,6 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     private PrimitiveSimpleAdapter mPrimitiveSimpleAdapter;
     private List<View> mRecycledViews;
     private int parentIndex;
-//    private SimpleAdapter mSimpleAdapter;
-    private FolderAdapter mFolderAdapter;
     private ChangeInfo mReturnInfo = new ChangeInfo();
     private ScrollerCompat mScroller;
     public InsertAbleGridView(Context context) {
@@ -253,14 +249,8 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     @Override
     public void setAdapter(PrimitiveSimpleAdapter primitiveSimpleAdapter) {
         mPrimitiveSimpleAdapter = primitiveSimpleAdapter;
-        mFolderAdapter=null;
     }
 
-    @Override
-    public void setAdapter(FolderAdapter folderAdapter) {
-        mFolderAdapter = folderAdapter;
-        mPrimitiveSimpleAdapter=null;
-    }
 
     @Override
     public void initOrUpdateMain(int parentIndex, int requestCount) {
@@ -269,13 +259,6 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
         initOrUpdateMainInternal(parentIndex, requestCount, childCount);
     }
 
-    @Override
-    public void initOrUpdateMain(int parentIndex, List list) {
-        this.parentIndex = parentIndex;
-        int requestCount = list.size();
-        int childCount = getChildCount();
-        initOrUpdateMainInternal(parentIndex, requestCount, childCount);
-    }
     @Override
     public void initOrUpdateSub(int parentIndex, int subIndex) {
         this.parentIndex = parentIndex;
@@ -339,8 +322,6 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
             View item =null;
             if(mPrimitiveSimpleAdapter!=null){
                 item = mPrimitiveSimpleAdapter.getView(this,convertView,parentIndex,subIndex);
-            }else if(mFolderAdapter!=null){
-                item = mFolderAdapter.getView(this,convertView,parentIndex,subIndex);
             }
             if(item==null){
                 return;
@@ -356,8 +337,6 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
             View item =null;
             if(mPrimitiveSimpleAdapter!=null){
                 item = mPrimitiveSimpleAdapter.getView(this,convertView,parentIndex,subIndex);
-            }else if(mFolderAdapter!=null){
-                item = mFolderAdapter.getView(this,convertView,parentIndex,subIndex);
             }
             if(item==null){
                 return;

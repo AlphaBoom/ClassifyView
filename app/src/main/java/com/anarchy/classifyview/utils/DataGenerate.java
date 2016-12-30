@@ -1,7 +1,7 @@
 package com.anarchy.classifyview.utils;
 
-import com.anarchy.classify.bean.BaseBean;
-import com.anarchy.classify.bean.BookBean;
+import com.anarchy.classifyview.sample.normalfolder.bean.BaseBean;
+import com.anarchy.classifyview.sample.normalfolder.bean.BookBean;
 import com.anarchy.classifyview.core.Bean;
 
 import java.util.ArrayList;

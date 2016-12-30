@@ -1,6 +1,5 @@
 package com.anarchy.classify.simple;
 
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,7 @@ import java.util.List;
  * Author: zhendong.wu@shoufuyou.com
  * <p/>
  */
-public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> extends PrimitiveSimpleAdapter<T, VH> {
+public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> extends PrimitiveSimpleAdapter<List<T>, VH> {
 
     protected List<List<T>> mData;
 
@@ -30,8 +29,6 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> exte
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.simple_item, parent, false);
         return (VH) new ViewHolder(view);
     }
-
-
 
     /**
      * 返回主层级数量
@@ -55,18 +52,20 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> exte
         return mData.get(parentPosition).size();
     }
 
-    /**
-     * @param position    主层级的位置
-     * @param pressedView 被点击的view 如果不为空则为点击操作触发弹出副层级窗口
-     * @return
-     */
+
     @Override
-    protected List<T> explode(int position, @Nullable View pressedView) {
-        if (position < mData.size() && mData.get(position).size() > 1) {
-            return mData.get(position);
-        }
-        return null;
+    protected List<T> getSubSource(int parentPosition) {
+        return mData.get(parentPosition);
     }
+
+    @Override
+    protected boolean canExplodeItem(int position, View pressedView) {
+        if (position < mData.size() && mData.get(position).size() > 1) {
+            return true;
+        }
+        return false;
+    }
+
 
     /**
      * 在主层级触发move事件 在这里进行数据改变
@@ -78,6 +77,20 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> exte
     protected void onMove(int selectedPosition, int targetPosition) {
         List<T> list = mData.remove(selectedPosition);
         mData.add(targetPosition, list);
+    }
+
+
+    @Override
+    protected void onSubMove(List<T> ts, int selectedPosition, int targetPosition) {
+        ts.add(targetPosition, ts.remove(selectedPosition));
+    }
+
+    @Override
+    protected int onLeaveSubRegion(List<T> ts, int selectedPosition) {
+        List<T> list = new ArrayList<>();
+        list.add(ts.remove(selectedPosition));
+        mData.add(list);
+        return mData.size() - 1;
     }
 
     /**
@@ -105,19 +118,6 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> exte
         mData.remove(selectedPosition);
     }
 
-    /**
-     * 从副层级移除的元素
-     *
-     * @param t
-     * @return 返回的数为添加到主层级的位置
-     */
-    @Override
-    protected int onLeaveSubRegion(T t) {
-        List<T> list = new ArrayList<>();
-        list.add(t);
-        mData.add(list);
-        return mData.size() - 1;
-    }
 
     /**
      * 主层级数据绑定

@@ -1,6 +1,7 @@
 package com.anarchy.classifyview.sample.layoutmanager;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;

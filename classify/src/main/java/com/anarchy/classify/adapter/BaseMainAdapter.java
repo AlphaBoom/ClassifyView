@@ -8,6 +8,7 @@ import android.view.View;
 import com.anarchy.classify.MergeInfo;
 import com.anarchy.classify.ClassifyView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,6 +20,7 @@ import java.util.List;
 public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub extends SubRecyclerViewCallBack> extends RecyclerView.Adapter<VH> implements MainRecyclerViewCallBack<Sub> {
     private final static int VELOCITY = 1;
     private int mSelectedPosition = SELECT_UNKNOWN;
+    private List mDummySource = new ArrayList();
 
     @Override
     public void setDragPosition(int position,boolean shouldNotify) {
@@ -135,6 +137,16 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
             }
         }
         return ClassifyView.MOVE_STATE_NONE;
+    }
+
+    @Override
+    public boolean canExplodeItem(int position, View pressedView) {
+        return false;
+    }
+
+    @Override
+    public List explodeItem(int position, View pressedView) {
+        return canExplodeItem(position,pressedView)? mDummySource :null;
     }
 
     @Override
