@@ -1,4 +1,4 @@
-package com.anarchy.classify.adapter;
+package com.anarchy.classify.callback;
 
 import android.content.Context;
 import android.view.VelocityTracker;

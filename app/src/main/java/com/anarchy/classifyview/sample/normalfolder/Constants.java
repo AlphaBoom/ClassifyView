@@ -1,4 +1,4 @@
-package com.anarchy.classify.util;
+package com.anarchy.classifyview.sample.normalfolder;
 
 /**
  * Created by lizhiming211223 on 2016/12/30.

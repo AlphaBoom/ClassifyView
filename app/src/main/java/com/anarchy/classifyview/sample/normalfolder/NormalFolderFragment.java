@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 
 import com.anarchy.classify.ClassifyView;
 import com.anarchy.classifyview.sample.normalfolder.bean.BaseBean;
-import com.anarchy.classify.util.Constants;
 import com.anarchy.classifyview.R;
 import com.anarchy.classifyview.sample.normalfolder.logic.MyFolderAdapter;
 import com.anarchy.classifyview.utils.DataGenerate;

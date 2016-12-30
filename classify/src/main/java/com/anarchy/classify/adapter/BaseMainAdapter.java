@@ -7,6 +7,8 @@ import android.view.View;
 
 import com.anarchy.classify.MergeInfo;
 import com.anarchy.classify.ClassifyView;
+import com.anarchy.classify.callback.MainRecyclerViewCallBack;
+import com.anarchy.classify.callback.SubRecyclerViewCallBack;
 
 import java.util.ArrayList;
 import java.util.List;

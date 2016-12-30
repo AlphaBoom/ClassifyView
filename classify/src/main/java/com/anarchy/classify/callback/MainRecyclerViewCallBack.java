@@ -1,4 +1,4 @@
-package com.anarchy.classify.adapter;
+package com.anarchy.classify.callback;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

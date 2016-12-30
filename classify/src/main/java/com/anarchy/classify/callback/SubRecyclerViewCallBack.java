@@ -1,4 +1,4 @@
-package com.anarchy.classify.adapter;
+package com.anarchy.classify.callback;
 
 import java.util.List;
 

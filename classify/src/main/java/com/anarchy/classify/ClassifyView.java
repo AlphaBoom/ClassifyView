@@ -34,11 +34,11 @@ import android.view.WindowManager;
 import android.view.animation.Interpolator;
 import android.widget.FrameLayout;
 
-import com.anarchy.classify.adapter.BaseCallBack;
+import com.anarchy.classify.callback.BaseCallBack;
 import com.anarchy.classify.adapter.BaseMainAdapter;
 import com.anarchy.classify.adapter.BaseSubAdapter;
-import com.anarchy.classify.adapter.MainRecyclerViewCallBack;
-import com.anarchy.classify.adapter.SubRecyclerViewCallBack;
+import com.anarchy.classify.callback.MainRecyclerViewCallBack;
+import com.anarchy.classify.callback.SubRecyclerViewCallBack;
 import com.anarchy.classify.simple.BaseSimpleAdapter;
 import com.anarchy.classify.util.L;
 
