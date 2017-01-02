@@ -119,7 +119,6 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
      * @param parentPosition
      * @return
      */
-    @NonNull
     protected abstract Sub getSubSource(int parentPosition);
 
     /**

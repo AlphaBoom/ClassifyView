@@ -2,19 +2,10 @@ package com.anarchy.classifyview.sample.ireader.model;
 
 import android.graphics.Color;
 
-/**
- * Version 2.1.1
- * <p>
- * Date: 16/12/27 16:40
- * Author: zhendong.wu@shoufuyou.com
- * <p/>
- * Copyright © 2016 Shanghai Xiaotu Network Technology Co., Ltd.
- */
-
 public class IReaderMockData {
     private boolean isChecked;
     private int color = Color.BLUE;
-    private String category;
+    private IReaderMockDataGroup mParent;
 
     public boolean isChecked() {
         return isChecked;
@@ -22,9 +13,7 @@ public class IReaderMockData {
 
     public void setChecked(boolean checked) {
         isChecked = checked;
-
     }
-
 
     public int getColor() {
         return color;
@@ -34,11 +23,11 @@ public class IReaderMockData {
         this.color = color;
     }
 
-    public String getCategory() {
-        return category;
+    public IReaderMockDataGroup getParent() {
+        return mParent;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setParent(IReaderMockDataGroup parent) {
+        mParent = parent;
     }
 }

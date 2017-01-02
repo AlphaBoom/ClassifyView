@@ -17,8 +17,6 @@ import com.anarchy.classifyview.core.BaseFragment;
 import com.anarchy.classifyview.databinding.FragmentMockIreaderBinding;
 import com.anarchy.classifyview.sample.ireader.model.IReaderMockData;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 /**
@@ -42,20 +40,14 @@ public class IReaderMockFragment extends BaseFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_mock_ireader,container,false);
-        mAdapter = new IReaderAdapter(new ArrayList<List<IReaderMockData>>());
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_mock_ireader, container, false);
         mRandom = new Random(System.currentTimeMillis());
         mBinding.classifyView.addDragListener(new ClassifyView.DragListener() {
             @Override
             public void onDragStart(ViewGroup parent, float startX, float startY, int region) {
-                    if(!inEditMode){
-                        showEditMode();
-                        //如果为书籍标记为选中状态
-                        IReaderMockData mockData = mAdapter.getCurrentSingleDragData();
-                        if(mockData != null){
-                            mockData.setChecked(true);
-                        }
-                    }
+                if (!inEditMode) {
+                    showEditMode();
+                }
             }
 
             @Override
@@ -83,25 +75,28 @@ public class IReaderMockFragment extends BaseFragment {
         return mBinding.getRoot();
     }
 
-    private void showEditMode(){
+    private void showEditMode() {
         inEditMode = true;
+        mAdapter.setEditMode(true);
         mBinding.toolBar.animate().translationY(mBinding.toolBar.getHeight()).start();
         mBinding.bottomBar.animate().translationY(-mBinding.bottomBar.getHeight()).start();
     }
-    private void hideEditMode(){
+
+    private void hideEditMode() {
         inEditMode = false;
+        mAdapter.setEditMode(false);
         mBinding.toolBar.animate().translationY(0).start();
         mBinding.bottomBar.animate().translationY(0).start();
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_i_reader,menu);
+        inflater.inflate(R.menu.menu_i_reader, menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.action_add){
+        if (item.getItemId() == R.id.action_add) {
             mAdapter.addBook(generateRandomMockData());
             return true;
         }
@@ -109,15 +104,15 @@ public class IReaderMockFragment extends BaseFragment {
     }
 
 
-    private IReaderMockData generateRandomMockData(){
+    private IReaderMockData generateRandomMockData() {
         IReaderMockData mockData = new IReaderMockData();
-//        mockData.color = Color.rgb(mRandom.nextInt(256),mRandom.nextInt(256),mRandom.nextInt(256));
+        mockData.setColor(Color.rgb(mRandom.nextInt(256), mRandom.nextInt(256), mRandom.nextInt(256)));
         return mockData;
     }
 
     @Override
     public boolean onBackPressed() {
-        if(inEditMode){
+        if (inEditMode) {
             hideEditMode();
             return true;
         }

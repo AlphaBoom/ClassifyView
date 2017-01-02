@@ -997,7 +997,7 @@ public class ClassifyView extends FrameLayout {
         public void onAnimationEnd(Animator animation) {
             restoreToInitial();
             for (DragListener listener : mDragListeners) {
-                listener.onDragEnd(ClassifyView.this, mRegion == IN_MAIN_REGION ? IN_MAIN_REGION : IN_SUB_REGION);
+                listener.onDragEnd(ClassifyView.this, mRegion);
             }
         }
 
@@ -1449,17 +1449,17 @@ public class ClassifyView extends FrameLayout {
          * @param startY start touch y relative classify view
          * @param region start drag  region either  main or sub
          */
-        void onDragStart(ViewGroup parent, float startX, float startY, int region);
+        void onDragStart(ViewGroup parent, float startX, float startY,@Region int region);
 
         /**
          * 拖拽结束(recover animation end)
          */
-        void onDragEnd(ViewGroup parent, int region);
+        void onDragEnd(ViewGroup parent,@Region int region);
 
         /**
          * 释放被拖拽的View
          */
-        void onDragRelease(ViewGroup parent, float releaseX, float releaseY, int region);
+        void onDragRelease(ViewGroup parent, float releaseX, float releaseY,@Region int region);
 
         /**
          * move callback by touch location
@@ -1467,7 +1467,7 @@ public class ClassifyView extends FrameLayout {
          * @param touchX 触摸的X坐标
          * @param touchY 触摸的Y坐标
          */
-        void onMove(ViewGroup parent, float touchX, float touchY, int region);
+        void onMove(ViewGroup parent, float touchX, float touchY,@Region int region);
     }
 
 }
