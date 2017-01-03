@@ -61,7 +61,7 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
      * @param count
      */
     public void notifyItemRangeChanged(int position,int count){
-        mSimpleMainAdapter.notifyItemRangeChanged(position,count);
+        mSimpleMainAdapter.notifyItemRangeChanged(position, count);
     }
 
     /**
@@ -70,7 +70,7 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
      * @param count
      */
     public void notifyItemRangeInsert(int position,int count){
-        mSimpleMainAdapter.notifyItemRangeInserted(position,count);
+        mSimpleMainAdapter.notifyItemRangeInserted(position, count);
     }
 
     /**
@@ -137,14 +137,15 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
      */
     protected abstract void onMove(int selectedPosition, int targetPosition);
 
+
+
     /**
-     * 副层级数据移动处理
+     * 返回副层级 数据个数
      * @param sub 副层级数据源
      * @param selectedPosition 当前选择的item位置
      * @param targetPosition 要移动到的位置
      */
     protected abstract void onSubMove(Sub sub,int selectedPosition,int targetPosition);
-
     /**
      * 两个选项能否合并
      * @param selectPosition
@@ -291,7 +292,10 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
         @Override
         public int onLeaveSubRegion(int selectedPosition, SimpleSubAdapter simpleSubAdapter) {
             int parentTargetPosition = PrimitiveSimpleAdapter.this.onLeaveSubRegion(simpleSubAdapter.getData(),selectedPosition);
-            if(simpleSubAdapter.getParentPosition() != -1) notifyItemChanged(simpleSubAdapter.getParentPosition());
+            if(simpleSubAdapter.getItemCount()==1){
+                if (simpleSubAdapter.getParentPosition() != -1) notifyItemRemoved(simpleSubAdapter.getParentPosition());
+            }else{
+                if (simpleSubAdapter.getParentPosition() != -1) notifyItemChanged(simpleSubAdapter.getParentPosition());}
             return parentTargetPosition;
         }
 
@@ -389,6 +393,7 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
             return vh;
         }
 
+
         @Override
         public void onBindViewHolder(VH holder, int position) {
             CanMergeView canMergeView = holder.getCanMergeView();
@@ -412,6 +417,10 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
         }
 
         public Sub getData() {
+            return mData;
+        }
+
+        public Sub getDataSize() {
             return mData;
         }
 

@@ -30,7 +30,7 @@ public class NormalFolderFragment extends Fragment {
         initDatas();
         mClassifyView.setAdapter(new MyFolderAdapter(baseBeans));
         mClassifyView.setDebugAble(true);
-        Constants.isFolderAdapter=true;
+        Constants.IS_FOLDER_ADAPTER=true;
         return view;
     }
 
@@ -40,7 +40,7 @@ public class NormalFolderFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        Constants.isFolderAdapter=false;
+        Constants.IS_FOLDER_ADAPTER=false;
         super.onDestroyView();
     }
 }

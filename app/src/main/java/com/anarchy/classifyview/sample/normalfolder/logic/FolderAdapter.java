@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import com.anarchy.classify.R;
 import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
+import com.anarchy.classifyview.sample.normalfolder.Constants;
 import com.anarchy.classifyview.sample.normalfolder.bean.BaseBean;
 import com.anarchy.classifyview.sample.normalfolder.bean.BookBean;
 
@@ -102,6 +103,9 @@ public abstract class FolderAdapter<VH extends FolderAdapter.ViewHolder> extends
         if (position < mData.size() && mData.get(position).getBookList().size() > 1) {
             return true;
         }
+        if(position < mData.size()&&(mData.get(position).getBookList().size()==1)&& Constants.IS_FOLDER_ADAPTER){
+            return true;
+        }
         return false;
     }
 
@@ -144,6 +148,7 @@ public abstract class FolderAdapter<VH extends FolderAdapter.ViewHolder> extends
      */
     @Override
     protected int onLeaveSubRegion(List<BookBean> bookBeen, int selectedPosition) {
+        int size =bookBeen.size();
         BookBean bookBean = bookBeen.remove(selectedPosition);
         BaseBean baseBean = new BaseBean();
         List<BookBean> bookBeanList = new ArrayList<>();
