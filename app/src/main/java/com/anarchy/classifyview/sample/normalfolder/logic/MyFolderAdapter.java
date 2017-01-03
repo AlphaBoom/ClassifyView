@@ -5,8 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.anarchy.classify.simple.widget.MiViewHolder;
 import com.anarchy.classifyview.sample.normalfolder.bean.BaseBean;
-import com.anarchy.classifyview.sample.normalfolder.bean.MiViewHolder;
 import com.anarchy.classifyview.R;
 
 import java.util.List;

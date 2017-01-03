@@ -1,4 +1,4 @@
-package com.anarchy.classifyview.sample.normalfolder.bean;
+package com.anarchy.classify.simple.widget;
 
 /**
  * Created by lizhiming211223 on 2016/12/29.
