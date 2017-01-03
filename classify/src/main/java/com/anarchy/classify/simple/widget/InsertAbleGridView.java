@@ -32,6 +32,8 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     private int mColumnGap;
     private int mOutLinePadding;
     private int mInnerPadding;
+    public static final int ISFOLDERMODEL=1;
+    public static final int NOTFOLDERMODEL=0;
     private BagDrawable mBagDrawable;
     private PrimitiveSimpleAdapter mPrimitiveSimpleAdapter;
     private List<View> mRecycledViews;
@@ -43,17 +45,17 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     }
 
     public InsertAbleGridView(Context context, AttributeSet attrs) {
-        this(context,attrs,0);
+        this(context, attrs, 0);
     }
 
     public InsertAbleGridView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context,attrs,defStyleAttr);
+        init(context, attrs, defStyleAttr);
     }
 
 
     private void init(Context context,AttributeSet attrs,int defStyleAttr){
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.InsertAbleGridView,defStyleAttr,R.style.InsertAbleGridViewDefaultStyle);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.InsertAbleGridView, defStyleAttr, R.style.InsertAbleGridViewDefaultStyle);
         mRowCount = a.getInt(R.styleable.InsertAbleGridView_RowCount,2);
         mColumnCount = a.getInt(R.styleable.InsertAbleGridView_ColumnCount,2);
         mRowGap = a.getDimensionPixelSize(R.styleable.InsertAbleGridView_RowGap,10);
@@ -67,6 +69,31 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
         mScroller = ScrollerCompat.create(context);
     }
 
+    private  void layoutFolder(int childCount,int itemWidth,int itemHeight,int itemTotal){
+        mBagDrawable.setKeepShow(true);
+        int row,col;
+        for(int i=0;i<childCount;i++){
+            View child = getChildAt(i);
+            row = i/mColumnCount;
+            col = i%mColumnCount;
+            if(row < mRowCount){
+                int left = getPaddingLeft()+mInnerPadding+mOutLinePadding+col*(itemWidth+mColumnGap);
+                int right = left + itemWidth;
+                int top = getPaddingTop()+mInnerPadding+mOutLinePadding+row*(itemHeight + mRowGap);
+                int bottom = top+itemHeight;
+                child.layout(left,top,right,bottom);
+            }else if(i>=childCount-itemTotal && childCount%itemTotal != 0){
+                int newI = i%itemTotal;
+                row = newI/mColumnCount;
+                col = newI%mColumnCount;
+                int left = getPaddingLeft()+mInnerPadding+mOutLinePadding+col*(itemWidth+mColumnGap);
+                int right = left + itemWidth;
+                int top = getHeight()+getPaddingTop()+mInnerPadding+mOutLinePadding+row*(itemHeight + mRowGap);
+                int bottom = top+itemHeight;
+                child.layout(left,top,right,bottom);
+            }
+        }
+    }
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         int childCount = getChildCount();
@@ -76,33 +103,25 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
         int itemHeight = getItemHeight(height);
         int itemTotal = mRowCount*mColumnCount;
         if(childCount>0){
-            if(childCount == 1){
-                mBagDrawable.setKeepShow(false);
-                getChildAt(0).layout(getPaddingLeft()+mOutLinePadding,getPaddingTop()+mOutLinePadding,getPaddingLeft()+mOutLinePadding+width,getPaddingTop()+mOutLinePadding+height);
-            }else {
-                mBagDrawable.setKeepShow(true);
-                int row,col;
-                for(int i=0;i<childCount;i++){
-                    View child = getChildAt(i);
-                    row = i/mColumnCount;
-                    col = i%mColumnCount;
-                    if(row < mRowCount){
-                        int left = getPaddingLeft()+mInnerPadding+mOutLinePadding+col*(itemWidth+mColumnGap);
-                        int right = left + itemWidth;
-                        int top = getPaddingTop()+mInnerPadding+mOutLinePadding+row*(itemHeight + mRowGap);
-                        int bottom = top+itemHeight;
-                        child.layout(left,top,right,bottom);
-                    }else if(i>=childCount-itemTotal && childCount%itemTotal != 0){
-                        int newI = i%itemTotal;
-                        row = newI/mColumnCount;
-                        col = newI%mColumnCount;
-                        int left = getPaddingLeft()+mInnerPadding+mOutLinePadding+col*(itemWidth+mColumnGap);
-                        int right = left + itemWidth;
-                        int top = getHeight()+getPaddingTop()+mInnerPadding+mOutLinePadding+row*(itemHeight + mRowGap);
-                        int bottom = top+itemHeight;
-                        child.layout(left,top,right,bottom);
+            if(childCount ==1){
+                final View child = getChildAt(0);
+                MiViewHolder michaelViewHolder= (MiViewHolder) child.getTag();
+                if(michaelViewHolder==null){
+                    mBagDrawable.setKeepShow(false);
+                    getChildAt(0).layout(getPaddingLeft() + mOutLinePadding, getPaddingTop() + mOutLinePadding, getPaddingLeft() + mOutLinePadding + width, getPaddingTop() + mOutLinePadding + height);
+                }else{
+                    switch (michaelViewHolder.childTag){
+                        case NOTFOLDERMODEL:
+                            mBagDrawable.setKeepShow(false);
+                            getChildAt(0).layout(getPaddingLeft() + mOutLinePadding, getPaddingTop() + mOutLinePadding, getPaddingLeft() + mOutLinePadding + width, getPaddingTop() + mOutLinePadding + height);
+                            break;
+                        case ISFOLDERMODEL:
+                            layoutFolder(childCount, itemWidth, itemHeight, itemTotal);
+                            break;
                     }
                 }
+            }else {
+                layoutFolder(childCount, itemWidth, itemHeight, itemTotal);
             }
         }
     }
@@ -110,9 +129,9 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     private ValueAnimator createConvertAnimator(final View view){
         int width = getWidth() - getPaddingLeft()-getPaddingRight()-2*mOutLinePadding;
         int height = getHeight() - getPaddingBottom() - getPaddingTop()-2*mOutLinePadding;
-        PropertyValuesHolder left = PropertyValuesHolder.ofInt("left",view.getLeft(),getPaddingLeft()+mInnerPadding+mOutLinePadding);
-        PropertyValuesHolder right = PropertyValuesHolder.ofInt("right",view.getRight(),getPaddingLeft()+mInnerPadding+mOutLinePadding+getItemWidth(width));
-        PropertyValuesHolder top = PropertyValuesHolder.ofInt("top",view.getTop(),getPaddingTop()+mInnerPadding+mOutLinePadding);
+        PropertyValuesHolder left = PropertyValuesHolder.ofInt("left", view.getLeft(), getPaddingLeft() + mInnerPadding + mOutLinePadding);
+        PropertyValuesHolder right = PropertyValuesHolder.ofInt("right", view.getRight(), getPaddingLeft() + mInnerPadding + mOutLinePadding + getItemWidth(width));
+        PropertyValuesHolder top = PropertyValuesHolder.ofInt("top", view.getTop(), getPaddingTop() + mInnerPadding + mOutLinePadding);
         PropertyValuesHolder bottom = PropertyValuesHolder.ofInt("bottom",view.getBottom(),getPaddingTop()+mInnerPadding+mOutLinePadding+getItemHeight(height));
         ValueAnimator animator = ObjectAnimator.ofPropertyValuesHolder(left,right,top,bottom);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -136,8 +155,8 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
         float height = view.getHeight();
         float scaleX = getItemWidth((int) width)/width;
         float scaleY = getItemHeight((int) height)/height;
-        PropertyValuesHolder scaleXPvh = PropertyValuesHolder.ofFloat("scaleX",scaleX);
-        PropertyValuesHolder scaleYPvh = PropertyValuesHolder.ofFloat("scaleY",scaleY);
+        PropertyValuesHolder scaleXPvh = PropertyValuesHolder.ofFloat("scaleX", scaleX);
+        PropertyValuesHolder scaleYPvh = PropertyValuesHolder.ofFloat("scaleY", scaleY);
         ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(view,scaleXPvh,scaleYPvh);
         animator.setInterpolator(new DecelerateInterpolator());
         return animator;
@@ -149,6 +168,7 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     private int getItemHeight(int height){
         return (height-2*mInnerPadding -(mRowCount-1)*mColumnGap)/mRowCount;
     }
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
@@ -166,9 +186,24 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
         int itemHeight = getItemHeight(height);
         if(childCount>0){
             if(childCount == 1){
-                int widthSpec = MeasureSpec.makeMeasureSpec(width,MeasureSpec.EXACTLY);
+                final View child = getChildAt(0);
+                MiViewHolder michaelViewHolder= (MiViewHolder) child.getTag();
+                int widthSpec = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
                 int heightSpec = MeasureSpec.makeMeasureSpec(height,MeasureSpec.EXACTLY);
-                getChildAt(0).measure(widthSpec,heightSpec);
+                if(michaelViewHolder==null){
+                    getChildAt(0).measure(widthSpec,heightSpec);
+                }else{
+                    switch (michaelViewHolder.childTag){// 若包含其他类型TAG ，建议使用if else
+                        case NOTFOLDERMODEL:
+                            getChildAt(0).measure(widthSpec,heightSpec);
+                            break;
+                        case ISFOLDERMODEL:
+                            for(int i=0;i<getChildCount();i++){
+                                getChildAt(i).measure(widthSpec,heightSpec);
+                            }
+                            break;
+                    }
+                }
             }else {
                 int widthSpec = MeasureSpec.makeMeasureSpec(itemWidth,MeasureSpec.EXACTLY);
                 int heightSpec = MeasureSpec.makeMeasureSpec(itemHeight,MeasureSpec.EXACTLY);
@@ -201,7 +236,7 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
     public void onMergeCancel() {
         mBagDrawable.cancelMergeAnimation();
         if(getChildCount() >= mRowCount*mColumnCount){
-            mScroller.startScroll(0,getHeight(),0,-getHeight(),500);
+            mScroller.startScroll(0, getHeight(), 0, -getHeight(), 500);
         }
     }
 
