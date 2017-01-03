@@ -21,7 +21,7 @@ import com.anarchy.classifyview.sample.viewpager.ViewPagerFragment;
  */
 public class ContentActivity extends AppCompatActivity {
     private Class<? extends Fragment>[] mClasses = new Class[]{NormalFragment.class,
-            DemonstrateFragment.class, ViewPagerFragment.class, LayoutManagerFragment.class,IReaderMockFragment.class,NormalFolderFragment.class};//
+            DemonstrateFragment.class, ViewPagerFragment.class, LayoutManagerFragment.class,NormalFolderFragment.class};//IReaderMockFragment.class,
     private int position;
 
     @Override
