@@ -35,6 +35,7 @@ public class IReaderMockFragment extends BaseFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        setRetainInstance(true);
     }
 
     @Nullable
@@ -42,11 +43,21 @@ public class IReaderMockFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_mock_ireader, container, false);
         mRandom = new Random(System.currentTimeMillis());
+        mAdapter = new IReaderAdapter();
         mBinding.classifyView.addDragListener(new ClassifyView.DragListener() {
             @Override
             public void onDragStart(ViewGroup parent, float startX, float startY, int region) {
                 if (!inEditMode) {
                     showEditMode();
+                    int[] dragPosition = mAdapter.getCurrentDragAdapterPosition();
+                    IReaderMockData mockData = mAdapter.getCurrentSingleDragData();
+                    if(mockData != null){
+                        mockData.setChecked(true);
+                        mAdapter.notifyItemChanged(dragPosition[0]);
+                        if(dragPosition[1] != -1){
+                            mAdapter.getSubAdapter().notifyItemChanged(dragPosition[1]);
+                        }
+                    }
                 }
             }
 
@@ -66,6 +77,7 @@ public class IReaderMockFragment extends BaseFragment {
             }
         });
         mBinding.classifyView.setAdapter(mAdapter);
+        mBinding.classifyView.setDebugAble(true);
         mBinding.textComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

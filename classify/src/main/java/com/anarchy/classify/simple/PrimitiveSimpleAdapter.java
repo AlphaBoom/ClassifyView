@@ -1,6 +1,5 @@
 package com.anarchy.classify.simple;
 
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +21,7 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
     public static final int TYPE_SUB = 2 << MODE_SHIFT;
     private SimpleMainAdapter mSimpleMainAdapter;
     private SimpleSubAdapter mSimpleSubAdapter;
+    private SimpleHook<Sub> mSimpleHook;
 
     public PrimitiveSimpleAdapter() {
         mSimpleMainAdapter = new SimpleMainAdapter();
@@ -38,45 +38,56 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
         return mSimpleSubAdapter;
     }
 
+    /**
+     * 如果设置了该项可以对移动合并时的界面变化也可进行自定义的操作
+     * @param simpleHook
+     */
+    public void setSimpleHook(SimpleHook<Sub> simpleHook) {
+        mSimpleHook = simpleHook;
+    }
+
     @Override
     public boolean isShareViewPool() {
         return true;
     }
 
-    public void notifyItemInsert(int position){
+    public void notifyItemInsert(int position) {
         mSimpleMainAdapter.notifyItemInserted(position);
     }
 
     /**
      * 通知数据变化
+     *
      * @param position
      */
-    public void notifyItemChanged(int position){
+    public void notifyItemChanged(int position) {
         mSimpleMainAdapter.notifyItemChanged(position);
     }
 
     /**
      * 通知数据变化
+     *
      * @param position
      * @param count
      */
-    public void notifyItemRangeChanged(int position,int count){
+    public void notifyItemRangeChanged(int position, int count) {
         mSimpleMainAdapter.notifyItemRangeChanged(position, count);
     }
 
     /**
      * 通知添加数据
+     *
      * @param position
      * @param count
      */
-    public void notifyItemRangeInsert(int position,int count){
+    public void notifyItemRangeInsert(int position, int count) {
         mSimpleMainAdapter.notifyItemRangeInserted(position, count);
     }
 
     /**
      * 通知触发数据变动
      */
-    public void notifyDataSetChanged(){
+    public void notifyDataSetChanged() {
         mSimpleMainAdapter.notifyDataSetChanged();
     }
 
@@ -100,22 +111,25 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
      * @param subPosition  副层级位置
      * @return
      */
-    public  abstract View getView(ViewGroup parent, View convertView, int mainPosition, int subPosition);
+    public abstract View getView(ViewGroup parent, View convertView, int mainPosition, int subPosition);
 
     /**
      * 返回主层级数量
+     *
      * @return
      */
     protected abstract int getItemCount();
 
     /**
      * 副层级的数量，用于主层级上的显示效果
+     *
      * @return
      */
     protected abstract int getSubItemCount(int parentPosition);
 
     /**
      * 返回副层级的数据源
+     *
      * @param parentPosition
      * @return
      */
@@ -123,50 +137,59 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
 
     /**
      * 能否弹出次级窗口
-     * @param position  主层级点击的位置
+     *
+     * @param position    主层级点击的位置
      * @param pressedView 点击的view
      * @return
      */
-    protected abstract boolean canExplodeItem(int position,View pressedView);
+    protected abstract boolean canExplodeItem(int position, View pressedView);
 
 
     /**
      * 在主层级触发move事件 在这里进行数据改变
+     *
      * @param selectedPosition 当前选择的item位置
-     * @param targetPosition 要移动到的位置
+     * @param targetPosition   要移动到的位置
      */
     protected abstract void onMove(int selectedPosition, int targetPosition);
 
 
 
     /**
-     * 返回副层级 数据个数
-     * @param sub 副层级数据源
+     * 副层级数据移动处理
+     *
+     * @param sub              副层级数据源
      * @param selectedPosition 当前选择的item位置
-     * @param targetPosition 要移动到的位置
+     * @param targetPosition   要移动到的位置
      */
-    protected abstract void onSubMove(Sub sub,int selectedPosition,int targetPosition);
+    protected abstract void onSubMove(Sub sub, int selectedPosition, int targetPosition);
+
     /**
      * 两个选项能否合并
+     *
      * @param selectPosition
      * @param targetPosition
      * @return
      */
     protected abstract boolean canMergeItem(int selectPosition, int targetPosition);
+
     /**
      * 合并数据处理
+     *
      * @param selectedPosition
      * @param targetPosition
      */
-    protected abstract void onMerged(int selectedPosition,int targetPosition);
+    protected abstract void onMerged(int selectedPosition, int targetPosition);
 
     /**
      * 从副层级移除的元素
-     * @param sub 副层级数据源
+     *
+     * @param sub              副层级数据源
      * @param selectedPosition 将要冲副层级移除的数据
      * @return 返回的数为添加到主层级的位置
      */
-    protected abstract int onLeaveSubRegion(Sub sub,int selectedPosition);
+    protected abstract int onLeaveSubRegion(int parentPosition, Sub sub, int selectedPosition);
+
     /**
      * 主层级数据绑定
      *
@@ -223,6 +246,7 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
 
     /**
      * 返回ItemType
+     *
      * @param parentPosition
      * @param subPosition
      * @return
@@ -233,6 +257,7 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
 
     /**
      * 能否支持长按拖拽
+     *
      * @param mainPosition
      * @param subPosition
      * @return
@@ -260,7 +285,7 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
         public void onBindViewHolder(VH holder, int position) {
             CanMergeView canMergeView = holder.getCanMergeView();
             if (canMergeView != null) {
-                canMergeView.initOrUpdateMain(position,PrimitiveSimpleAdapter.this.getSubItemCount(position));
+                canMergeView.initOrUpdateMain(position, PrimitiveSimpleAdapter.this.getSubItemCount(position));
             }
             PrimitiveSimpleAdapter.this.onBindMainViewHolder(holder, position);
         }
@@ -279,8 +304,11 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
 
         @Override
         public boolean onMove(int selectedPosition, int targetPosition) {
+            if(mSimpleHook != null){
+                return mSimpleHook.onMove(this,selectedPosition,targetPosition);
+            }
             notifyItemMoved(selectedPosition, targetPosition);
-            PrimitiveSimpleAdapter.this.onMove(selectedPosition,targetPosition);
+            PrimitiveSimpleAdapter.this.onMove(selectedPosition, targetPosition);
             return true;
         }
 
@@ -289,20 +317,37 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
             return PrimitiveSimpleAdapter.this.canMergeItem(selectedPosition, targetPosition);
         }
 
+        /**
+         * 当从副层级离开时必须要删除掉副层级中的数据，只针对这种情况
+         * @param selectedPosition
+         * @param simpleSubAdapter
+         * @return
+         */
         @Override
         public int onLeaveSubRegion(int selectedPosition, SimpleSubAdapter simpleSubAdapter) {
-            int parentTargetPosition = PrimitiveSimpleAdapter.this.onLeaveSubRegion(simpleSubAdapter.getData(),selectedPosition);
-            if(simpleSubAdapter.getItemCount()==1){
-                if (simpleSubAdapter.getParentPosition() != -1) notifyItemRemoved(simpleSubAdapter.getParentPosition());
-            }else{
-                if (simpleSubAdapter.getParentPosition() != -1) notifyItemChanged(simpleSubAdapter.getParentPosition());}
+            if(mSimpleHook != null){
+                return mSimpleHook.onLeaveSubRegion(this,simpleSubAdapter.getParentPosition(),simpleSubAdapter.getData(),selectedPosition);
+            }
+            int originSize = simpleSubAdapter.getItemCount();//副层级数据变动之前的大小
+            int parentTargetPosition = PrimitiveSimpleAdapter.this.onLeaveSubRegion(simpleSubAdapter.getParentPosition(), simpleSubAdapter.getData(), selectedPosition);
+            if (simpleSubAdapter.getParentPosition() != -1) {
+                if (parentTargetPosition >= 0 && parentTargetPosition < getItemCount())
+                    notifyItemInserted(parentTargetPosition);
+                int offset = parentTargetPosition <= simpleSubAdapter.getParentPosition()?1:0;
+                int newParentPosition = simpleSubAdapter.getParentPosition() + offset;
+                if(originSize <= 1){
+                    notifyItemRemoved(newParentPosition);
+                }else {
+                    notifyItemChanged(newParentPosition);
+                }
+            }
             return parentTargetPosition;
         }
 
 
         @Override
         public boolean canExplodeItem(int position, View pressedView) {
-            return PrimitiveSimpleAdapter.this.canExplodeItem(position,pressedView);
+            return PrimitiveSimpleAdapter.this.canExplodeItem(position, pressedView);
         }
 
         @Override
@@ -338,11 +383,15 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
             if (canMergeView != null) {
                 canMergeView.onMerged();
             }
-            PrimitiveSimpleAdapter.this.onMerged(selectedPosition,targetPosition);
+            if(mSimpleHook != null){
+                mSimpleHook.onMerged(this,selectedPosition,targetPosition);
+                return;
+            }
+            PrimitiveSimpleAdapter.this.onMerged(selectedPosition, targetPosition);
             notifyItemRemoved(selectedPosition);
-            if(selectedPosition < targetPosition) {
-                notifyItemChanged(targetPosition-1);
-            }else {
+            if (selectedPosition < targetPosition) {
+                notifyItemChanged(targetPosition - 1);
+            } else {
                 notifyItemChanged(targetPosition);
             }
         }
@@ -420,9 +469,6 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
             return mData;
         }
 
-        public Sub getDataSize() {
-            return mData;
-        }
 
         public int getParentPosition() {
             return mParentPosition;
@@ -430,9 +476,12 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
 
         @Override
         public boolean onMove(int selectedPosition, int targetPosition) {
+            if(mSimpleHook != null){
+                return mSimpleHook.onSubMove(this,mData,selectedPosition,targetPosition);
+            }
             notifyItemMoved(selectedPosition, targetPosition);
-            PrimitiveSimpleAdapter.this.onSubMove(mData,selectedPosition,targetPosition);
-            if(mParentPosition != -1) {
+            PrimitiveSimpleAdapter.this.onSubMove(mData, selectedPosition, targetPosition);
+            if (mParentPosition != -1) {
                 mSimpleMainAdapter.notifyItemChanged(mParentPosition);
             }
             return true;
@@ -449,6 +498,7 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
             return PrimitiveSimpleAdapter.this.haveSpecialType() ? TYPE_SUB | (originType & (~TYPE_MASK)) : originType;
         }
     }
+
 
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -499,4 +549,48 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
             return paddingBottom;
         }
     }
+
+    /**
+     * {@link PrimitiveSimpleAdapter}默认的移动等回调只支持数据处理，如果
+     * @param <Sub>
+     */
+    public interface SimpleHook<Sub>{
+
+        /**
+         * 在主层级触发move事件 在这里进行数据改变
+         *
+         * @param selectedPosition 当前选择的item位置
+         * @param targetPosition   要移动到的位置
+         */
+        boolean onMove(BaseMainAdapter mainAdapter ,int selectedPosition, int targetPosition);
+
+
+
+        /**
+         * 副层级数据移动处理
+         *
+         * @param sub              副层级数据源
+         * @param selectedPosition 当前选择的item位置
+         * @param targetPosition   要移动到的位置
+         */
+        boolean onSubMove(BaseSubAdapter subAdapter,Sub sub, int selectedPosition, int targetPosition);
+        /**
+         * 合并数据处理
+         *
+         * @param selectedPosition
+         * @param targetPosition
+         */
+        void onMerged(BaseMainAdapter mainAdapter,int selectedPosition, int targetPosition);
+
+        /**
+         * 从副层级移除的元素
+         *
+         * @param sub              副层级数据源
+         * @param selectedPosition 将要冲副层级移除的数据
+         * @return 返回的数为添加到主层级的位置
+         */
+        int onLeaveSubRegion(BaseMainAdapter mainAdapter,int parentPosition, Sub sub, int selectedPosition);
+
+    }
+
 }

@@ -147,9 +147,11 @@ public abstract class FolderAdapter<VH extends FolderAdapter.ViewHolder> extends
      * @return 返回的数为添加到主层级的位置
      */
     @Override
-    protected int onLeaveSubRegion(List<BookBean> bookBeen, int selectedPosition) {
-        int size =bookBeen.size();
+    protected int onLeaveSubRegion(int parentPosition,List<BookBean> bookBeen, int selectedPosition) {
         BookBean bookBean = bookBeen.remove(selectedPosition);
+        if(bookBeen.size() == 0){
+            mData.remove(parentPosition);
+        }
         BaseBean baseBean = new BaseBean();
         List<BookBean> bookBeanList = new ArrayList<>();
         bookBeanList.add(bookBean);

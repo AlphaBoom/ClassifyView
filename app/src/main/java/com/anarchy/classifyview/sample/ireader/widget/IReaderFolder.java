@@ -49,12 +49,11 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
     private static final int CONTAINER_GRID_ID = R.id.i_reader_folder_grid;
     private static final int CHECK_BOX_ID = R.id.i_reader_folder_check_box;
     private static final int CONTENT_ID = R.id.i_reader_folder_content;
-    private SimpleAdapter mSimpleAdapter;
+    private PrimitiveSimpleAdapter mSimpleAdapter;
     private GridLayout mGridLayout;
     private FrameLayout mContent;
     private TextView mTagView;
     private View mFolderBg;
-    private CheckBox mCheckBox;
     private int mState = STATE_AUTO;
 
     public IReaderFolder(Context context) {
@@ -97,21 +96,7 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
         mState = state;
     }
 
-    /**
-     * 设置是否选中
-     * @param check
-     */
-    public void setCheckBoxCheck(boolean check){
-        mCheckBox.setChecked(check);
-    }
 
-    /**
-     * 判断是否为选中
-     * @return
-     */
-    public boolean isCheckBoxCheck(){
-        return mCheckBox.isChecked();
-    }
 
 
     /**
@@ -120,7 +105,9 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
     @Override
     public void onMergeStart() {
         mFolderBg.setVisibility(View.VISIBLE);
-        mFolderBg.animate().scaleX(1.2f).scaleY(1.2f).setDuration(200).start();
+        mFolderBg.setPivotX(mFolderBg.getWidth()/2);
+        mFolderBg.setPivotY(mFolderBg.getHeight()/2);
+        mFolderBg.animate().scaleX(1.2f).scaleY(1.1f).setDuration(200).start();
     }
 
     /**
@@ -172,7 +159,7 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
      */
     @Override
     public ChangeInfo prepareMerge() {
-        return null;
+        return new ChangeInfo();
     }
 
     /**
@@ -182,7 +169,7 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
      */
     @Override
     public void setAdapter(PrimitiveSimpleAdapter primitiveSimpleAdapter) {
-
+        mSimpleAdapter = primitiveSimpleAdapter;
     }
 
 
@@ -207,11 +194,7 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
      */
     @Override
     public void initOrUpdateSub(int parentIndex, int subIndex) {
-        View view  = mSimpleAdapter.getView(this,mContent.getChildAt(0),parentIndex,subIndex);
-        if(view != null && view != mContent.getChildAt(0)){
-            mContent.removeAllViews();
-            mContent.addView(view);
-        }
+        View view  = mSimpleAdapter.getView(this,null,parentIndex,subIndex);
     }
 
     @Override
@@ -220,16 +203,17 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
     }
 
 
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+    }
 
     private void ensureViewFound(){
-        if(mFolderBg == null | mContent == null | mTagView == null | mGridLayout == null | mCheckBox == null) {
+        if(mFolderBg == null | mContent == null | mTagView == null | mGridLayout == null ) {
             mFolderBg = findViewById(FOLDER_ID);
-            mFolderBg.setPivotX(mFolderBg.getWidth() / 2);
-            mFolderBg.setPivotY(mFolderBg.getHeight() / 2);
             mContent = (FrameLayout) findViewById(CONTENT_ID);
             mTagView = (TextView) findViewById(TAG_ID);
             mGridLayout = (GridLayout) findViewById(CONTAINER_GRID_ID);
-            mCheckBox = (CheckBox) findViewById(CHECK_BOX_ID);
         }
     }
 }

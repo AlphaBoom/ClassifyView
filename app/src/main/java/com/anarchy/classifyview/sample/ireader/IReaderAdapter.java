@@ -1,5 +1,9 @@
 package com.anarchy.classifyview.sample.ireader;
 
+import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +13,7 @@ import com.anarchy.classify.ClassifyView;
 import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
 import com.anarchy.classify.simple.widget.InsertAbleGridView;
 import com.anarchy.classifyview.R;
+import com.anarchy.classifyview.databinding.ItemIReaderFolderBinding;
 import com.anarchy.classifyview.sample.ireader.model.IReaderMockData;
 import com.anarchy.classifyview.sample.ireader.model.IReaderMockDataGroup;
 
@@ -27,6 +32,7 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
     private boolean mMockSourceChanged;
     private List<IReaderMockDataGroup> mLastMockGroup;
     private boolean mEditMode;
+    private int[] mDragPosition = new int[2];
 
 
     public List<IReaderMockData> getMockSource() {
@@ -36,6 +42,36 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
     public void setMockSource(List<IReaderMockData> mockSource) {
         mMockSource = mockSource;
         notifyDataSetChanged();
+    }
+
+
+    /**
+     * 返回当前拖拽的view 在adapter中的位置
+     * @return 返回int[0] 主层级位置 如果为 -1 则当前没有拖拽的item
+     *            int[1] 副层级位置 如果为 -1 则当前没有拖拽副层级的item
+     */
+    @NonNull
+    public int[] getCurrentDragAdapterPosition(){
+        mDragPosition[0] = getMainAdapter().getDragPosition();
+        mDragPosition[1] = getSubAdapter().getDragPosition();
+        return mDragPosition;
+    }
+
+    /**
+     *
+     * @return 如果当前拖拽的为单个书籍 则返回 其他情况返回null
+     */
+    @Nullable
+    IReaderMockData getCurrentSingleDragData(){
+        int[] position = getCurrentDragAdapterPosition();
+        if(position[0] == -1) return null;
+        if(position[1] == -1){
+            IReaderMockData mockData = mMockSource.get(position[0]);
+            if(mockData instanceof IReaderMockDataGroup) return null;
+            return mockData;
+        }else {
+            return ((IReaderMockDataGroup)mMockSource.get(position[0])).getChild().get(position[1]);
+        }
     }
 
     /**
@@ -229,6 +265,7 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
             child.add(select);
             group.setChild(child);
             group.setCategory(generateNewCategoryTag());
+            targetPosition = mMockSource.indexOf(target);
             mMockSource.remove(targetPosition);
             mMockSource.add(targetPosition,group);
         }
@@ -293,10 +330,14 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
      * @return 返回的数为添加到主层级的位置
      */
     @Override
-    protected int onLeaveSubRegion(IReaderMockDataGroup iReaderMockDataGroup, int selectedPosition) {
+    protected int onLeaveSubRegion(int parentPosition,IReaderMockDataGroup iReaderMockDataGroup, int selectedPosition) {
         //从副层级移除并添加到主层级第一个位置上
         IReaderMockData mockData = iReaderMockDataGroup.getChild().remove(selectedPosition);
         mMockSource.add(0,mockData);
+        if(iReaderMockDataGroup.getChild().size() == 0){
+            int p = mMockSource.indexOf(iReaderMockDataGroup);
+            mMockSource.remove(p);
+        }
         mMockSourceChanged = true;
         return 0;
     }
@@ -310,7 +351,7 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
      */
     @Override
     protected void onBindMainViewHolder(ViewHolder holder, int position) {
-
+        holder.bind(mMockSource.get(position),mEditMode);
     }
 
     /**
@@ -322,13 +363,56 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
      */
     @Override
     protected void onBindSubViewHolder(ViewHolder holder, int mainPosition, int subPosition) {
+        holder.bind(((IReaderMockDataGroup)mMockSource.get(mainPosition)).getChild().get(subPosition),mEditMode);
+    }
 
+
+    @Override
+    protected void onItemClick(View view, int parentIndex, int index) {
+        if(mEditMode){
+            if(index == -1){
+                mMockSource.get(parentIndex).setChecked(!mMockSource.get(parentIndex).isChecked());
+            }
+        }
     }
 
     static class ViewHolder extends PrimitiveSimpleAdapter.ViewHolder{
+        private ItemIReaderFolderBinding mBinding;
 
         public ViewHolder(View itemView) {
             super(itemView);
+            mBinding = ItemIReaderFolderBinding.bind(itemView);
+        }
+
+        public void bind(IReaderMockData iReaderMockData,boolean inEditMode){
+            if(inEditMode){
+                if(iReaderMockData instanceof IReaderMockDataGroup){
+                    int count = ((IReaderMockDataGroup) iReaderMockData).getCheckedCount();
+                    if(count > 0) {
+                        mBinding.iReaderFolderCheckBox.setVisibility(View.VISIBLE);
+                        mBinding.iReaderFolderCheckBox.setText(count+"");
+                        mBinding.iReaderFolderCheckBox.setBackgroundDrawable(ContextCompat.getDrawable(itemView.getContext(), R.drawable.ic_number_bg));
+                    }else {
+                        mBinding.iReaderFolderCheckBox.setVisibility(View.GONE);
+                    }
+                }else {
+                    Drawable drawable = ContextCompat.getDrawable(itemView.getContext(),iReaderMockData.isChecked()?R.drawable.ic_checked:R.drawable.ic_unchecked);
+                    mBinding.iReaderFolderCheckBox.setText("");
+                    mBinding.iReaderFolderCheckBox.setVisibility(View.VISIBLE);
+                    mBinding.iReaderFolderCheckBox.setBackgroundDrawable(drawable);
+                }
+            }else {
+                mBinding.iReaderFolderCheckBox.setVisibility(View.GONE);
+            }
+            if(iReaderMockData instanceof IReaderMockDataGroup){
+                mBinding.iReaderFolderTag.setVisibility(View.VISIBLE);
+                mBinding.iReaderFolderTag.setText(((IReaderMockDataGroup) iReaderMockData).getCategory());
+                mBinding.iReaderFolderContent.setVisibility(View.GONE);
+            }else {
+                mBinding.iReaderFolderTag.setVisibility(View.GONE);
+                mBinding.iReaderFolderContent.setBackgroundColor(iReaderMockData.getColor());
+                mBinding.iReaderFolderContent.setVisibility(View.VISIBLE);
+            }
         }
     }
 }

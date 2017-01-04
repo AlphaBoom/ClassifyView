@@ -22,9 +22,10 @@
         </android.support.v7.widget.Toolbar>
 
         <com.anarchy.classify.ClassifyView
+            android:clipToPadding="false"
             android:layout_below="@id/action_bar"
-            android:layout_marginLeft="12dp"
-            android:layout_marginRight="12dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
             android:id="@+id/classify_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

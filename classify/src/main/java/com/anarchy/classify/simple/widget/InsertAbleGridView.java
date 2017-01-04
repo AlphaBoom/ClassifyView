@@ -105,7 +105,12 @@ public class InsertAbleGridView extends ViewGroup implements CanMergeView{
         if(childCount>0){
             if(childCount ==1){
                 final View child = getChildAt(0);
-                MiViewHolder michaelViewHolder= (MiViewHolder) child.getTag();
+                MiViewHolder michaelViewHolder;
+                try {
+                    michaelViewHolder = (MiViewHolder) child.getTag();
+                }catch (ClassCastException e){
+                    michaelViewHolder = null;
+                }
                 if(michaelViewHolder==null){
                     mBagDrawable.setKeepShow(false);
                     getChildAt(0).layout(getPaddingLeft() + mOutLinePadding, getPaddingTop() + mOutLinePadding, getPaddingLeft() + mOutLinePadding + width, getPaddingTop() + mOutLinePadding + height);

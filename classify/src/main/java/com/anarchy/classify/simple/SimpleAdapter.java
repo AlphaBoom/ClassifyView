@@ -86,7 +86,7 @@ public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> exte
     }
 
     @Override
-    protected int onLeaveSubRegion(List<T> ts, int selectedPosition) {
+    protected int onLeaveSubRegion(int parentPosition,List<T> ts, int selectedPosition) {
         List<T> list = new ArrayList<>();
         list.add(ts.remove(selectedPosition));
         mData.add(list);

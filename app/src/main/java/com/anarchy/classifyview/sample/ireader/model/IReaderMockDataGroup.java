@@ -27,4 +27,17 @@ public class IReaderMockDataGroup extends IReaderMockData{
     public void setCategory(String category) {
         mCategory = category;
     }
+
+    public int getCheckedCount(){
+        if(mChild != null){
+            int i = 0;
+            for(IReaderMockData data:mChild){
+                if(data.isChecked()){
+                    i++;
+                }
+            }
+            return i;
+        }
+        return 0;
+    }
 }
