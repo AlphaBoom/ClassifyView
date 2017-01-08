@@ -1,5 +1,8 @@
 package com.anarchy.classifyview.sample.ireader.model;
 
+import android.support.annotation.NonNull;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -9,16 +12,40 @@ import java.util.List;
  * Description:
  */
 public class IReaderMockDataGroup extends IReaderMockData{
-    private List<IReaderMockData> mChild;
+    private List<IReaderMockData> mChild = new ArrayList<>();
     private String mCategory;
 
-    public List<IReaderMockData> getChild() {
-        return mChild;
+    public void addChild(@NonNull IReaderMockData iReaderMockData){
+        iReaderMockData.setParent(this);
+        mChild.add(iReaderMockData);
     }
 
-    public void setChild(List<IReaderMockData> child) {
-        mChild = child;
+    public void addChild(int location,@NonNull IReaderMockData iReaderMockData){
+        iReaderMockData.setParent(this);
+        mChild.add(location,iReaderMockData);
     }
+
+    public IReaderMockData removeChild(int location){
+        IReaderMockData mockData = mChild.remove(location);
+        mockData.setParent(null);
+        return mockData;
+    }
+
+    public boolean removeChild(@NonNull IReaderMockData iReaderMockData){
+        iReaderMockData.setParent(null);
+        return mChild.remove(iReaderMockData);
+    }
+
+
+    public int getChildCount(){
+        return mChild.size();
+    }
+
+
+    public IReaderMockData getChild(int position){
+        return mChild.get(position);
+    }
+
 
     public String getCategory() {
         return mCategory;

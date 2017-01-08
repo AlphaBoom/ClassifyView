@@ -14,6 +14,8 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.view.View;
 
+import com.anarchy.classify.util.L;
+
 import java.lang.ref.WeakReference;
 
 /**

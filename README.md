@@ -2,6 +2,7 @@
 实现原理 ClassifyView包裹这一个RecyclerView，当点击这个RecyclerView会弹出一个Dialog 该Dialog的布局会传入另一个RecyclerView.想详细了解，可以查看[博客](http://www.jianshu.com/p/a51a93366406)
 #效果如下
 ![image](https://github.com/AlphaBoom/ClassifyView/blob/master/screenshot/classifyView.gif)
+![image](https://github.com/AlphaBoom/ClassifyView/blob/master/screenshot/ireader.gif)
 #配置依赖
 **Step one:**Add the JitPack repository to your build file
 
@@ -22,6 +23,11 @@ allprojects {
 
 ```
 最新版本查看[Latest release](https://github.com/AlphaBoom/ClassifyView/releases)
+
+#最近更新
+-[]  继续增加可自定义模块，和效果。现在一些效果还是需要修改源码部分
+-[x] 在拖拽开始时添加动画，效果更自然
+-[x] 添加了一个自定义的例子，效果大致仿IReader的书架
 
 #快速使用
 1. 继承SimpleAdapter

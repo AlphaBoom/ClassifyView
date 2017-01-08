@@ -2,21 +2,20 @@ package com.anarchy.classifyview.sample.ireader.widget;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.LayoutTransition;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.IntDef;
-import android.support.v7.widget.GridLayout;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.CheckBox;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
-import com.anarchy.classify.simple.SimpleAdapter;
 import com.anarchy.classify.simple.widget.CanMergeView;
 import com.anarchy.classifyview.R;
 
@@ -30,27 +29,26 @@ import java.lang.annotation.RetentionPolicy;
  * Description:
  */
 public class IReaderFolder extends RelativeLayout implements CanMergeView {
-    /**
-     * 根据子view数量是否显示older
-     */
+
     public static final int STATE_AUTO = 0;
     /**
      * 永久显示Folder
      */
     public static final int STATE_FOLDER = 1;
 
-    @IntDef({STATE_AUTO,STATE_FOLDER})
+    @IntDef({STATE_AUTO, STATE_FOLDER})
     @Retention(RetentionPolicy.SOURCE)
-    @interface State{
+    @interface State {
 
     }
+
     private static final int FOLDER_ID = R.id.i_reader_folder_bg;
     private static final int TAG_ID = R.id.i_reader_folder_tag;
     private static final int CONTAINER_GRID_ID = R.id.i_reader_folder_grid;
     private static final int CHECK_BOX_ID = R.id.i_reader_folder_check_box;
     private static final int CONTENT_ID = R.id.i_reader_folder_content;
     private PrimitiveSimpleAdapter mSimpleAdapter;
-    private GridLayout mGridLayout;
+    private IReaderGridLayout mGridLayout;
     private FrameLayout mContent;
     private TextView mTagView;
     private View mFolderBg;
@@ -78,9 +76,9 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         ensureViewFound();
-        switch (mState){
+        switch (mState) {
             case STATE_AUTO:
-                mFolderBg.setVisibility(getChildCount()>1?View.VISIBLE:View.GONE);
+                mFolderBg.setVisibility(getChildCount() > 1 ? View.VISIBLE : View.GONE);
                 break;
             case STATE_FOLDER:
                 mFolderBg.setVisibility(View.VISIBLE);
@@ -90,13 +88,12 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
 
     /**
      * 设置显示状态
+     *
      * @param state
      */
-    public void setState(@State int state){
+    public void setState(@State int state) {
         mState = state;
     }
-
-
 
 
     /**
@@ -105,8 +102,8 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
     @Override
     public void onMergeStart() {
         mFolderBg.setVisibility(View.VISIBLE);
-        mFolderBg.setPivotX(mFolderBg.getWidth()/2);
-        mFolderBg.setPivotY(mFolderBg.getHeight()/2);
+        mFolderBg.setPivotX(mFolderBg.getWidth() / 2);
+        mFolderBg.setPivotY(mFolderBg.getHeight() / 2);
         mFolderBg.animate().scaleX(1.2f).scaleY(1.1f).setDuration(200).start();
     }
 
@@ -119,9 +116,9 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mFolderBg.animate().setListener(null);
-                switch (mState){
+                switch (mState) {
                     case STATE_AUTO:
-                        if(getChildCount() <= 1){
+                        if (getChildCount() <= 1) {
                             mFolderBg.setVisibility(View.GONE);
                         }
                         break;
@@ -148,8 +145,58 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
      * @param duration 动画持续时间
      */
     @Override
-    public void startMergeAnimation(int duration) {
+    public void startMergeAnimation(final int duration) {
+        if(mContent.getVisibility() == View.VISIBLE){
+            ChangeInfo info = mGridLayout.getSecondItemChangeInfo();
+            float scaleX = info.targetWidth/mContent.getWidth();
+            float scaleY = info.targetHeight/mContent.getHeight();
+            mContent.setPivotX(0);
+            mContent.setPivotY(0);
+            mContent.animate()
+                    .scaleX(scaleX).scaleY(scaleY)
+                    .translationX(info.targetLeft).translationY(info.targetTop)
+                    .setDuration(duration)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                            restoreViewDelayed(mContent,duration);
+                        }
 
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            restoreViewDelayed(mContent,duration);
+                        }
+                    })
+                    .start();
+        }else {
+            final View dummyView = new View(getContext());
+            mGridLayout.getLayoutTransition().setDuration(duration);
+            mGridLayout.getLayoutTransition().addTransitionListener(new LayoutTransition.TransitionListener() {
+                @Override
+                public void startTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
+
+                }
+
+                @Override
+                public void endTransition(LayoutTransition transition, ViewGroup container, View view, int transitionType) {
+                    mGridLayout.removeView(dummyView);
+                }
+            });
+            mGridLayout.addView(dummyView,0);
+        }
+    }
+
+
+    private void restoreViewDelayed(final View view,int delayTime){
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                view.setScaleX(1f);
+                view.setScaleY(1f);
+                view.setTranslationX(0f);
+                view.setTranslationY(0f);
+            }
+        },delayTime);
     }
 
     /**
@@ -159,7 +206,17 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
      */
     @Override
     public ChangeInfo prepareMerge() {
-        return new ChangeInfo();
+        ChangeInfo changeInfo = mGridLayout.getChangeInfo();
+        int left = getLeft();
+        int top = getTop();
+        //修正数值
+        changeInfo.targetLeft += left + mGridLayout.getLeft();
+        changeInfo.targetTop += top + mGridLayout.getTop();
+        changeInfo.sourceLeft = left + mContent.getLeft();
+        changeInfo.sourceTop = top + mContent.getTop();
+        changeInfo.sourceWidth = mContent.getWidth();
+        changeInfo.sourceHeight = mContent.getHeight();
+        return changeInfo;
     }
 
     /**
@@ -181,9 +238,29 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
      */
     @Override
     public void initOrUpdateMain(int parentIndex, int requestCount) {
-
+        if (mGridLayout == null) return;
+        int childCount = mGridLayout.getChildCount();
+        if (childCount > 0 && requestCount > 0 && childCount > requestCount) {
+            mGridLayout.removeViews(childCount,requestCount - childCount);
+        }
+        childCount = mGridLayout.getChildCount();
+        for (int i = 0; i < requestCount; i++) {
+            View convertView = null;
+            if (i < childCount) {
+                convertView = mGridLayout.getChildAt(i);
+            }
+            View adapterChild = mSimpleAdapter.getView(this, convertView, parentIndex, i);
+            if (adapterChild == null) continue;
+            if (adapterChild == convertView) {
+                //nope
+            } else if (i < childCount) {
+                mGridLayout.removeViewAt(i);
+                mGridLayout.addView(adapterChild, i);
+            } else {
+                mGridLayout.addView(adapterChild, i);
+            }
+        }
     }
-
 
 
     /**
@@ -194,13 +271,10 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
      */
     @Override
     public void initOrUpdateSub(int parentIndex, int subIndex) {
-        View view  = mSimpleAdapter.getView(this,null,parentIndex,subIndex);
+        //nope
     }
 
-    @Override
-    public int getOutlinePadding() {
-        return 0;
-    }
+
 
 
     @Override
@@ -208,12 +282,13 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
         super.onSizeChanged(w, h, oldw, oldh);
     }
 
-    private void ensureViewFound(){
-        if(mFolderBg == null | mContent == null | mTagView == null | mGridLayout == null ) {
+    private void ensureViewFound() {
+        if (mFolderBg == null | mContent == null | mTagView == null | mGridLayout == null) {
             mFolderBg = findViewById(FOLDER_ID);
             mContent = (FrameLayout) findViewById(CONTENT_ID);
             mTagView = (TextView) findViewById(TAG_ID);
-            mGridLayout = (GridLayout) findViewById(CONTAINER_GRID_ID);
+            mGridLayout = (IReaderGridLayout) findViewById(CONTAINER_GRID_ID);
+            mGridLayout.setLayoutTransition(new LayoutTransition());
         }
     }
 }

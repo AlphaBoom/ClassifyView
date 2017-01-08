@@ -8,8 +8,8 @@
 
         <com.anarchy.classifyview.sample.ireader.widget.IReaderFolder
             android:id="@+id/i_reader_folder"
-            android:layout_width="125dp"
-            android:layout_height="180dp"
+            android:layout_width="115dp"
+            android:layout_height="150dp"
             android:layout_gravity="center"
             android:clipToPadding="false"
             android:padding="15dp">
@@ -19,18 +19,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#b7b7b7"
-                android:visibility="gone"/>
-
-            <android.support.v7.widget.GridLayout
+                android:visibility="invisible"/>
+            <com.anarchy.classifyview.sample.ireader.widget.IReaderGridLayout
                 android:id="@+id/i_reader_folder_grid"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                app:iReaderRowCount="2"
+                app:iReaderColumnCount="2"
+                app:iReaderGap="8dp"
                 android:padding="8dp"
-                android:visibility="gone"
-                app:columnCount="2"
-                app:rowCount="2">
+                >
 
-            </android.support.v7.widget.GridLayout>
+            </com.anarchy.classifyview.sample.ireader.widget.IReaderGridLayout>
 
             <FrameLayout
                 android:id="@+id/i_reader_folder_content"
@@ -40,11 +40,13 @@
             </FrameLayout>
 
             <TextView
+                android:textSize="12sp"
+                android:visibility="gone"
                 android:gravity="center"
                 android:textColor="#FFF"
                 android:id="@+id/i_reader_folder_check_box"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="-8dp"
                 android:layout_marginTop="-8dp"

@@ -33,7 +33,7 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
             if(shouldNotify) notifyItemChanged(oldPosition);
         } else {
             mSelectedPosition = position;
-            notifyItemChanged(mSelectedPosition);
+            if(shouldNotify) notifyItemChanged(mSelectedPosition);
         }
     }
 
@@ -159,6 +159,16 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
 
     @Override
     public void moved(int selectedPosition, int targetPosition) {
+
+    }
+
+    @Override
+    public void onItemClick(RecyclerView recyclerView, int position, View pressedView) {
+        onItemClick(position,pressedView);
+    }
+
+    @Override
+    public void onItemClick(int position, View pressedView) {
 
     }
 }

@@ -8,6 +8,7 @@ import com.anarchy.classify.MergeInfo;
 import com.anarchy.classify.adapter.BaseMainAdapter;
 import com.anarchy.classify.adapter.BaseSubAdapter;
 import com.anarchy.classify.simple.widget.CanMergeView;
+import com.anarchy.classify.util.L;
 
 /**
  * 一种常用的方式，主层级与负层级使用相同的布局元素创建
@@ -241,7 +242,15 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
      * @param parentIndex
      * @param index       if -1  in main region
      */
-    protected void onItemClick(View view, int parentIndex, int index) {
+    protected void onItemClick(VH viewHolder, int parentIndex, int index) {
+        onItemClick(viewHolder.itemView,parentIndex,index);
+    }
+
+    /**
+     * @deprecated {@link #onItemClick(ViewHolder, int, int)}
+     */
+    protected void onItemClick(View pressedView,int parentIndex,int index){
+
     }
 
     /**
@@ -354,10 +363,12 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
         public boolean canDragOnLongPress(int position, View pressedView) {
             return PrimitiveSimpleAdapter.this.canDragOnLongPress(position, -1);
         }
-
+        @SuppressWarnings("unchecked")
         @Override
-        public void onItemClick(int position, View pressedView) {
-            PrimitiveSimpleAdapter.this.onItemClick(pressedView, position, -1);
+        public void onItemClick(RecyclerView recyclerView, int position, View pressedView) {
+            VH viewHolder = (VH) recyclerView.findViewHolderForAdapterPosition(position);
+            if(viewHolder != null)
+                PrimitiveSimpleAdapter.this.onItemClick(viewHolder,position,-1);
         }
 
         @Override
@@ -402,15 +413,10 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
             CanMergeView canMergeView = targetViewHolder.getCanMergeView();
             if (canMergeView != null) {
                 ChangeInfo info = canMergeView.prepareMerge();
-                info.paddingLeft = selectedViewHolder.getPaddingLeft();
-                info.paddingRight = selectedViewHolder.getPaddingRight();
-                info.paddingTop = selectedViewHolder.getPaddingTop();
-                info.paddingBottom = selectedViewHolder.getPaddingBottom();
-                info.outlinePadding = canMergeView.getOutlinePadding();
-                float scaleX = ((float) info.itemWidth) / ((float) (selectedViewHolder.itemView.getWidth() - info.paddingLeft - info.paddingRight - 2 * info.outlinePadding));
-                float scaleY = ((float) info.itemHeight) / ((float) (selectedViewHolder.itemView.getHeight() - info.paddingTop - info.paddingBottom - 2 * info.outlinePadding));
-                float targetX = targetViewHolder.itemView.getLeft() + info.left + info.paddingLeft - (info.paddingLeft + info.outlinePadding) * scaleX;
-                float targetY = targetViewHolder.itemView.getTop() + info.top + info.paddingTop - (info.paddingTop + info.outlinePadding) * scaleY;
+                float scaleX = info.targetWidth/info.sourceWidth;
+                float scaleY = info.targetHeight/info.sourceHeight;
+                float targetX = targetViewHolder.itemView.getLeft() + info.targetLeft - info.sourceLeft*scaleX;
+                float targetY = targetViewHolder.itemView.getTop() + info.targetTop - info.sourceTop*scaleY;
                 return new MergeInfo(scaleX, scaleY, targetX, targetY);
             }
             return null;
@@ -487,9 +493,13 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
             return true;
         }
 
+
+        @SuppressWarnings("unchecked")
         @Override
-        public void onItemClick(int position, View pressedView) {
-            PrimitiveSimpleAdapter.this.onItemClick(pressedView, mParentPosition, position);
+        public void onItemClick(RecyclerView recyclerView, int position, View pressedView) {
+            VH viewHolder = (VH) recyclerView.findViewHolderForAdapterPosition(position);
+            if(viewHolder != null)
+                PrimitiveSimpleAdapter.this.onItemClick(viewHolder,mParentPosition,position);
         }
 
         @Override

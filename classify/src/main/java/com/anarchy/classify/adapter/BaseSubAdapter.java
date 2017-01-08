@@ -37,7 +37,7 @@ public abstract class BaseSubAdapter<VH extends RecyclerView.ViewHolder> extends
 //            notifyItemChanged(oldPosition);
         }else {
             mSelectedPosition = position;
-            notifyItemChanged(mSelectedPosition);
+            if(shouldNotify) notifyItemChanged(mSelectedPosition);
         }
     }
 
@@ -108,5 +108,15 @@ public abstract class BaseSubAdapter<VH extends RecyclerView.ViewHolder> extends
     public float getVelocity(Context context) {
         float density = context.getResources().getDisplayMetrics().density;
         return density*VELOCITY + .5f;
+    }
+
+    @Override
+    public void onItemClick(RecyclerView recyclerView, int position, View pressedView) {
+        onItemClick(position,pressedView);
+    }
+
+    @Override
+    public void onItemClick(int position, View pressedView) {
+
     }
 }

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.helper.ItemTouchHelper;
 
 import com.anarchy.classifyview.core.BaseFragment;
 import com.anarchy.classifyview.sample.demonstrate.DemonstrateFragment;
@@ -22,7 +23,7 @@ import com.anarchy.classifyview.sample.viewpager.ViewPagerFragment;
 public class ContentActivity extends AppCompatActivity {
     private Class<? extends Fragment>[] mClasses = new Class[]{NormalFragment.class,
             DemonstrateFragment.class, ViewPagerFragment.class, LayoutManagerFragment.class,
-            NormalFolderFragment.class};//IReaderMockFragment.class,
+            NormalFolderFragment.class,IReaderMockFragment.class};//,
     private int position;
 
     @Override

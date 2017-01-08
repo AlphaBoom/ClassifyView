@@ -1,18 +1,13 @@
 package com.anarchy.classify.simple.widget;
 
+import android.view.View;
+
 import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
 
 import java.util.List;
 
-/**
- * Version 1.0
- * <p>
- * Date: 16/6/7 10:29
- * Author: zhendong.wu@shoufuyou.com
- * <p>
- * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
- */
+
 public interface CanMergeView {
     /**
      * 进入merge状态
@@ -58,7 +53,4 @@ public interface CanMergeView {
      * @param subIndex
      */
     void initOrUpdateSub(int parentIndex, int subIndex);
-
-
-    int getOutlinePadding();
 }

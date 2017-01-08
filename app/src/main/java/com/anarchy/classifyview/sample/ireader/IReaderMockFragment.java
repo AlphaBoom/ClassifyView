@@ -40,24 +40,55 @@ public class IReaderMockFragment extends BaseFragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_mock_ireader, container, false);
         mRandom = new Random(System.currentTimeMillis());
         mAdapter = new IReaderAdapter();
+        mAdapter.registerObserver(new IReaderAdapter.IReaderObserver() {
+            int count = 0;
+            @Override
+            public void onChecked(boolean isChecked) {
+                count += isChecked?1:-1;
+                if(count <= 0){
+                    count = 0;
+                    mBinding.icDeleteBadge.setVisibility(View.INVISIBLE);
+                    setBottomEnable(false);
+                }else {
+                    if(mBinding.icDeleteBadge.getVisibility() == View.INVISIBLE) {
+                        mBinding.icDeleteBadge.setVisibility(View.VISIBLE);
+                    }
+                    mBinding.icDeleteBadge.setText(String.valueOf(count));
+                    setBottomEnable(true);
+                }
+            }
+
+            private void setBottomEnable(boolean enable){
+                mBinding.containerDelete.setEnabled(enable);
+                mBinding.containerMove.setEnabled(enable);
+                mBinding.containerShare.setEnabled(enable);
+                mBinding.containerOrder.setEnabled(enable);
+                mBinding.containerDetail.setEnabled(enable);
+            }
+
+            @Override
+            public void onRestore() {
+                count = 0;
+                mBinding.icDeleteBadge.setVisibility(View.INVISIBLE);
+                setBottomEnable(false);
+            }
+        });
         mBinding.classifyView.addDragListener(new ClassifyView.DragListener() {
             @Override
-            public void onDragStart(ViewGroup parent, float startX, float startY, int region) {
+            public void onDragStart(ViewGroup parent,View selectedView, float startX, float startY, int region) {
                 if (!inEditMode) {
+                    mAdapter.setCurrentDragItemChecked(selectedView);
+                }
+            }
+
+            @Override
+            public void onDragStartAnimationEnd(ViewGroup parent, View selectedView, int region) {
+                if(!inEditMode){
                     showEditMode();
-                    int[] dragPosition = mAdapter.getCurrentDragAdapterPosition();
-                    IReaderMockData mockData = mAdapter.getCurrentSingleDragData();
-                    if(mockData != null){
-                        mockData.setChecked(true);
-                        mAdapter.notifyItemChanged(dragPosition[0]);
-                        if(dragPosition[1] != -1){
-                            mAdapter.getSubAdapter().notifyItemChanged(dragPosition[1]);
-                        }
-                    }
                 }
             }
 
@@ -82,6 +113,12 @@ public class IReaderMockFragment extends BaseFragment {
             @Override
             public void onClick(View v) {
                 hideEditMode();
+            }
+        });
+        mBinding.containerDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAdapter.removeAllCheckedBook();
             }
         });
         return mBinding.getRoot();

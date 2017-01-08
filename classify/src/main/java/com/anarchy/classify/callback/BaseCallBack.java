@@ -1,6 +1,7 @@
 package com.anarchy.classify.callback;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.VelocityTracker;
 import android.view.View;
 
@@ -56,10 +57,20 @@ public interface BaseCallBack {
      */
     @ClassifyView.MoveState
     int getCurrentState(View selectedView, View targetView, int x, int y, VelocityTracker velocityTracker, int selectedPosition, int targetPosition);
+
+    /**
+     * item点击事件
+     * @param recyclerView
+     * @param position
+     * @param pressedView
+     */
+    void onItemClick(RecyclerView recyclerView,int position,View pressedView);
     /**
      * item 点击事件
      * @param position
      * @param pressedView
+     * @deprecated {@link #onItemClick(RecyclerView, int, View)}
      */
     void onItemClick(int position,View pressedView);
+
 }

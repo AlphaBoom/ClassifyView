@@ -7,6 +7,18 @@
         <attr name="ShadowColor" format="color"/>
         <attr name="AnimationDuration" format="integer"/>
         <attr name="EdgeWidth" format="dimension"/>
+        <attr name="MainPaddingLeft" format="dimension"/>
+        <attr name="MainPaddingTop" format="dimension"/>
+        <attr name="MainPaddingRight" format="dimension"/>
+        <attr name="MainPaddingBottom" format="dimension"/>
+        <attr name="MainPadding" format="dimension"/>
+        <attr name="MainClipToPadding" format="boolean"/>
+        <attr name="SubPaddingLeft" format="dimension"/>
+        <attr name="SubPaddingTop" format="dimension"/>
+        <attr name="SubPaddingRight" format="dimension"/>
+        <attr name="SubPaddingBottom" format="dimension"/>
+        <attr name="SubPadding" format="dimension"/>
+        <attr name="SubClipToPadding" format="boolean"/>
     </declare-styleable>
     <declare-styleable name="InsertAbleGridView">
         <attr name="RowCount" format="integer"/>
