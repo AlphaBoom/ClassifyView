@@ -25,9 +25,10 @@ allprojects {
 最新版本查看[Latest release](https://github.com/AlphaBoom/ClassifyView/releases)
 
 #最近更新
--[]  继续增加可自定义模块，和效果。现在一些效果还是需要修改源码部分
--[x] 在拖拽开始时添加动画，效果更自然
--[x] 添加了一个自定义的例子，效果大致仿IReader的书架
+
+- [ ]  继续增加可自定义模块，和效果。现在一些效果还是需要修改源码部分
+- [x] 在拖拽开始时添加动画，效果更自然
+- [x] 添加了一个自定义的例子，效果大致仿IReader的书架
 
 #快速使用
 1. 继承SimpleAdapter
