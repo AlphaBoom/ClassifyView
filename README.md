@@ -18,7 +18,7 @@ allprojects {
 
 ```
     dependencies {
-	        compile 'com.github.AlphaBoom:ClassifyView:0.4.3'
+	        compile 'com.github.AlphaBoom:ClassifyView:0.5.0'
 	}
 
 ```
