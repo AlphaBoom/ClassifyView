@@ -578,6 +578,7 @@ public class ClassifyView extends FrameLayout {
                 int action = MotionEventCompat.getActionMasked(e);
                 switch (action) {
                     case MotionEvent.ACTION_MOVE:
+                        if(mRegion == UNKNOWN_REGION) break;
                         if ((mRegion&IN_SUB_REGION) != 0 && (x < 0 || y < 0 || x > mSubContainerWidth || y > mSubContainerHeight)) {
                             //离开次级目录范围
                             if (mSubCallBack.canDragOut(mSelectedPosition)) {
@@ -849,6 +850,7 @@ public class ClassifyView extends FrameLayout {
                     }
                     break;
                 case DragEvent.ACTION_DRAG_LOCATION:
+                    if(mRegion == UNKNOWN_REGION) break;
                     mVelocityTracker.addMovement(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(),
                             MotionEvent.ACTION_MOVE, x, y, 0));
                     mDragView.setX(centerX + mMainLocation[0]);
