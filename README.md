@@ -34,8 +34,8 @@ allprojects {
 #快速使用
 1. 继承SimpleAdapter
 
-```
-   public class MyAdapter extends SimpleAdapter<Bean, MyAdapter.ViewHolder> {
+```java
+   public class MyAdapter extends SimpleAdapter<Bean, MyAdapter.ViewHolder> {
 
 
     public MyAdapter(List<List<Bean>> mData) {
@@ -79,7 +79,7 @@ allprojects {
 ``` 
 2.找到ClassifyView 并设置Adapter
 
-```
+```java
 mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
         List<List<Bean>> data = new ArrayList<>();
         for(int i=0;i<30;i++){
