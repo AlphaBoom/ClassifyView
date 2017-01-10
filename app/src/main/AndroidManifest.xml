@@ -17,7 +17,7 @@
 
             </intent-filter>
         </activity>
-        <activity android:name=".ContentActivity"/>
+        <activity android:name=".ContentActivity" android:configChanges="screenSize|keyboardHidden|orientation"/>
     </application>
 
 </manifest>

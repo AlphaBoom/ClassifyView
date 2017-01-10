@@ -70,6 +70,23 @@ public class ClassifyView extends FrameLayout {
      */
     public static final int MOVE_STATE_MERGE = 2;
 
+
+    public static final int STATE_IDLE = 0;
+    public static final int STATE_DRAG = 1;
+    public static final int STATE_SETTLE = 2;
+
+    public static final int UNKNOWN_REGION = 0;
+    public static final int IN_MAIN_REGION = 1;
+    public static final int IN_SUB_REGION = 2;
+    public static final int SUB_REGION_LEAVE_TYPE = 0x10;
+
+
+    public static final int LEFT_TOP = 0;
+    public static final int RIGHT_TOP = 1;
+    public static final int LEFT_BOTTOM = 2;
+    public static final int RIGHT_BOTTOM = 3;
+    public static final int CENTER = 4;
+
     @IntDef({MOVE_STATE_NONE, MOVE_STATE_MOVE, MOVE_STATE_MERGE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface MoveState {
@@ -84,15 +101,13 @@ public class ClassifyView extends FrameLayout {
     private @interface State{
 
     }
+    @IntDef({CENTER,LEFT_TOP,RIGHT_TOP,LEFT_BOTTOM,RIGHT_BOTTOM})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface MyGravity{
 
-    public static final int STATE_IDLE = 0;
-    public static final int STATE_DRAG = 1;
-    public static final int STATE_SETTLE = 2;
+    }
 
-    public static final int UNKNOWN_REGION = 0;
-    public static final int IN_MAIN_REGION = 1;
-    public static final int IN_SUB_REGION = 2;
-    public  static final int SUB_REGION_LEAVE_TYPE = 0x10;
+
 
 
     public boolean inScrollMode;
@@ -165,6 +180,11 @@ public class ClassifyView extends FrameLayout {
     private int mState;
     @Region
     private int mRegion;
+    private int mGravity;
+    private float mDragScaleX;
+    private float mDragScaleY;
+    private float mDragInMergeScaleX;
+    private float mDragInMergeScaleY;
     /**
      * 储存所有进入了merge状态的position
      */
@@ -212,6 +232,11 @@ public class ClassifyView extends FrameLayout {
         mSubSpanCount = a.getInt(R.styleable.ClassifyView_SubSpanCount, 3);
         mAnimationDuration = a.getInt(R.styleable.ClassifyView_AnimationDuration, 200);
         mEdgeWidth = a.getDimensionPixelSize(R.styleable.ClassifyView_EdgeWidth, 15);
+        mDragScaleX = a.getFloat(R.styleable.ClassifyView_DragScaleX,1f);
+        mDragScaleY = a.getFloat(R.styleable.ClassifyView_DragScaleY,1f);
+        mDragInMergeScaleX = a.getFloat(R.styleable.ClassifyView_DragInMergeScaleX,1f);
+        mDragInMergeScaleY = a.getFloat(R.styleable.ClassifyView_DragInMergeScaleY,1f);
+        mGravity = a.getInt(R.styleable.ClassifyView_DragScalePivotGravity,LEFT_TOP);
         int mainPadding = a.getDimensionPixelSize(R.styleable.ClassifyView_MainPadding,0);
         int mainPaddingLeft = a.getDimensionPixelSize(R.styleable.ClassifyView_MainPaddingLeft,0);
         int mainPaddingTop = a.getDimensionPixelSize(R.styleable.ClassifyView_MainPaddingTop,0);
@@ -249,6 +274,44 @@ public class ClassifyView extends FrameLayout {
         }
         setUpTouchListener(context);
         mDragListeners = new ArrayList<>();
+    }
+
+    /**
+     * 设置被拖拽的视图缩放的中心点
+     * @param gravity
+     */
+    public void setDragGravity(@MyGravity int gravity){
+        mGravity = gravity;
+    }
+
+    /**
+     * 设置被拖拽时的x轴缩放大小(这个缩放大小只影响显示效果)
+     * @param dragScaleX
+     */
+    public void setDragScaleX(float dragScaleX) {
+        mDragScaleX = dragScaleX;
+    }
+    /**
+     * 设置被拖拽时的y轴缩放大小(这个缩放大小只影响显示效果)
+     * @param dragScaleY
+     */
+    public void setDragScaleY(float dragScaleY) {
+        mDragScaleY = dragScaleY;
+    }
+
+    /**
+     * 设置被拖拽的选项在可合并状态下的x轴缩放大小(这个缩放大小只影响显示效果)
+     * @param dragInMergeScaleX
+     */
+    public void setDragInMergeScaleX(float dragInMergeScaleX) {
+        mDragInMergeScaleX = dragInMergeScaleX;
+    }
+    /**
+     * 设置被拖拽的选项在可合并状态下的y轴缩放大小(这个缩放大小只影响显示效果)
+     * @param dragInMergeScaleY
+     */
+    public void setDragInMergeScaleY(float dragInMergeScaleY) {
+        mDragInMergeScaleY = dragInMergeScaleY;
     }
 
 
@@ -559,7 +622,11 @@ public class ClassifyView extends FrameLayout {
                     case MotionEvent.ACTION_UP:
                         mSubActivePointerId = ACTIVE_POINTER_ID_NONE;
                         L.d("sub intercept action up or cancel");
-                        doRecoverAnimation();
+                        if(mRegion == UNKNOWN_REGION){
+                            mPendingRecover = true;
+                        }else {
+                            doRecoverAnimation();
+                        }
                         break;
                 }
                 return mSelected != null;
@@ -637,6 +704,7 @@ public class ClassifyView extends FrameLayout {
                                 float scaleY = mergeInfo.scaleY;
                                 float targetX = mMainLocation[0] + mergeInfo.targetX;
                                 float targetY = mMainLocation[1] + mergeInfo.targetY;
+                                setViewPivot(mDragView,LEFT_TOP);
                                 L.d("targetX:%1$s,targetY:%2$s,scaleX:%3$s,scaleY:%4$s", targetX, targetY, scaleX, scaleY);
                                 mDragView.animate().x(targetX).y(targetY).scaleX(scaleX).scaleY(scaleY).setListener(mMergeAnimListener).setDuration(mAnimationDuration).start();
                                 mergeSuccess = true;
@@ -825,7 +893,7 @@ public class ClassifyView extends FrameLayout {
             int height = mSelected.getHeight();
             float x = event.getX();
             float y = event.getY();
-            L.d("Main onDrag X:%1$s,Y:%2$s", x, y);
+//            L.d("Main onDrag X:%1$s,Y:%2$s", x, y);
             float centerX = x - width / 2;
             float centerY = y - height / 2;
             switch (action) {
@@ -899,8 +967,7 @@ public class ClassifyView extends FrameLayout {
                         float scaleY = mergeInfo.scaleY;
                         float targetX = mMainLocation[0] + mergeInfo.targetX;
                         float targetY = mMainLocation[1] + mergeInfo.targetY;
-                        mDragView.setPivotX(0);
-                        mDragView.setPivotY(0);
+                        setViewPivot(mDragView,LEFT_TOP);
                         L.d("targetX:%1$s,targetY:%2$s,scaleX:%3$s,scaleY:%4$s", targetX, targetY, scaleX, scaleY);
                         mDragView.animate().x(targetX).y(targetY).scaleX(scaleX).scaleY(scaleY).setListener(mMergeAnimListener).setDuration(mAnimationDuration).start();
                         mergeSuccess = true;
@@ -948,8 +1015,11 @@ public class ClassifyView extends FrameLayout {
                 mDragView.setX(selected.getLeft() + fixWindowLocation[0]);
                 mDragView.setY(selected.getTop() + fixWindowLocation[1]);
                 callBack.setDragPosition(selectedPosition, true);
-
-                mDragView.animate().x(targetX).y(targetY).setDuration(200).setListener(new AnimatorListenerAdapter() {
+                setViewPivot(mDragView,mGravity);
+                mDragView.animate()
+                        .x(targetX).y(targetY)
+                        .scaleX(mDragScaleX).scaleY(mDragScaleY)
+                        .setDuration(200).setListener(new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationCancel(Animator animation) {
                         mRegion = recordRegion;
@@ -962,6 +1032,8 @@ public class ClassifyView extends FrameLayout {
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         mRegion = recordRegion;
+                        mDragView.setScaleX(mDragScaleX);
+                        mDragView.setScaleY(mDragScaleY);
                         if(mPendingRecover){
                             mPendingRecover = false;
                             doRecoverAnimation();
@@ -978,7 +1050,30 @@ public class ClassifyView extends FrameLayout {
     }
 
 
-
+    private void setViewPivot(@NonNull View target,@MyGravity int gravity){
+        switch (gravity){
+            case CENTER:
+                target.setPivotX(target.getWidth()/2);
+                target.setPivotY(target.getHeight()/2);
+                break;
+            case LEFT_TOP:
+                target.setPivotX(0);
+                target.setPivotY(0);
+                break;
+            case LEFT_BOTTOM:
+                target.setPivotX(0);
+                target.setPivotY(target.getHeight());
+                break;
+            case RIGHT_TOP:
+                target.setPivotX(target.getWidth());
+                target.setPivotY(0);
+                break;
+            case RIGHT_BOTTOM:
+                target.setPivotX(target.getWidth());
+                target.setPivotY(target.getHeight());
+                break;
+        }
+    }
 
 
 
@@ -1002,16 +1097,21 @@ public class ClassifyView extends FrameLayout {
      * 做恢复到之前状态的动画
      */
     private void doRecoverAnimation() {
+
         Animator recoverAnimator = null;
         if ((mRegion & IN_SUB_REGION) != 0) {
             RecyclerView.ViewHolder holder = mSubRecyclerView.findViewHolderForAdapterPosition(mSelectedPosition);
             if (holder == null) {
                 PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", getHeight() + mSelected.getHeight() + mSubLocation[1]);
-                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, yOffset);
+                PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat("scaleX",1f);
+                PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat("scaleY",1f);
+                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, yOffset,scaleX,scaleY);
             } else {
                 PropertyValuesHolder xOffset = PropertyValuesHolder.ofFloat("x", mSubLocation[0] + mSubContainer.getLeft() + holder.itemView.getLeft());
                 PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", mSubLocation[1] + mSubContainer.getTop() + holder.itemView.getTop());
-                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, xOffset, yOffset);
+                PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat("scaleX",1f);
+                PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat("scaleY",1f);
+                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, xOffset, yOffset,scaleX,scaleY);
             }
         }
 
@@ -1019,12 +1119,15 @@ public class ClassifyView extends FrameLayout {
             RecyclerView.ViewHolder holder = mMainRecyclerView.findViewHolderForAdapterPosition(mSelectedPosition);
             if (holder == null) {
                 PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", getHeight() + mSelected.getHeight() + mMainLocation[1]);
-                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, yOffset);
+                PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat("scaleX",1f);
+                PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat("scaleY",1f);
+                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, yOffset,scaleX,scaleY);
             } else {
                 PropertyValuesHolder xOffset = PropertyValuesHolder.ofFloat("x", holder.itemView.getLeft() + mMainLocation[0]);
                 PropertyValuesHolder yOffset = PropertyValuesHolder.ofFloat("y", holder.itemView.getTop() + mMainLocation[1]);
-                L.d("create  item left:"+holder.itemView.getLeft() + "item top:"+ holder.itemView.getTop() + "mainx:"+mMainLocation[0]+"mainy:"+mMainLocation[1]);
-                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, xOffset, yOffset);
+                PropertyValuesHolder scaleX = PropertyValuesHolder.ofFloat("scaleX",1f);
+                PropertyValuesHolder scaleY = PropertyValuesHolder.ofFloat("scaleY",1f);
+                recoverAnimator = ObjectAnimator.ofPropertyValuesHolder(mDragView, xOffset, yOffset,scaleX,scaleY);
             }
         }
         if (recoverAnimator == null) return;
@@ -1302,6 +1405,8 @@ public class ClassifyView extends FrameLayout {
                     if (mMainCallBack.onMergeStart(mMainRecyclerView, mSelectedPosition, targetPosition)) {
                         inMergeState = true;
                         mInMergeQueue.offer(targetPosition);
+                        setViewPivot(mDragView,mGravity);
+                        mDragView.animate().scaleX(mDragInMergeScaleX).scaleY(mDragInMergeScaleY).setListener(null).start();
                     }
                 } else {
                     if (!mInMergeQueue.isEmpty() && inMergeState) {
@@ -1310,6 +1415,7 @@ public class ClassifyView extends FrameLayout {
                             mMainCallBack.onMergeCancel(mMainRecyclerView, mSelectedPosition, i);
                         }
                         inMergeState = false;
+                        mDragView.animate().scaleX(mDragScaleX).scaleY(mDragScaleY).start();
                     }
                 }
             }
@@ -1321,6 +1427,7 @@ public class ClassifyView extends FrameLayout {
                         mMainCallBack.onMergeCancel(mMainRecyclerView, mSelectedPosition, i);
                     }
                     inMergeState = false;
+                    mDragView.animate().scaleX(mDragScaleX).scaleY(mDragScaleY).start();
                 }
                 if (mMainCallBack.onMove(mSelectedPosition, targetPosition)) {
                     mSelectedPosition = targetPosition;

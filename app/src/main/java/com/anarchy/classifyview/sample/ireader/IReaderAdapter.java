@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 
 import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
 import com.anarchy.classify.simple.widget.InsertAbleGridView;
+import com.anarchy.classify.util.L;
 import com.anarchy.classifyview.R;
 import com.anarchy.classifyview.databinding.ItemIReaderFolderBinding;
 import com.anarchy.classifyview.sample.ireader.model.IReaderMockData;
@@ -113,6 +114,7 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
             }
         }
         notifyDataSetChanged();
+        getSubAdapter().notifyDataSetChanged();
         mObservable.notifyItemRestore();
     }
 
@@ -226,7 +228,9 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
     protected int getSubItemCount(int parentPosition) {
         IReaderMockData mockData = mMockSource.get(parentPosition);
         if (mockData instanceof IReaderMockDataGroup) {
-            return ((IReaderMockDataGroup) mockData).getChildCount();
+            int subCount = ((IReaderMockDataGroup) mockData).getChildCount();
+            L.d("sub count:"+subCount + mockData);
+            return subCount;
         }
         return 0;
     }

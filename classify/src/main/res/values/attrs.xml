@@ -19,6 +19,17 @@
         <attr name="SubPaddingBottom" format="dimension"/>
         <attr name="SubPadding" format="dimension"/>
         <attr name="SubClipToPadding" format="boolean"/>
+        <attr name="DragScaleX" format="float"/>
+        <attr name="DragScaleY" format="float"/>
+        <attr name="DragInMergeScaleX" format="float"/>
+        <attr name="DragInMergeScaleY" format="float"/>
+        <attr name="DragScalePivotGravity" format="enum">
+            <enum name="leftTop" value="0"/>
+            <enum name="rightTop" value="1"/>
+            <enum name="leftBottom" value="2"/>
+            <enum name="rightBottom" value="3"/>
+            <enum name="center" value="4"/>
+        </attr>
     </declare-styleable>
     <declare-styleable name="InsertAbleGridView">
         <attr name="RowCount" format="integer"/>

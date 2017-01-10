@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="ClassifyViewTheme" parent="android:Theme.Holo.Light"/>
+
+    <style name="ClassifyViewTheme" parent="android:Theme.Holo.Light">
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
     <style name="DefaultStyle">
         <item name="MainSpanCount">3</item>
         <item name="SubRatio">60%</item>
@@ -9,6 +13,7 @@
         <item name="AnimationDuration">@android:integer/config_mediumAnimTime</item>
         <item name="EdgeWidth">0dp</item>
     </style>
+
     <style name="InsertAbleGridViewDefaultStyle">
         <item name="RowCount">2</item>
         <item name="ColumnCount">2</item>
@@ -19,6 +24,7 @@
         <item name="OutlineColor">#d6a25e</item>
         <item name="InnerPadding">6dp</item>
     </style>
+
     <style name="DefaultAnimation">
         <item name="android:windowEnterAnimation">@anim/slide_up</item>
         <item name="android:windowExitAnimation">@anim/slide_down</item>

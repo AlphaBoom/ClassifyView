@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/bottom_bar"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:background="#FFF"
+            android:elevation="3dp"
+            >
+
+            <RelativeLayout
+                android:id="@+id/container_delete"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:clipToPadding="false"
+                android:paddingTop="10dp">
+
+                <ImageView
+                    android:id="@+id/ic_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:duplicateParentState="true"
+                    android:tint="@color/selector_color_text"
+                    app:srcCompat="@drawable/ic_delete"/>
+
+                <TextView
+                    android:id="@+id/ic_delete_badge"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_alignRight="@id/ic_delete"
+                    android:layout_marginRight="-8dp"
+                    android:layout_marginTop="-8dp"
+                    android:background="@drawable/bg_circle_red"
+                    android:gravity="center"
+                    android:textColor="#FFF"
+                    android:textSize="10sp"
+                    android:visibility="invisible"
+                    tools:text="1"/>
+
+                <TextView
+                    android:id="@+id/text_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ic_delete"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="5dp"
+                    android:duplicateParentState="true"
+                    android:text="@string/i_reader_delete"
+                    android:textColor="@color/selector_color_text"
+                    android:textSize="12sp"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/container_move"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:paddingTop="10dp">
+
+                <ImageView
+                    android:id="@+id/ic_move"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:duplicateParentState="true"
+                    android:tint="@color/selector_color_text"
+                    app:srcCompat="@drawable/ic_move"/>
+
+                <TextView
+                    android:id="@+id/text_move"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ic_move"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="5dp"
+                    android:duplicateParentState="true"
+                    android:text="@string/i_reader_move"
+                    android:textColor="@color/selector_color_text"
+                    android:textSize="12sp"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/container_share"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:paddingTop="10dp">
+
+                <ImageView
+                    android:id="@+id/ic_share"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:duplicateParentState="true"
+                    android:tint="@color/selector_color_text"
+                    app:srcCompat="@drawable/ic_share"/>
+
+                <TextView
+                    android:id="@+id/text_share"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ic_share"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="5dp"
+                    android:duplicateParentState="true"
+                    android:text="@string/i_reader_share"
+                    android:textColor="@color/selector_color_text"
+                    android:textSize="12sp"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/container_order"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:paddingTop="10dp">
+
+                <ImageView
+                    android:id="@+id/ic_order"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:duplicateParentState="true"
+                    android:tint="@color/selector_color_text"
+                    app:srcCompat="@drawable/ic_order"/>
+
+                <TextView
+                    android:id="@+id/text_order"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ic_order"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="5dp"
+                    android:duplicateParentState="true"
+                    android:text="@string/i_reader_book_order"
+                    android:textColor="@color/selector_color_text"
+                    android:textSize="12sp"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/container_detail"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:paddingTop="10dp">
+
+                <ImageView
+                    android:id="@+id/ic_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:duplicateParentState="true"
+                    android:tint="@color/selector_color_text"
+                    app:srcCompat="@drawable/ic_detail"/>
+
+                <TextView
+                    android:id="@+id/text_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/ic_detail"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="5dp"
+                    android:duplicateParentState="true"
+                    android:text="@string/i_reader_detail"
+                    android:textColor="@color/selector_color_text"
+                    android:textSize="12sp"/>
+            </RelativeLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+
+</layout>

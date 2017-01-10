@@ -17,6 +17,7 @@ import android.widget.TextView;
 import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
 import com.anarchy.classify.simple.widget.CanMergeView;
+import com.anarchy.classify.util.L;
 import com.anarchy.classifyview.R;
 
 import java.lang.annotation.Retention;
@@ -238,10 +239,13 @@ public class IReaderFolder extends RelativeLayout implements CanMergeView {
      */
     @Override
     public void initOrUpdateMain(int parentIndex, int requestCount) {
-        if (mGridLayout == null) return;
+        if(mGridLayout == null){
+            ensureViewFound();
+        }
+        if (mGridLayout == null || requestCount <= 0) return;
         int childCount = mGridLayout.getChildCount();
-        if (childCount > 0 && requestCount > 0 && childCount > requestCount) {
-            mGridLayout.removeViews(childCount,requestCount - childCount);
+        if (childCount > requestCount) {
+            mGridLayout.removeViews(requestCount,childCount - requestCount);
         }
         childCount = mGridLayout.getChildCount();
         for (int i = 0; i < requestCount; i++) {
