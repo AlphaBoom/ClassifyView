@@ -1,5 +1,6 @@
 package com.anarchy.classify.simple;
 
+import android.app.Dialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
@@ -247,6 +248,35 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
     }
 
     /**
+     * 当拖拽开始发生时的回调
+     * @param viewHolder
+     * @param parentIndex
+     * @param index  如果为-1 则为主层级上的拖拽
+     */
+    protected void onDragStart(VH viewHolder,int parentIndex,int index){
+
+    }
+
+    /**
+     * 当开始拖拽动画结束时的回调
+     * @param viewHolder
+     * @param parentIndex
+     * @param index 如果为-1 则为主层级上的是拖拽
+     */
+    protected void onDragAnimationEnd(VH viewHolder,int parentIndex,int index){
+
+    }
+
+    /**
+     * 当副层级弹窗显示时的回调
+     * @param dialog
+     * @param parentPosition
+     */
+    protected void onSubDialogShow(Dialog dialog,int parentPosition){
+
+    }
+
+    /**
      * @deprecated {@link #onItemClick(ViewHolder, int, int)}
      */
     protected void onItemClick(View pressedView,int parentIndex,int index){
@@ -309,6 +339,17 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
         public int getItemViewType(int position) {
             int originType = PrimitiveSimpleAdapter.this.getItemType(position, -1);
             return PrimitiveSimpleAdapter.this.haveSpecialType() ? TYPE_MAIN | (originType & (~TYPE_MASK)) : originType;
+        }
+
+
+        @Override
+        public void onDragStart(VH selectedViewHolder, int selectedPosition) {
+           PrimitiveSimpleAdapter.this.onDragStart(selectedViewHolder,selectedPosition,-1);
+        }
+
+        @Override
+        public void onDragAnimationEnd(VH selectedViewHolder, int selectedPosition) {
+            PrimitiveSimpleAdapter.this.onDragAnimationEnd(selectedViewHolder,selectedPosition,-1);
         }
 
         @Override
@@ -456,6 +497,21 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
                 canMergeView.initOrUpdateSub(mParentPosition, position);
             }
             PrimitiveSimpleAdapter.this.onBindSubViewHolder(holder, mParentPosition, position);
+        }
+
+        @Override
+        public void onDragStart(VH selectedViewHolder, int selectedPosition) {
+            PrimitiveSimpleAdapter.this.onDragStart(selectedViewHolder,mParentPosition,selectedPosition);
+        }
+
+        @Override
+        public void onDragAnimationEnd(VH selectedViewHolder, int selectedPosition) {
+            PrimitiveSimpleAdapter.this.onDragAnimationEnd(selectedViewHolder,mParentPosition,selectedPosition);
+        }
+
+        @Override
+        public void onDialogShow(Dialog subDialog, int parentPosition) {
+            PrimitiveSimpleAdapter.this.onSubDialogShow(subDialog,parentPosition);
         }
 
         @Override

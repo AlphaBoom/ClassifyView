@@ -45,6 +45,22 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
 
     @SuppressWarnings("unchecked")
     @Override
+    public void onDragStart(RecyclerView recyclerView, int position) {
+        VH selectedViewHolder = (VH) recyclerView.findViewHolderForAdapterPosition(position);
+        if(selectedViewHolder == null) return;
+        onDragStart(selectedViewHolder,position);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onDragAnimationEnd(RecyclerView recyclerView, int position) {
+        VH selectedViewHolder = (VH) recyclerView.findViewHolderForAdapterPosition(position);
+        if(selectedViewHolder == null) return;
+        onDragAnimationEnd(selectedViewHolder,position);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
     public boolean onMergeStart(RecyclerView parent, int selectedPosition, int targetPosition) {
         VH selectedViewHolder = (VH) parent.findViewHolderForAdapterPosition(selectedPosition);
         VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
@@ -82,6 +98,14 @@ public abstract class BaseMainAdapter<VH extends RecyclerView.ViewHolder, Sub ex
         VH targetViewHolder = (VH) parent.findViewHolderForAdapterPosition(targetPosition);
         if(selectedViewHolder == null || targetViewHolder == null) return;
         onStartMergeAnimation(selectedViewHolder, targetViewHolder, selectedPosition, targetPosition,duration);
+    }
+
+    public void onDragStart(VH selectedViewHolder,int selectedPosition){
+
+    }
+
+    public void onDragAnimationEnd(VH selectedViewHolder,int selectedPosition){
+
     }
 
     public abstract boolean onMergeStart(VH selectedViewHolder, VH targetViewHolder, int selectedPosition, int targetPosition);

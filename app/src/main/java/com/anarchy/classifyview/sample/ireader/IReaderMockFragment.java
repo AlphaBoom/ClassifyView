@@ -1,14 +1,11 @@
 package com.anarchy.classifyview.sample.ireader;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,9 +14,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.PopupWindow;
 
 import com.anarchy.classify.ClassifyView;
-import com.anarchy.classify.util.L;
 import com.anarchy.classifyview.R;
 import com.anarchy.classifyview.core.BaseFragment;
 import com.anarchy.classifyview.databinding.ExtraIreaderBottomBarBinding;
@@ -38,7 +35,6 @@ public class IReaderMockFragment extends BaseFragment {
     private FragmentMockIreaderBinding mBinding;
     private ExtraIreaderBottomBarBinding mBottomBinding;
     private IReaderAdapter mAdapter;
-    private boolean inEditMode;
     private Random mRandom;
     private WindowManager mWindowManager;
     private WindowManager.LayoutParams mLayoutParams;
@@ -55,6 +51,7 @@ public class IReaderMockFragment extends BaseFragment {
         mLayoutParams.token = getActivity().getWindow().getDecorView().getWindowToken();
         mLayoutParams.gravity = Gravity.BOTTOM;
         mLayoutParams.flags |= WindowManager.LayoutParams.FLAG_SPLIT_TOUCH|WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        mLayoutParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE;
         mLayoutParams.width = -1;
         mLayoutParams.height = -2;
     }
@@ -88,40 +85,24 @@ public class IReaderMockFragment extends BaseFragment {
             }
 
             @Override
+            public void onEditChanged(boolean inEdit) {
+                if(inEdit){
+                    showEditMode();
+                }else {
+                    hideEditMode();
+                }
+            }
+
+            @Override
             public void onRestore() {
                 count = 0;
                 mBottomBinding.icDeleteBadge.setVisibility(View.INVISIBLE);
                 setBottomEnable(false);
             }
-        });
-        mBinding.classifyView.addDragListener(new ClassifyView.DragListener() {
-            @Override
-            public void onDragStart(ViewGroup parent, View selectedView, float startX, float startY, int region) {
-                if (!inEditMode) {
-                    mAdapter.setCurrentDragItemChecked(selectedView);
-                }
-            }
 
             @Override
-            public void onDragStartAnimationEnd(ViewGroup parent, View selectedView, int region) {
-                if (!inEditMode) {
-                    showEditMode();
-                }
-            }
-
-            @Override
-            public void onDragEnd(ViewGroup parent, int region) {
-
-            }
-
-            @Override
-            public void onDragRelease(ViewGroup parent, float releaseX, float releaseY, int region) {
-
-            }
-
-            @Override
-            public void onMove(ViewGroup parent, float touchX, float touchY, int region) {
-
+            public void onHideSubDialog() {
+                mBinding.classifyView.hideSubContainer();
             }
         });
         mBinding.classifyView.setAdapter(mAdapter);
@@ -129,7 +110,7 @@ public class IReaderMockFragment extends BaseFragment {
         mBinding.textComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                hideEditMode();
+                mAdapter.setEditMode(false);
             }
         });
         mBottomBinding.containerDelete.setOnClickListener(new View.OnClickListener() {
@@ -165,15 +146,11 @@ public class IReaderMockFragment extends BaseFragment {
 
 
     private void showEditMode() {
-        inEditMode = true;
-        mAdapter.setEditMode(true);
         mBinding.toolBar.animate().translationY(0).start();
         mBottomBinding.getRoot().animate().translationY(0).start();
     }
 
     private void hideEditMode() {
-        inEditMode = false;
-        mAdapter.setEditMode(false);
         mBinding.toolBar.animate().translationY(-mBinding.toolBar.getHeight()).start();
         mBottomBinding.getRoot().animate().translationY(mBottomBinding.getRoot().getHeight()).start();
     }
@@ -207,8 +184,8 @@ public class IReaderMockFragment extends BaseFragment {
 
     @Override
     public boolean onBackPressed() {
-        if (inEditMode) {
-            hideEditMode();
+        if (mAdapter.isEditMode()) {
+            mAdapter.setEditMode(false);
             return true;
         }
         return super.onBackPressed();

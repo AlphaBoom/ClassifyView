@@ -1,5 +1,7 @@
 package com.anarchy.classify.callback;
 
+import android.app.Dialog;
+
 import java.util.List;
 
 /**
@@ -20,6 +22,13 @@ public interface SubRecyclerViewCallBack extends BaseCallBack{
      * @deprecated {@link #prepareExplodeItem(int)}
      */
     void initData(int parentIndex,List data);
+
+    /**
+     * 当副层级的Dialog显示时的回调
+     * @param subDialog
+     * @param parentPosition
+     */
+    void onDialogShow(Dialog subDialog, int parentPosition);
 
 
     boolean onMove(int selectedPosition,int targetPosition);

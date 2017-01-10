@@ -9,6 +9,7 @@
     <string name="i_reader_share">分享</string>
     <string name="i_reader_book_order">加入书单</string>
     <string name="i_reader_detail">详情</string>
+    <string name="i_reader_category_title_edit_hint">分类名称最多显示10个字符</string>
     <string-array name="list_name">
         <item>基本效果</item>
         <item>使用演示</item>

@@ -2,16 +2,29 @@ package com.anarchy.classifyview.sample.ireader;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
+import android.app.Dialog;
+import android.app.SearchManager;
+import android.content.DialogInterface;
 import android.database.Observable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.transition.TransitionManager;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 
+import com.anarchy.classify.adapter.BaseMainAdapter;
+import com.anarchy.classify.adapter.BaseSubAdapter;
 import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
 import com.anarchy.classify.simple.widget.InsertAbleGridView;
 import com.anarchy.classify.util.L;
@@ -36,14 +49,22 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
     private List<IReaderMockDataGroup> mLastMockGroup;
     private List<IReaderMockData> mCheckedData = new ArrayList<>();
     private boolean mEditMode;
+    private boolean mSubEditMode;
     private int[] mDragPosition = new int[2];
     private IReaderObservable mObservable = new IReaderObservable();
+    private SubObserver mSubObserver = new SubObserver(mObservable);
+    private DialogInterface.OnDismissListener mDismissListener = new DialogInterface.OnDismissListener() {
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            mObservable.unregisterObserver(mSubObserver);
+            mSubEditMode = false;
+        }
+    };
 
 
-    public void registerObserver(IReaderObserver observer){
+    public void registerObserver(IReaderObserver observer) {
         mObservable.registerObserver(observer);
     }
-
 
 
     public List<IReaderMockData> getMockSource() {
@@ -55,6 +76,150 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
         notifyDataSetChanged();
     }
 
+
+    @Override
+    protected void onDragStart(ViewHolder viewHolder, int parentIndex, int index) {
+        if (!mEditMode) {
+            //如果当前不为可编辑状态
+            IReaderMockData mockData = index == -1 ? mMockSource.get(parentIndex) : ((IReaderMockDataGroup) mMockSource.get(parentIndex)).getChild(index);
+            if (mockData != null) {
+                mockData.setChecked(true);
+                mCheckedData.add(mockData);
+                mObservable.notifyItemCheckChanged(true);
+                viewHolder.getBinding().iReaderFolderCheckBox.setVisibility(View.VISIBLE);
+                viewHolder.getBinding().iReaderFolderCheckBox.setBackgroundResource(R.drawable.ic_checked);
+            }
+        }
+    }
+
+    @Override
+    protected void onDragAnimationEnd(ViewHolder viewHolder, int parentIndex, int index) {
+        if (!mEditMode) {
+            setEditMode(true);
+        }
+    }
+
+    @Override
+    protected void onSubDialogShow(Dialog dialog, int parentPosition) {
+        dialog.setOnDismissListener(mDismissListener);
+        //当次级窗口显示时需要修改标题
+        final ViewGroup contentView = (ViewGroup) dialog.getWindow().findViewById(Window.ID_ANDROID_CONTENT);
+        final TextView selectAll = (TextView) contentView.findViewById(R.id.text_select_all);
+        TextView title = (TextView) contentView.findViewById(R.id.text_title);
+        final EditText editText = (EditText) contentView.findViewById(R.id.edit_title);
+        FrameLayout subContainer = (FrameLayout) contentView.findViewById(R.id.sub_container);
+        final IReaderMockDataGroup mockDataGroup = (IReaderMockDataGroup) mMockSource.get(parentPosition);
+        mSubObserver.setBindResource(mockDataGroup, selectAll, getMainAdapter(),getSubAdapter(),parentPosition);
+        mObservable.registerObserver(mSubObserver);
+        selectAll.setVisibility(mEditMode ? mSubEditMode ? View.GONE : View.VISIBLE : View.GONE);
+        title.setText(String.valueOf(mockDataGroup.getCategory()));
+        /*if(Build.VERSION.SDK_INT >= 19) {
+            title.setOnClickListener(new View.OnClickListener() {
+                @TargetApi(Build.VERSION_CODES.KITKAT)
+                @Override
+                public void onClick(View v) {
+                    mSubEditMode = true;
+                    selectAll.setVisibility(View.GONE);
+                    editText.setText(String.valueOf(mockDataGroup.getCategory()));
+                    editText.setSelection(0,editText.getText().toString().length());
+                    int originWidth = editText.getWidth();
+                    editText.setWidth(0);
+                    TransitionManager.beginDelayedTransition(contentView);
+                    editText.setWidth(originWidth);
+                }
+            });
+            editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    switch (actionId){
+                        case KeyEvent.KEYCODE_ENTER:
+                            break;
+                    }
+                    return false;
+                }
+            });
+        }*/
+
+    }
+
+    static class SubObserver extends IReaderObserver {
+        final IReaderObservable mObservable;
+        IReaderMockDataGroup mGroup;
+        TextView selectAll;
+        BaseSubAdapter mSubAdapter;
+        BaseMainAdapter mMainAdapter;
+        int parentPosition;
+        boolean mLastIsAllSelect;
+
+        SubObserver(@NonNull IReaderObservable observable) {
+            mObservable = observable;
+        }
+
+        View.OnClickListener allSelectListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int childCount = mGroup.getChildCount();
+                for (int i = 0; i < childCount; i++) {
+                    IReaderMockData child = mGroup.getChild(i);
+                    if(!child.isChecked()){
+                        child.setChecked(true);
+                        mObservable.notifyItemCheckChanged(true);
+                    }
+                }
+                mSubAdapter.notifyDataSetChanged();
+                mMainAdapter.notifyItemChanged(parentPosition);
+            }
+        };
+        View.OnClickListener cancelSelectListener = new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                int childCount = mGroup.getChildCount();
+                for (int i = 0; i < childCount; i++) {
+                    IReaderMockData child = mGroup.getChild(i);
+                    if(child.isChecked()){
+                        child.setChecked(false);
+                        mObservable.notifyItemCheckChanged(false);
+                    }
+                }
+                mSubAdapter.notifyDataSetChanged();
+                mMainAdapter.notifyItemChanged(parentPosition);
+            }
+        };
+
+        void setBindResource(IReaderMockDataGroup source, TextView bindView,BaseMainAdapter mainAdapter ,BaseSubAdapter subAdapter,int parentPosition) {
+            mGroup = source;
+            selectAll = bindView;
+            mSubAdapter = subAdapter;
+            mMainAdapter = mainAdapter;
+            this.parentPosition = parentPosition;
+            updateBind(true);
+        }
+
+
+        @Override
+        public void onChecked(boolean isChecked) {
+            updateBind(false);
+        }
+
+        private void updateBind(boolean force) {
+            boolean isAllSelect = mGroup.getChildCount() == mGroup.getCheckedCount();
+            if(force){
+                updateBindInternal(isAllSelect);
+                return;
+            }
+            if (mLastIsAllSelect != isAllSelect) {
+                updateBindInternal(isAllSelect);
+            }
+        }
+
+        private void updateBindInternal(boolean isAllSelect){
+            mLastIsAllSelect = isAllSelect;
+            selectAll.setText(isAllSelect ? "取消" : "全选");
+            selectAll.setOnClickListener(isAllSelect? cancelSelectListener : allSelectListener);
+        }
+
+    }
 
     /**
      * 返回当前拖拽的view 在adapter中的位置
@@ -85,37 +250,23 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
         }
     }
 
-
-    public void setCurrentDragItemChecked(View selectedView){
-        IReaderMockData mockData = getCurrentSingleDragData();
-        if(mockData != null){
-            mockData.setChecked(true);
-            mCheckedData.add(mockData);
-            mObservable.notifyItemCheckChanged(true);
-            View view = selectedView.findViewById(R.id.i_reader_folder_check_box);
-            view.setVisibility(View.VISIBLE);
-            view.setBackgroundResource(R.drawable.ic_checked);
-
-        }
-    }
-
-
-    public void removeAllCheckedBook(){
-        if(mCheckedData.size() == 0) return;
-        for(IReaderMockData data:mCheckedData){
-            if(data.getParent() != null){
+    public void removeAllCheckedBook() {
+        if (mCheckedData.size() == 0) return;
+        for (IReaderMockData data : mCheckedData) {
+            if (data.getParent() != null) {
                 IReaderMockDataGroup parent = data.getParent();
                 parent.removeChild(data);
-                if(parent.getChildCount() == 0){
+                if (parent.getChildCount() == 0) {
                     mMockSource.remove(parent);
                 }
-            }else {
+            } else {
                 mMockSource.remove(data);
             }
         }
         notifyDataSetChanged();
         getSubAdapter().notifyDataSetChanged();
         mObservable.notifyItemRestore();
+        mObservable.notifyItemHideSubDialog();
     }
 
     /**
@@ -136,19 +287,23 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
      */
     public void setEditMode(boolean editMode) {
         mEditMode = editMode;
-        if(!editMode && mCheckedData.size() >0){
-            for(IReaderMockData data:mCheckedData){
-                data.setChecked(false);
+        if (!editMode) {
+            if (mCheckedData.size() > 0) {
+                for (IReaderMockData data : mCheckedData) {
+                    data.setChecked(false);
+                }
+                mCheckedData.clear();
             }
-            mCheckedData.clear();
+            mObservable.notifyItemRestore();
         }
         notifyDataSetChanged();
         getSubAdapter().notifyDataSetChanged();
-        if(!editMode) {
-            mObservable.notifyItemRestore();
-        }
+        mObservable.notifyItemEditModeChanged(editMode);
     }
 
+    public boolean isEditMode() {
+        return mEditMode;
+    }
 
     public List<IReaderMockDataGroup> getMockGroup() {
         if (mMockSource == null) return null;
@@ -226,11 +381,12 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
      */
     @Override
     protected int getSubItemCount(int parentPosition) {
-        IReaderMockData mockData = mMockSource.get(parentPosition);
-        if (mockData instanceof IReaderMockDataGroup) {
-            int subCount = ((IReaderMockDataGroup) mockData).getChildCount();
-            L.d("sub count:"+subCount + mockData);
-            return subCount;
+        if(parentPosition < mMockSource.size()) {
+            IReaderMockData mockData = mMockSource.get(parentPosition);
+            if (mockData instanceof IReaderMockDataGroup) {
+                int subCount = ((IReaderMockDataGroup) mockData).getChildCount();
+                return subCount;
+            }
         }
         return 0;
     }
@@ -281,7 +437,7 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
      */
     @Override
     protected void onSubMove(IReaderMockDataGroup iReaderMockDataGroup, int selectedPosition, int targetPosition) {
-        iReaderMockDataGroup.addChild(targetPosition,iReaderMockDataGroup.removeChild(selectedPosition));
+        iReaderMockDataGroup.addChild(targetPosition, iReaderMockDataGroup.removeChild(selectedPosition));
     }
 
 
@@ -309,7 +465,7 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
         IReaderMockData target = mMockSource.get(targetPosition);
         IReaderMockData select = mMockSource.remove(selectedPosition);
         if (target instanceof IReaderMockDataGroup) {
-            ((IReaderMockDataGroup) target).addChild(0,select);
+            ((IReaderMockDataGroup) target).addChild(0, select);
         } else {
             //合并成为文件夹状态
             IReaderMockDataGroup group = new IReaderMockDataGroup();
@@ -429,7 +585,7 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
                 mCheckedData.add(mockData);
                 //通知
                 mObservable.notifyItemCheckChanged(mockData.isChecked());
-                if(index != -1){
+                if (index != -1) {
                     notifyItemChanged(parentIndex);
                 }
                 final ItemIReaderFolderBinding binding = viewHolder.getBinding();
@@ -505,26 +661,47 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
         }
     }
 
-    static class IReaderObservable extends Observable<IReaderObserver>{
-        public void notifyItemCheckChanged(boolean isChecked){
+    static class IReaderObservable extends Observable<IReaderObserver> {
+        public void notifyItemCheckChanged(boolean isChecked) {
             for (int i = mObservers.size() - 1; i >= 0; i--) {
                 mObservers.get(i).onChecked(isChecked);
             }
         }
 
-        public void notifyItemRestore(){
-            for (int i = mObservers.size() - 1; i >=0; i--) {
+        public void notifyItemEditModeChanged(boolean editMode) {
+            for (int i = mObservers.size() - 1; i >= 0; i--) {
+                mObservers.get(i).onEditChanged(editMode);
+            }
+        }
+
+        public void notifyItemRestore() {
+            for (int i = mObservers.size() - 1; i >= 0; i--) {
                 mObservers.get(i).onRestore();
+            }
+        }
+
+        public void notifyItemHideSubDialog(){
+            for (int i = mObservers.size() - 1; i >= 0; i--) {
+                mObservers.get(i).onHideSubDialog();
             }
         }
     }
 
-    public static abstract class IReaderObserver{
-        public void onChecked(boolean isChecked){
+    public static abstract class IReaderObserver {
+        public void onChecked(boolean isChecked) {
 
         }
 
-        public void onRestore(){
+
+        public void onEditChanged(boolean inEdit) {
+
+        }
+
+        public void onRestore() {
+
+        }
+
+        public void onHideSubDialog(){
 
         }
     }

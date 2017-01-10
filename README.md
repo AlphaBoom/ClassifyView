@@ -25,8 +25,9 @@ allprojects {
 最新版本查看[Latest release](https://github.com/AlphaBoom/ClassifyView/releases)
 
 #最近更新
-
-- [ ]  继续增加可自定义模块，和效果。现在一些效果还是需要修改源码部分
+- [x] 关于仿照IReader的效果需要对原库做自定义的部分都已经更新在Sample
+- [x] 在adapter中增加了拖拽开始及拖拽开始完成和次级目录弹出的回调
+- [x] 增加拖拽item的可在拖拽时放大及可合并时缩小的设置
 - [x] 在拖拽开始时添加动画，效果更自然
 - [x] 添加了一个自定义的例子，效果大致仿IReader的书架
 
@@ -98,7 +99,7 @@ mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
 #添加拖动状态监听
 
 设置监听
-```
+```java
 //添加监听
 public void addDragListener(DragListener listener){
         mDragListeners.add(listener);
@@ -121,33 +122,43 @@ public void enableMoveListener(boolean enable){
 ```
 具体监听回调
 
-```
-public interface DragListener{
+```java
+public interface DragListener {
         /**
          * 开始拖拽
+         *
          * @param parent parent is ClassifyView
-         * @param startX start touch x 相对于 classify view
-         * @param startY start touch y 相对于 classify view
-         * @param region 拖动的区域   IN_MAIN_REGION  或 IN_SUB_REGION 
+         * @param startX start touch x relative classify view
+         * @param startY start touch y relative classify view
+         * @param region start drag  region either  main or sub
          */
-        void onDragStart(ViewGroup parent,float startX,float startY,int region);
+        void onDragStart(ViewGroup parent,View selectedView, float startX, float startY,@Region int region);
+
+        /**
+         * star drag animation end
+         * @param parent
+         * @param selectedView
+         * @param region
+         */
+        void onDragStartAnimationEnd(ViewGroup parent,View selectedView,int region);
 
         /**
          * 拖拽结束(recover animation end)
          */
-        void onDragEnd(ViewGroup parent,int region);
+        void onDragEnd(ViewGroup parent,@Region int region);
 
         /**
          * 释放被拖拽的View
          */
-        void onDragRelease(ViewGroup parent,float releaseX,float releaseY,int region);
+        void onDragRelease(ViewGroup parent, float releaseX, float releaseY,@Region int region);
 
         /**
-         * 拖动移动时的回调 
+         * move callback by touch location
+         *
          * @param touchX 触摸的X坐标
          * @param touchY 触摸的Y坐标
          */
-        void onMove(ViewGroup parent,float touchX,float touchY,int region);
+        void onMove(ViewGroup parent, float touchX, float touchY,@Region int region);
     }
 ```
 
@@ -175,6 +186,10 @@ OutlineColor | 外边框的颜色
 InnerPadding | 当内部有多个子View 时 与周围的边距
 
 #高级自定义
+
+##如果不喜欢List<List<>>的结构可以集成PrimitiveSimpleAdapter来实现其他数据源的adapter
+
+关于如何集成PrimitiveSimpleAdapter可以参考仿[IReaderAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/app/src/main/java/com/anarchy/classifyview/sample/ireader/IReaderAdapter.java),如果不能满足可以考虑分别集成[BaseMainAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/adapter/BaseMainAdapter.java)及[BaseSubAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/adapter/BaseSubAdapter.java)
 
 ##继承ClassifyView 重写以下方法：
 

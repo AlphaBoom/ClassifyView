@@ -475,7 +475,7 @@ public class ClassifyView extends FrameLayout {
                     return true;
                 } else {
                     mSubCallBack.initData(position, list);
-                    showSubContainer();
+                    showSubContainer(position);
                     return true;
                 }
 
@@ -598,10 +598,11 @@ public class ClassifyView extends FrameLayout {
                         float targetY = mInitialTouchY - mSelected.getHeight() / 2 + mSubLocation[1];
                         mSubCallBack.setDragPosition(mSelectedPosition,false);
                         mState = STATE_DRAG;
+                        mSubCallBack.onDragStart(mSubRecyclerView,mSelectedPosition);
                         for (DragListener listener : mDragListeners) {
                             listener.onDragStart(ClassifyView.this,mSelected,mInitialTouchX, mInitialTouchY, IN_MAIN_REGION);
                         }
-                        doStartDragWithAnimation(mSelected, targetX, targetY, mSubLocation, mSelectedPosition, mSubCallBack);
+                        doStartDragWithAnimation(mSubRecyclerView,mSelected,mSelectedPosition, targetX, targetY, mSubLocation, mSubCallBack);
 
                     }
                 }
@@ -841,7 +842,7 @@ public class ClassifyView extends FrameLayout {
     /**
      * 显示次级窗口
      */
-    private void showSubContainer() {
+    private void showSubContainer(int position) {
         if (mSubDialog == null) {
             mSubDialog = initSubDialog();
             mSubDialog.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -858,6 +859,7 @@ public class ClassifyView extends FrameLayout {
             });
         }
         mSubDialog.show();
+        mSubCallBack.onDialogShow(mSubDialog,position);
     }
 
     private void getLocationAndFixHeight(@NonNull View container, @NonNull int[] holder) {
@@ -874,7 +876,7 @@ public class ClassifyView extends FrameLayout {
     /**
      * 隐藏次级窗口
      */
-    private void hideSubContainer() {
+    public void hideSubContainer() {
         if (mSubDialog == null) return;
         mSubDialog.hide();
     }
@@ -911,10 +913,11 @@ public class ClassifyView extends FrameLayout {
                         float targetY = mInitialTouchY - height / 2 + mMainLocation[1];
                         mMainCallBack.setDragPosition(mSelectedPosition,false);
                         mState = STATE_DRAG;
+                        mMainCallBack.onDragStart(mMainRecyclerView,mSelectedPosition);
                         for (DragListener listener : mDragListeners) {
                             listener.onDragStart(ClassifyView.this,mSelected,mInitialTouchX, mInitialTouchY, IN_MAIN_REGION);
                         }
-                        doStartDragWithAnimation(mSelected, targetX, targetY, mMainLocation, mSelectedPosition, mMainCallBack);
+                        doStartDragWithAnimation(mMainRecyclerView,mSelected,mSelectedPosition, targetX, targetY, mMainLocation,  mMainCallBack);
                     }
                     break;
                 case DragEvent.ACTION_DRAG_LOCATION:
@@ -1004,7 +1007,7 @@ public class ClassifyView extends FrameLayout {
 
 
 
-    private void doStartDragWithAnimation(final View selected, final float targetX, final float targetY, @NonNull final int[] fixWindowLocation, final int selectedPosition, final BaseCallBack callBack) {
+    private void doStartDragWithAnimation(final RecyclerView recyclerView,final View selected, final int selectedPosition, final float targetX, final float targetY, @NonNull final int[] fixWindowLocation, final BaseCallBack callBack) {
         final int recordRegion = mRegion;//记录当前位置 动画中让位置信息处于位置区域
         selected.post(new Runnable() {
             @Override
@@ -1038,6 +1041,7 @@ public class ClassifyView extends FrameLayout {
                             mPendingRecover = false;
                             doRecoverAnimation();
                         }else {
+                            callBack.onDragAnimationEnd(recyclerView,selectedPosition);
                             for(DragListener listener:mDragListeners){
                                 listener.onDragStartAnimationEnd(ClassifyView.this,selected,mRegion);
                             }

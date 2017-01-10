@@ -1,5 +1,6 @@
 package com.anarchy.classify.adapter;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.VelocityTracker;
@@ -48,6 +49,36 @@ public abstract class BaseSubAdapter<VH extends RecyclerView.ViewHolder> extends
 
     @Override
     public void prepareExplodeItem(int parentPosition) {
+
+    }
+
+    @Override
+    public void onDialogShow(Dialog subDialog, int parentPosition) {
+
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onDragStart(RecyclerView recyclerView, int position) {
+        VH selectedViewHolder = (VH) recyclerView.findViewHolderForAdapterPosition(position);
+        if(selectedViewHolder == null) return;
+        onDragStart(selectedViewHolder,position);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void onDragAnimationEnd(RecyclerView recyclerView, int position) {
+        VH selectedViewHolder = (VH) recyclerView.findViewHolderForAdapterPosition(position);
+        if(selectedViewHolder == null) return;
+        onDragAnimationEnd(selectedViewHolder,position);
+    }
+
+
+    public void onDragStart(VH selectedViewHolder,int selectedPosition){
+
+    }
+
+    public void onDragAnimationEnd(VH selectedViewHolder,int selectedPosition){
 
     }
 

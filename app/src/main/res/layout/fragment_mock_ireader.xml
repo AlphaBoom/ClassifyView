@@ -54,7 +54,6 @@
             app:DragInMergeScaleY="0.9"
             app:DragScaleX="1.1"
             app:DragScaleY="1.1"
-            app:SubRatio="80%"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             />

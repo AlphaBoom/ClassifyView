@@ -41,7 +41,7 @@ public class IReaderClassifyView extends ClassifyView {
         dialog.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         WindowManager.LayoutParams layoutParams = dialog.getWindow().getAttributes();
         layoutParams.gravity = Gravity.BOTTOM;
-        layoutParams.height = (int) (getHeight() * 0.8);
+        layoutParams.height = getHeight();
         layoutParams.dimAmount = 0.6f;
         layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL;
         layoutParams.format = PixelFormat.TRANSPARENT;

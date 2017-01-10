@@ -1,22 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
-              android:elevation="0dp"
-              android:translationZ="0dp"
-              android:orientation="vertical"
+                android:paddingTop="10dp"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
     <TextView
-        android:layout_marginTop="10dp"
+        android:id="@+id/text_select_all"
+        android:visibility="gone"
+        android:layout_marginLeft="15dp"
+        android:textSize="18sp"
+        android:textColor="@color/orange"
+        tools:text="全选"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <TextView
         android:textSize="18sp"
         android:textColor="#FFF"
-        android:layout_gravity="center_horizontal"
-        android:id="@+id/title"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/text_title"
         tools:text="分类1"
         android:text="分类1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+    <EditText
+        android:id="@+id/edit_title"
+        android:cursorVisible="true"
+        android:visibility="gone"
+        android:textSize="15sp"
+        android:textColor="#FFF"
+        android:textColorHint="#d1d1d1"
+        android:background="@drawable/bg_i_reader_category_edit"
+        android:hint="@string/i_reader_category_title_edit_hint"
+        android:layout_marginLeft="60dp"
+        android:layout_marginRight="60dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
     <FrameLayout
+        android:id="@+id/sub_container"
+        android:layout_below="@id/text_title"
         android:background="#FFF"
         android:layout_marginTop="10dp"
         android:tag="@string/sub_container"
@@ -24,4 +45,4 @@
         android:layout_height="match_parent">
 
     </FrameLayout>
-</LinearLayout>
+</RelativeLayout>

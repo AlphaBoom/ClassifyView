@@ -41,6 +41,20 @@ public interface BaseCallBack {
     boolean canDropOver(int selectedPosition,int targetPosition);
 
     /**
+     * 拖拽发生时的回调
+     * @param recyclerView
+     * @param position
+     */
+    void onDragStart(RecyclerView recyclerView,int position);
+
+    /**
+     * 拖拽动画执行结束的回调
+     * @param recyclerView
+     * @param position
+     */
+    void onDragAnimationEnd(RecyclerView recyclerView,int position);
+
+    /**
      * 返回判断移动需要的速度范围
      * 单位默认100 如果你没有重写 {@link #getCurrentState(View, View, int, int, VelocityTracker, int, int)}这个方法
      * @param context
