@@ -110,7 +110,7 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
         FrameLayout subContainer = (FrameLayout) contentView.findViewById(R.id.sub_container);
         final IReaderMockDataGroup mockDataGroup = (IReaderMockDataGroup) mMockSource.get(parentPosition);
         mSubObserver.setBindResource(mockDataGroup, selectAll, getMainAdapter(),getSubAdapter(),parentPosition);
-        mObservable.registerObserver(mSubObserver);
+        if(!mObservable.isRegister(mSubObserver)) mObservable.registerObserver(mSubObserver);
         selectAll.setVisibility(mEditMode ? mSubEditMode ? View.GONE : View.VISIBLE : View.GONE);
         title.setText(String.valueOf(mockDataGroup.getCategory()));
         /*if(Build.VERSION.SDK_INT >= 19) {
@@ -662,6 +662,12 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
     }
 
     static class IReaderObservable extends Observable<IReaderObserver> {
+
+        public boolean isRegister(IReaderObserver observer){
+            return mObservers.contains(observer);
+        }
+
+
         public void notifyItemCheckChanged(boolean isChecked) {
             for (int i = mObservers.size() - 1; i >= 0; i--) {
                 mObservers.get(i).onChecked(isChecked);
