@@ -18,7 +18,7 @@ allprojects {
 
 ```
     dependencies {
-	        compile 'com.github.AlphaBoom:ClassifyView:0.5.1'
+	        compile 'com.github.AlphaBoom:ClassifyView:0.5.2'
 	}
 
 ```
@@ -34,8 +34,8 @@ allprojects {
 #快速使用
 1. 继承SimpleAdapter
 
-```
-   public class MyAdapter extends SimpleAdapter<Bean, MyAdapter.ViewHolder> {
+```java
+   public class MyAdapter extends SimpleAdapter<Bean, MyAdapter.ViewHolder> {
 
 
     public MyAdapter(List<List<Bean>> mData) {
@@ -79,7 +79,7 @@ allprojects {
 ``` 
 2.找到ClassifyView 并设置Adapter
 
-```
+```java
 mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
         List<List<Bean>> data = new ArrayList<>();
         for(int i=0;i<30;i++){
@@ -187,9 +187,9 @@ InnerPadding | 当内部有多个子View 时 与周围的边距
 
 #高级自定义
 
-##如果不喜欢List<List<>>的结构可以集成PrimitiveSimpleAdapter来实现其他数据源的adapter
+##如果不喜欢`List<List<>>`的结构可以集成PrimitiveSimpleAdapter来实现其他数据源的adapter
 
-关于如何集成PrimitiveSimpleAdapter可以参考仿[IReaderAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/app/src/main/java/com/anarchy/classifyview/sample/ireader/IReaderAdapter.java),如果不能满足可以考虑分别集成[BaseMainAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/adapter/BaseMainAdapter.java)及[BaseSubAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/adapter/BaseSubAdapter.java)
+关于如何继承PrimitiveSimpleAdapter可以参考[IReaderAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/app/src/main/java/com/anarchy/classifyview/sample/ireader/IReaderAdapter.java),如果不能满足可以考虑分别继承[BaseMainAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/adapter/BaseMainAdapter.java)及[BaseSubAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/adapter/BaseSubAdapter.java)
 
 ##继承ClassifyView 重写以下方法：
 
