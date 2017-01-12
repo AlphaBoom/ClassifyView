@@ -56,7 +56,7 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
     private DialogInterface.OnDismissListener mDismissListener = new DialogInterface.OnDismissListener() {
         @Override
         public void onDismiss(DialogInterface dialog) {
-            mObservable.unregisterObserver(mSubObserver);
+            if(mObservable.isRegister(mSubObserver)) mObservable.unregisterObserver(mSubObserver);
             mSubEditMode = false;
         }
     };
@@ -539,6 +539,7 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
      */
     @Override
     protected int onLeaveSubRegion(int parentPosition, IReaderMockDataGroup iReaderMockDataGroup, int selectedPosition) {
+        if(mObservable.isRegister(mSubObserver)) mObservable.unregisterObserver(mSubObserver);
         //从副层级移除并添加到主层级第一个位置上
         IReaderMockData mockData = iReaderMockDataGroup.removeChild(selectedPosition);
         mMockSource.add(0, mockData);
