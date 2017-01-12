@@ -7,6 +7,10 @@ public class IReaderMockData {
     private int color = Color.BLUE;
     private IReaderMockDataGroup mParent;
 
+
+
+
+
     public boolean isChecked() {
         return isChecked;
     }

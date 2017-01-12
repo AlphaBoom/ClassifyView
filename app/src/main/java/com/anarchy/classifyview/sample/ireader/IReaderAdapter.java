@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.transition.TransitionManager;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,6 +33,7 @@ import com.anarchy.classifyview.R;
 import com.anarchy.classifyview.databinding.ItemIReaderFolderBinding;
 import com.anarchy.classifyview.sample.ireader.model.IReaderMockData;
 import com.anarchy.classifyview.sample.ireader.model.IReaderMockDataGroup;
+import com.anarchy.classifyview.sample.normalfolder.Constants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -624,6 +626,10 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
             mBinding = ItemIReaderFolderBinding.bind(itemView);
         }
 
+
+
+
+
         ItemIReaderFolderBinding getBinding() {
             return mBinding;
         }
@@ -631,6 +637,7 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
         void bind(IReaderMockData iReaderMockData, boolean inEditMode) {
             if (inEditMode) {
                 if (iReaderMockData instanceof IReaderMockDataGroup) {
+                    Log.i(Constants.CLASSIFY_VIEW_INIT,"IReaderMockDataGroup");
                     int count = ((IReaderMockDataGroup) iReaderMockData).getCheckedCount();
                     if (count > 0) {
                         mBinding.iReaderFolderCheckBox.setVisibility(View.VISIBLE);

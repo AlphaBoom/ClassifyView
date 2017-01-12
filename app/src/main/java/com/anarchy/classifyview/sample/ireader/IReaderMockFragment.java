@@ -68,6 +68,9 @@ public class IReaderMockFragment extends BaseFragment {
         mAdapter.registerObserver(new IReaderAdapter.IReaderObserver() {
             int count = 0;
 
+
+
+
             @Override
             public void onChecked(boolean isChecked) {
                 count += isChecked ? 1 : -1;
