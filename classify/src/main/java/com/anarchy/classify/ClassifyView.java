@@ -353,16 +353,28 @@ public class ClassifyView extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        mDragLayoutParams = new WindowManager.LayoutParams();
-        mDragLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
-        if (Build.VERSION.SDK_INT >= 19)
-            mDragLayoutParams.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-        mDragLayoutParams.format = PixelFormat.TRANSPARENT;
-        mDragLayoutParams.type = WindowManager.LayoutParams.TYPE_TOAST;
-        mDragLayoutParams.token = this.getWindowToken();
+        mDragLayoutParams = createDragLayoutParams();
         mDragView.setPivotX(0);
         mDragView.setPivotY(0);
     }
+
+
+    /**
+     * 生成拖拽view的布局参数
+     * @return
+     */
+    @NonNull
+    protected WindowManager.LayoutParams createDragLayoutParams(){
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+        if (Build.VERSION.SDK_INT >= 19)
+            layoutParams.flags |= WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+        layoutParams.format = PixelFormat.TRANSPARENT;
+        layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_ATTACHED_DIALOG;
+        layoutParams.token = this.getWindowToken();
+        return layoutParams;
+    }
+
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -756,6 +768,7 @@ public class ClassifyView extends FrameLayout {
         layoutParams.height = (int) (getHeight() * mSubRatio);
         layoutParams.dimAmount = 0.6f;
         layoutParams.windowAnimations = R.style.DefaultAnimation;
+        layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL;
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         return dialog;
