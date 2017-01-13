@@ -769,6 +769,7 @@ public class ClassifyView extends FrameLayout {
         layoutParams.dimAmount = 0.6f;
         layoutParams.windowAnimations = R.style.DefaultAnimation;
         layoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_PANEL;
+        layoutParams.flags |= WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS;
         dialog.setCancelable(true);
         dialog.setCanceledOnTouchOutside(true);
         return dialog;
