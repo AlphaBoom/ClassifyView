@@ -2,20 +2,15 @@ package com.anarchy.classifyview.sample.ireader;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.Dialog;
-import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.database.Observable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.transition.TransitionManager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +23,6 @@ import com.anarchy.classify.adapter.BaseMainAdapter;
 import com.anarchy.classify.adapter.BaseSubAdapter;
 import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
 import com.anarchy.classify.simple.widget.InsertAbleGridView;
-import com.anarchy.classify.util.L;
 import com.anarchy.classifyview.R;
 import com.anarchy.classifyview.databinding.ItemIReaderFolderBinding;
 import com.anarchy.classifyview.sample.ireader.model.IReaderMockData;
@@ -46,6 +40,7 @@ import java.util.List;
  * Description:
  */
 public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup, IReaderAdapter.ViewHolder> {
+    private final static String IReaderAdapterLog="IReaderAdapterLog";
     private List<IReaderMockData> mMockSource;
     private boolean mMockSourceChanged;
     private List<IReaderMockDataGroup> mLastMockGroup;
@@ -142,6 +137,19 @@ public class IReaderAdapter extends PrimitiveSimpleAdapter<IReaderMockDataGroup,
             });
         }*/
 
+    }
+
+    /**
+     * 判断前后文件夹名是否一致：
+     * 不一致，刷新Adapter，modify DB
+     * 一致：hidden SubDialog
+     * @param dialog
+     * @param parentPosition
+     */
+    @Override
+    protected void onSubDialogCancel(Dialog dialog, int parentPosition) {
+        Log.i(IReaderAdapterLog,"onSubDialogCancel");
+        super.onSubDialogCancel(dialog, parentPosition);
     }
 
     static class SubObserver extends IReaderObserver {

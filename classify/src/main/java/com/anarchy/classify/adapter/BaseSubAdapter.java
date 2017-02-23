@@ -57,6 +57,11 @@ public abstract class BaseSubAdapter<VH extends RecyclerView.ViewHolder> extends
 
     }
 
+    @Override
+    public void onDialogCancel(Dialog subDialog, int parentPosition) {
+
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void onDragStart(RecyclerView recyclerView, int position) {
