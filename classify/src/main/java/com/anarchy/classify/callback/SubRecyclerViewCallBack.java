@@ -30,6 +30,12 @@ public interface SubRecyclerViewCallBack extends BaseCallBack{
      */
     void onDialogShow(Dialog subDialog, int parentPosition);
 
+    /**
+     * 当副层级的Dialog显示时的回调
+     * @param subDialog
+     * @param parentPosition
+     */
+    void onDialogCancel(Dialog subDialog, int parentPosition);
 
     boolean onMove(int selectedPosition,int targetPosition);
     void moved(int selectedPosition,int targetPosition);

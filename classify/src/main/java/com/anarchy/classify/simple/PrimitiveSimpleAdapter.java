@@ -276,6 +276,10 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
 
     }
 
+
+    protected void onSubDialogCancel(Dialog dialog,int parentPosition){
+
+    }
     /**
      * @deprecated {@link #onItemClick(ViewHolder, int, int)}
      */
@@ -501,17 +505,22 @@ public abstract class PrimitiveSimpleAdapter<Sub, VH extends PrimitiveSimpleAdap
 
         @Override
         public void onDragStart(VH selectedViewHolder, int selectedPosition) {
-            PrimitiveSimpleAdapter.this.onDragStart(selectedViewHolder,mParentPosition,selectedPosition);
+            PrimitiveSimpleAdapter.this.onDragStart(selectedViewHolder, mParentPosition, selectedPosition);
         }
 
         @Override
         public void onDragAnimationEnd(VH selectedViewHolder, int selectedPosition) {
-            PrimitiveSimpleAdapter.this.onDragAnimationEnd(selectedViewHolder,mParentPosition,selectedPosition);
+            PrimitiveSimpleAdapter.this.onDragAnimationEnd(selectedViewHolder, mParentPosition, selectedPosition);
         }
 
         @Override
         public void onDialogShow(Dialog subDialog, int parentPosition) {
-            PrimitiveSimpleAdapter.this.onSubDialogShow(subDialog,parentPosition);
+            PrimitiveSimpleAdapter.this.onSubDialogShow(subDialog, parentPosition);
+        }
+
+        @Override
+        public void onDialogCancel(Dialog subDialog, int parentPosition) {
+            PrimitiveSimpleAdapter.this.onSubDialogCancel(subDialog, parentPosition);
         }
 
         @Override

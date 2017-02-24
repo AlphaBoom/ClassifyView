@@ -103,7 +103,7 @@ public abstract class FolderAdapter<VH extends FolderAdapter.ViewHolder> extends
         if (position < mData.size() && mData.get(position).getBookList().size() > 1) {
             return true;
         }
-        if(position < mData.size()&&(mData.get(position).getBookList().size()==1)&& Constants.IS_FOLDER_ADAPTER){
+        if(position < mData.size()&&(mData.get(position).getBookList().size()==1)&& mData.get(position).isGroup){
             return true;
         }
         return false;

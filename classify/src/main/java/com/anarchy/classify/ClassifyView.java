@@ -856,7 +856,7 @@ public class ClassifyView extends FrameLayout {
     /**
      * 显示次级窗口
      */
-    private void showSubContainer(int position) {
+    private void showSubContainer(final int position) {
         if (mSubDialog == null) {
             mSubDialog = initSubDialog();
             mSubDialog.setOnShowListener(new DialogInterface.OnShowListener() {
@@ -869,6 +869,12 @@ public class ClassifyView extends FrameLayout {
                 @Override
                 public void onDismiss(DialogInterface dialog) {
 
+                }
+            });
+            mSubDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    mSubCallBack.onDialogCancel(mSubDialog,position);
                 }
             });
         }

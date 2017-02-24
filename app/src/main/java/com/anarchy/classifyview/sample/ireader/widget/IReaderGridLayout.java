@@ -47,6 +47,8 @@ public class IReaderGridLayout extends ViewGroup {
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+
+
         if (widthMode == MeasureSpec.AT_MOST || heightMode == MeasureSpec.AT_MOST) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         } else {
