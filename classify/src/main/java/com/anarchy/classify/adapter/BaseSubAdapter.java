@@ -16,7 +16,7 @@ import java.util.List;
  * Version 1.0
  * <p>
  * Date: 16/6/1 15:34
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p>
  */
 public abstract class BaseSubAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> implements SubRecyclerViewCallBack {

@@ -12,12 +12,8 @@ import com.anarchy.classifyview.core.Bean;
 import java.util.List;
 
 /**
- * Version 2.1.1
- * <p>
  * Date: 16/12/26 12:00
- * Author: zhendong.wu@shoufuyou.com
- * <p/>
- * Copyright © 2016 Shanghai Xiaotu Network Technology Co., Ltd.
+ * Author: rsshinide38@163.com
  */
 
 public class HVAdapter extends SimpleAdapter<Bean,HVAdapter.ViewHolder>{

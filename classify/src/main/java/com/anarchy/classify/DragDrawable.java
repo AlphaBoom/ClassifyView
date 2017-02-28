@@ -21,7 +21,7 @@ import java.lang.ref.WeakReference;
 /**
  * <p/>
  * Date: 16/6/2 15:41
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * Description:用于绘制拖动的View 在拖动状况下显示的效果
  * 默认绘制整个拖动的Item
  * <p/>

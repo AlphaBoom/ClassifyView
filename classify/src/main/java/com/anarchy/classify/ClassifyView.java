@@ -52,7 +52,7 @@ import java.util.Queue;
 /**
  * <p>
  * Date: 16/6/1 14:16
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p>
  */
 public class ClassifyView extends FrameLayout {

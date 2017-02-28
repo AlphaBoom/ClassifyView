@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * <p/>
  * Date: 16/6/7 11:55
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p/>
  */
 public abstract class SimpleAdapter<T, VH extends SimpleAdapter.ViewHolder> extends PrimitiveSimpleAdapter<List<T>, VH> {

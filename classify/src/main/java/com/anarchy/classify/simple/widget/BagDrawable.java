@@ -17,7 +17,7 @@ import android.util.Property;
 /**
  * <p/>
  * Date: 16/6/7 10:32
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p/>
  */
 class BagDrawable extends Drawable {

@@ -1,6 +1,5 @@
 package com.anarchy.classifyview.sample.demonstrate.logic;
 
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,7 +7,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.anarchy.classify.simple.SimpleAdapter;
-import com.anarchy.classify.util.L;
 import com.anarchy.classifyview.R;
 import com.squareup.picasso.Picasso;
 
@@ -17,7 +15,7 @@ import java.util.List;
 /**
  * <p/>
  * Date: 16/6/12 14:38
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p/>
  */
 public class BookListAdapter extends SimpleAdapter<Book,BookListAdapter.ViewHolder> {

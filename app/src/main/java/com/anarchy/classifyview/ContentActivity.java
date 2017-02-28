@@ -17,10 +17,11 @@ import com.anarchy.classifyview.sample.viewpager.ViewPagerFragment;
 /**
  * <p/>
  * Date: 16/6/12 09:40
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p/>
  */
 public class ContentActivity extends AppCompatActivity {
+    @SuppressWarnings("unchecked")
     private Class<? extends Fragment>[] mClasses = new Class[]{NormalFragment.class,
             DemonstrateFragment.class, ViewPagerFragment.class, LayoutManagerFragment.class,
             NormalFolderFragment.class,IReaderMockFragment.class};//,

@@ -9,9 +9,7 @@ import java.util.List;
  * Version 1.0
  * <p>
  * Date: 16/6/7 12:00
- * Author: zhendong.wu@shoufuyou.com
- * <p>
- * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
+ * Author: rsshinide38@163.com
  */
 public interface BaseSimpleAdapter {
     BaseMainAdapter getMainAdapter();

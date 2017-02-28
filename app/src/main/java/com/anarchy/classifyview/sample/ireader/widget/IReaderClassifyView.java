@@ -16,9 +16,7 @@ import com.anarchy.classifyview.R;
  * Version 2.1.1
  * <p>
  * Date: 17/1/10 15:46
- * Author: zhendong.wu@shoufuyou.com
- * <p/>
- * Copyright © 2016 Shanghai Xiaotu Network Technology Co., Ltd.
+ * Author: rsshinide38@163.com
  */
 
 public class IReaderClassifyView extends ClassifyView {

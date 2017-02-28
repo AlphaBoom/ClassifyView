@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * <p/>
  * Date: 16/6/12 10:09
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p/>
  */
 public class DemonstrateFragment extends BaseFragment {

@@ -1,6 +1,5 @@
 package com.anarchy.classifyview.sample.layoutmanager;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +15,7 @@ import java.util.List;
  * Version 2.1.1
  * <p>
  * Date: 16/12/26 12:00
- * Author: zhendong.wu@shoufuyou.com
- * <p/>
- * Copyright © 2016 Shanghai Xiaotu Network Technology Co., Ltd.
+ * Author: rsshinide38@163.com
  */
 
 public class HHAdapter extends SimpleAdapter<Bean,HHAdapter.ViewHolder>{

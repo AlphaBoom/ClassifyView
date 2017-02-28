@@ -1,11 +1,9 @@
 package com.anarchy.classify.simple.widget;
 
-import android.view.View;
 
 import com.anarchy.classify.simple.ChangeInfo;
 import com.anarchy.classify.simple.PrimitiveSimpleAdapter;
 
-import java.util.List;
 
 
 public interface CanMergeView {

@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * <p/>
  * Date: 16/6/7 16:40
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p/>
  */
 public class MyAdapter extends SimpleAdapter<Bean, MyAdapter.ViewHolder> {

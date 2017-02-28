@@ -16,7 +16,7 @@ import com.anarchy.classifyview.utils.DataGenerate;
 /**
  * <p/>
  * Date: 16/6/12 09:51
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p/>
  */
 public class NormalFragment extends BaseFragment{

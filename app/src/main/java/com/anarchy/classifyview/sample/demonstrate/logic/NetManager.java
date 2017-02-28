@@ -15,7 +15,7 @@ import java.net.URL;
 /**
  * <p/>
  * Date: 16/6/12 11:37
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p/>
  */
 public class NetManager {

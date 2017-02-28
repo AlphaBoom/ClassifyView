@@ -3,12 +3,8 @@ package com.anarchy.classify.util;
 import android.util.Log;
 
 /**
- * Version 1.0
- * <p>
  * Date: 16/6/1 16:06
- * Author: zhendong.wu@shoufuyou.com
- * <p>
- * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
+ * Author: rsshinide38@163.com
  */
 public class L {
     private static final String TAG = "ClassifyView";

@@ -11,7 +11,7 @@ import com.anarchy.classify.ClassifyView;
  * Version 1.0
  * <p>
  * Date: 16/6/14 17:12
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p>
  */
 public interface BaseCallBack {

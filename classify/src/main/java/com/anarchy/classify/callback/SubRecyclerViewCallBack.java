@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * <p/>
  * Date: 16/6/1 15:11
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p/>
  */
 public interface SubRecyclerViewCallBack extends BaseCallBack{

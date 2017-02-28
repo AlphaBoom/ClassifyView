@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * <p/>
  * Date: 16/6/12 14:20
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p/>
  */
 public class SelectBookListAdapter extends RecyclerView.Adapter<SelectBookListAdapter.ViewHolder> {

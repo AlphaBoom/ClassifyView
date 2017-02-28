@@ -16,12 +16,10 @@ import com.anarchy.classifyview.databinding.FragmentViewpagerBinding;
 import com.anarchy.classifyview.sample.normal.NormalFragment;
 
 /**
- * Version 2.1.1
  * <p>
  * Date: 16/8/11 15:38
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p>
- * Copyright © 2014-2016 Shanghai Xiaotu Network Technology Co., Ltd.
  */
 public class ViewPagerFragment extends BaseFragment{
     @Nullable

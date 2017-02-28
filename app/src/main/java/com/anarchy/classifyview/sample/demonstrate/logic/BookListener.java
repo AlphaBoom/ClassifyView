@@ -3,7 +3,7 @@ package com.anarchy.classifyview.sample.demonstrate.logic;
 /**
  * <p/>
  * Date: 16/6/12 14:03
- * Author: zhendong.wu@shoufuyou.com
+ * Author: rsshinide38@163.com
  * <p/>
  */
 public interface BookListener {
