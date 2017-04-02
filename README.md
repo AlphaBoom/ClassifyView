@@ -1,10 +1,10 @@
 # ClassifyView [![](https://jitpack.io/v/AlphaBoom/ClassifyView.svg)](https://jitpack.io/#AlphaBoom/ClassifyView)[![Codewake](https://www.codewake.com/badges/ask_question.svg)](https://www.codewake.com/p/classifyview)
 实现原理 ClassifyView包裹这一个RecyclerView，当点击这个RecyclerView会弹出一个Dialog 该Dialog的布局会传入另一个RecyclerView.想详细了解，可以查看[博客](http://www.jianshu.com/p/a51a93366406)
-#效果如下
+# 效果如下
 ![image](https://github.com/AlphaBoom/ClassifyView/blob/master/screenshot/classifyView.gif)
 ![image](https://github.com/AlphaBoom/ClassifyView/blob/master/screenshot/ireader.gif)
-#配置依赖
-**Step one:**Add the JitPack repository to your build file
+# 配置依赖
+**Step one:** Add the JitPack repository to your build file
 
 ```
 allprojects {
@@ -14,7 +14,7 @@ allprojects {
 		}
 	  }
 ```
-**Step two:**Add the dependency
+**Step two:** Add the dependency
 
 ```
     dependencies {
@@ -24,14 +24,14 @@ allprojects {
 ```
 最新版本查看[Latest release](https://github.com/AlphaBoom/ClassifyView/releases)
 
-#最近更新
+# 最近更新
 - [x] 关于仿照IReader的效果需要对原库做自定义的部分都已经更新在Sample
 - [x] 在adapter中增加了拖拽开始及拖拽开始完成和次级目录弹出的回调
 - [x] 增加拖拽item的可在拖拽时放大及可合并时缩小的设置
 - [x] 在拖拽开始时添加动画，效果更自然
 - [x] 添加了一个自定义的例子，效果大致仿IReader的书架
 
-#快速使用
+# 快速使用
 1. 继承SimpleAdapter
 
 ```java
@@ -96,7 +96,7 @@ mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
         }
         mClassifyView.setAdapter(new MyAdapter(data));
 ```
-#添加拖动状态监听
+# 添加拖动状态监听
 
 设置监听
 ```java
@@ -162,7 +162,7 @@ public interface DragListener {
     }
 ```
 
-#支持的自定义的属性
+# 支持的自定义的属性
 ClassifyView attr
 
 属性  | 说明
@@ -185,30 +185,30 @@ OutlineWidth | 外边框的宽度
 OutlineColor | 外边框的颜色
 InnerPadding | 当内部有多个子View 时 与周围的边距
 
-#高级自定义
+# 高级自定义
 
-##如果不喜欢`List<List<>>`的结构可以集成PrimitiveSimpleAdapter来实现其他数据源的adapter
+## 如果不喜欢`List<List<>>`的结构可以集成PrimitiveSimpleAdapter来实现其他数据源的adapter
 
 关于如何继承PrimitiveSimpleAdapter可以参考[IReaderAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/app/src/main/java/com/anarchy/classifyview/sample/ireader/IReaderAdapter.java),如果不能满足可以考虑分别继承[BaseMainAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/adapter/BaseMainAdapter.java)及[BaseSubAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/adapter/BaseSubAdapter.java)
 
-##继承ClassifyView 重写以下方法：
+## 继承ClassifyView 重写以下方法：
 
-1. **RecyclerView getMain(Context context, AttributeSet parentAttrs)**<br/>返回主层级使用的 RecyclerView。
-2. **RecyclerView getSub(Context context, AttributeSet parentAttrs)**返回次级层级使用的RecyclerView
-3. **View chooseTarget(View selected, List<View> swapTargets, int curX, int curY)**<br/> 当拖拽的View 覆盖到子View时会通过该方法在候选View中选择一个View 为目标View 之后的交互操作都会作用于当前所选择的View 及 这个目标View<br/><font color="green">@param selected</font> 当前选择的View<br/><font color="green">@param swapTargets</font> 候选的目标View(候选的目标View 为当前选择的View 能够覆盖到所有View)<br/><font color="green">@param curX</font> 当前选中View的X轴坐标<br/><font color="green">@param curY</font> 当前选中View的Y轴坐标
-4. **Drawable getDragDrawable(View view)**<br/>返回用于渲染当前拖动View的显示<br/><font color="green">@param view</font> 当前选中的View<br/><font color="green">@return drawable</font>返回Drawable 用于设置拖拽View的背景
+1. **RecyclerView getMain(Context context, AttributeSet parentAttrs)** <br/>返回主层级使用的 RecyclerView。
+2. **RecyclerView getSub(Context context, AttributeSet parentAttrs)** 返回次级层级使用的RecyclerView
+3. **View chooseTarget(View selected, List<View> swapTargets, int curX, int curY)** <br/> 当拖拽的View 覆盖到子View时会通过该方法在候选View中选择一个View 为目标View 之后的交互操作都会作用于当前所选择的View 及 这个目标View<br/><font color="green">@param selected</font> 当前选择的View<br/><font color="green">@param swapTargets</font> 候选的目标View(候选的目标View 为当前选择的View 能够覆盖到所有View)<br/><font color="green">@param curX</font> 当前选中View的X轴坐标<br/><font color="green">@param curY</font> 当前选中View的Y轴坐标
+4. **Drawable getDragDrawable(View view)** <br/>返回用于渲染当前拖动View的显示<br/><font color="green">@param view</font> 当前选中的View<br/><font color="green">@return drawable</font>返回Drawable 用于设置拖拽View的背景
 5. 自定义次级目录的布局：
    * 自定义次级目录的Dialog：重写 **Dialog createSubDialog()**
-   * 自定义次级目录布局：重写**View getSubContent()**
-     <br/>**注意：**默认会在返回的View中查找有Tag 为 @String/sub_container 的View作为容器 如果没有 就已返回的View作为容器来添加次级目录的RecyclerView。 可以覆盖**ViewGroup findHaveSubTagContainer(ViewGroup group)**来重写查找容器的逻辑
+   * 自定义次级目录布局：重写 **View getSubContent()**
+     <br/> **注意：** 默认会在返回的View中查找有Tag 为 @String/sub_container 的View作为容器 如果没有 就已返回的View作为容器来添加次级目录的RecyclerView。 可以覆盖 **ViewGroup findHaveSubTagContainer(ViewGroup group)** 来重写查找容器的逻辑
 
 **设置数据方式有两种方式：**
 
-1. 使用 *ClassifyView.setAdapter(BaseMainAdapter mainAdapter, BaseSubAdapter subAdapter)*用于分别设置主层级及次级层级的适配器
-2. 使用 *setAdapter(BaseSimpleAdapter baseSimpleAdapter)*设置一个混合了主层级及次级层级的适配器，如何自定义可以参考 [SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)
+1. 使用 *ClassifyView.setAdapter(BaseMainAdapter mainAdapter, BaseSubAdapter subAdapter)* 用于分别设置主层级及次级层级的适配器
+2. 使用 *setAdapter(BaseSimpleAdapter baseSimpleAdapter)* 设置一个混合了主层级及次级层级的适配器，如何自定义可以参考 [SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)
 
 
-##主层级提供的回调
+## 主层级提供的回调
 在BaseAdapter中对于mergeStart等又增加了ViewHolder形式的回调 本质是一样的。
 
 回调方法 | 说明 | 是否有默认实现在BaseSubAdapter中
@@ -230,7 +230,7 @@ InnerPadding | 当内部有多个子View 时 与周围的边距
   void onItemClick|当item被点击时的回调|false
   List explodeItem|用于是否展开次级目录，返回一个List 用于初始化次级目录的数据，对于List size 小于2的不展开次级目录而调用onItemClick|false
   
-##次级层级的回调
+## 次级层级的回调
 次级层级与主层级相似 没有合并的相关回调 单独有两个回调：
 
 方法|说明
@@ -238,7 +238,7 @@ InnerPadding | 当内部有多个子View 时 与周围的边距
 void initData|用于初始化次级层级数据，初始化的数据来自于主层级的 explodeItem
 boolean canDropOver | 对于次层级的item 能否拖动到主层级
 
-#结语
+# 结语
 **当前项目效果展现 使用[SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)，InsertAbleGridView 是配合SimpleAdapter的控件所写，所以本质是一个有两个RecyclerView的自定义View，支持拖拽item并提供相应回调。**
 
 
