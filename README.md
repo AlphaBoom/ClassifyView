@@ -81,44 +81,36 @@ allprojects {
 
 ```java
 mClassifyView = (ClassifyView) view.findViewById(R.id.classify_view);
-        List<List<Bean>> data = new ArrayList<>();
-        for(int i=0;i<30;i++){
-            List<Bean> inner = new ArrayList<>();
-            if(i>10) {
-                int c = (int) (Math.random() * 15+1);
-                for(int j=0;j<c;j++){
-                    inner.add(new Bean());
-                }
-            }else {
+List<List<Bean>> data = new ArrayList<>();
+for(int i=0;i<30;i++){
+    List<Bean> inner = new ArrayList<>();
+        if(i>10) {
+            int c = (int) (Math.random() * 15+1);
+            for(int j=0;j<c;j++){
                 inner.add(new Bean());
             }
-            data.add(inner);
+        }else {
+            inner.add(new Bean());
         }
-        mClassifyView.setAdapter(new MyAdapter(data));
+        data.add(inner);
+    }
+mClassifyView.setAdapter(new MyAdapter(data));
 ```
 # 添加拖动状态监听
 
 设置监听
 ```java
 //添加监听
-public void addDragListener(DragListener listener){
-        mDragListeners.add(listener);
-    }
+ClassifyView#addDragListener(DragListener)
 //移除监听    
-public void removeDragListener(DragListener listener){
-        mDragListeners.remove(listener);
-    }
+ClassifyView#removeDragListener(DragListener)
 //移除所有监听
-public void removeAllDragListener(){
-        mDragListeners.clear();
-    }
+ClassifyView#removeAllDragListener()
 /**
  * 是否监听移动状态信息
  * @param enable false disable true enable default true
  */
-public void enableMoveListener(boolean enable){
-    mMoveListenerEnable = enable;
- }    
+ClassifyView#enableMoveListener(boolean)   
 ```
 具体监听回调
 
@@ -171,6 +163,21 @@ MainSpanCount  | 主层级目录的列数
 SubSpanCount  | 次级层级目录的列数
 AnimationDuration | 合并动画的时间
 SubRatio | 次级目录的高度占主层级的高度比例
+EdgeWidth | 设置宽度用于当item到边缘时判断是否触发滑动
+MainPadding | 设置主层级容器的padding值
+MainPaddingLeft | 
+MainPaddingTop |
+MainPaddingRight |
+MainPaddingBottom |
+SubPadding | 设置次级层级容器的padding值
+SubPaddingLeft |
+SubPaddingTop |
+SubPaddingRight |
+SubPaddingBottom |
+DragScaleX | 当item处于被拖拽状态时X轴方向缩放比例
+DragScaleY | 当item处于被拖拽状态时Y轴方向缩放比例
+DragInMergeScaleX | 当被拖拽的item处于可合并状态时X轴方向缩放比例
+DragInMergeScaleY | 当被拖拽的item处于可合并状态时Y轴方向缩放比例
 
 InsertAbleGridView(显示合并布局的View)
 
@@ -204,7 +211,7 @@ InnerPadding | 当内部有多个子View 时 与周围的边距
 
 **设置数据方式有两种方式：**
 
-1. 使用 *ClassifyView.setAdapter(BaseMainAdapter mainAdapter, BaseSubAdapter subAdapter)* 用于分别设置主层级及次级层级的适配器
+1. 使用 *ClassifyView.setAdapter(BaseMainAdapter mainAdapter, BaseSubAdapter subAdapter)* 用于分别设置主层级及次级层级的适配器（使用这种方式只能获取到相应状态时的回调，注意这些回调返回值的处理）
 2. 使用 *setAdapter(BaseSimpleAdapter baseSimpleAdapter)* 设置一个混合了主层级及次级层级的适配器，如何自定义可以参考 [SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)
 
 
@@ -218,7 +225,7 @@ InnerPadding | 当内部有多个子View 时 与周围的边距
   boolean canDropOVer| 是否可以在对应点放下|true，默认返回true
   boolean onMergeStart|第一次处于可合并状态|false
   void onMerged|合并结束|false
-  ChangeInfo onPrepareMerge|当准备进行合并动画时回调，返回的ChangeInfo用于做当前拖拽的View到目标位置的动画|false
+  MergeInfo onPrepareMerge|当准备进行合并动画时回调，返回的MergeInfo用于做当前拖拽的View到目标位置的动画|false
   void onStartMergeAnimation|开始合并动画的回调|false
   void onMergeCancel|当脱离合并状态的回调|false
   boolean onMove|当需要触发移动时的回调|false
@@ -228,17 +235,20 @@ InnerPadding | 当内部有多个子View 时 与周围的边距
   float getVelocity|只对低于这个速度的才判断能否移动(需要配合getCurrentState)|true
   int getCurrentState|判断当前处于的状态，返回三个值 Classify.STATE_NONE 无状态，Classify.STATE_MERGE 处于合并状态，Classify.STATE_MOVE 处于移动状态| true
   void onItemClick|当item被点击时的回调|false
-  List explodeItem|用于是否展开次级目录，返回一个List 用于初始化次级目录的数据，对于List size 小于2的不展开次级目录而调用onItemClick|false
+  boolean canExplodeItem|用于判断当点击一个item时是否展开次级目录|false
   
 ## 次级层级的回调
-次级层级与主层级相似 没有合并的相关回调 单独有两个回调：
+次级层级与主层级相似 没有合并的相关回调：
 
 方法|说明
 ---|---
-void initData|用于初始化次级层级数据，初始化的数据来自于主层级的 explodeItem
+void prepareExplodeItem|用于准备初始化次级层级数据
 boolean canDropOver | 对于次层级的item 能否拖动到主层级
+boolean canDragOut | 是否可以移出次级目录到主层级
+void onDialogShow | 次级窗口显示时的回调
+void onDialogCancel | 次级窗口隐藏时的回调
 
 # 结语
-**当前项目效果展现 使用[SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)，InsertAbleGridView 是配合SimpleAdapter的控件所写，所以本质是一个有两个RecyclerView的自定义View，支持拖拽item并提供相应回调。**
+**当前项目效果展现 使用[SimpleAdapter](https://github.com/AlphaBoom/ClassifyView/blob/master/classify/src/main/java/com/anarchy/classify/simple/SimpleAdapter.java)**
 
 
