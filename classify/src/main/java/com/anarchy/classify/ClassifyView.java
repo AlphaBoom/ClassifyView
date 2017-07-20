@@ -448,6 +448,7 @@ public class ClassifyView extends FrameLayout {
 
     /**
      * @param baseSimpleAdapter
+     * @see ClassifyView#addDragListener(DragListener)
      */
     public void setAdapter(BaseSimpleAdapter baseSimpleAdapter) {
         setAdapter(baseSimpleAdapter.getMainAdapter(), baseSimpleAdapter.getSubAdapter());

@@ -2,9 +2,7 @@ package com.anarchy.classify;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
-import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.RadialGradient;
@@ -13,8 +11,6 @@ import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.view.View;
-
-import com.anarchy.classify.util.L;
 
 import java.lang.ref.WeakReference;
 
@@ -32,7 +28,7 @@ public class DragDrawable extends Drawable {
     private static final float Y_OFFSET = 1.75f;
     final private static float SHADOW_RADIUS = 3.5f;
     final private View mView;
-    private WeakReference<Bitmap> mBitmapWeakReference;
+    private Bitmap mBitmap;
     final private Paint mPaint;
     private boolean showShadow;
     private int shadowOffset;
@@ -51,7 +47,7 @@ public class DragDrawable extends Drawable {
         mView.setDrawingCacheEnabled(true);
         mView.destroyDrawingCache();
         mView.buildDrawingCache();
-        mBitmapWeakReference = new WeakReference<>(Bitmap.createBitmap(mView.getDrawingCache()));
+        mBitmap = Bitmap.createBitmap(mView.getDrawingCache());
         mPaint = new Paint();
         int radius = (getIntrinsicHeight() + getIntrinsicWidth()) / 2;
         mPaint.setShader(new RadialGradient(getIntrinsicWidth() / 2, getIntrinsicHeight() / 2, radius, new int[]{FILL_SHADOW_COLOR, 0}, null, Shader.TileMode.CLAMP));
@@ -60,21 +56,21 @@ public class DragDrawable extends Drawable {
 
     @Override
     public void draw(Canvas canvas) {
-        if (mBitmapWeakReference.get() == null || mBitmapWeakReference.get().isRecycled()) {
+        if (mBitmap == null || mBitmap.isRecycled()) {
             mView.setDrawingCacheEnabled(true);
             mView.destroyDrawingCache();
             mView.buildDrawingCache();
-            mBitmapWeakReference = new WeakReference<>(Bitmap.createBitmap(mView.getDrawingCache()));
-            if(mBitmapWeakReference.get() == null || mBitmapWeakReference.get().isRecycled()) {
+            mBitmap = Bitmap.createBitmap(mView.getDrawingCache());
+            if(mBitmap == null || mBitmap.isRecycled()) {
                 mView.draw(canvas);
             }
         } else {
             if (showShadow) {
 //                mShadowRect.set(shadowOffset,shadowOffset,getIntrinsicWidth(),getIntrinsicHeight());
 //                canvas.drawRect(mShadowRect,mPaint);
-                canvas.drawBitmap(mBitmapWeakReference.get(), 0, 0, null);
+                canvas.drawBitmap(mBitmap, 0, 0, null);
             } else {
-                canvas.drawBitmap(mBitmapWeakReference.get(), 0, 0, null);
+                canvas.drawBitmap(mBitmap, 0, 0, null);
             }
         }
     }
