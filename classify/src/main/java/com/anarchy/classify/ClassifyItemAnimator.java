@@ -1,7 +1,8 @@
 package com.anarchy.classify;
 
+import android.animation.TimeInterpolator;
+import android.animation.ValueAnimator;
 import android.support.annotation.NonNull;
-import android.support.v4.animation.AnimatorCompatHelper;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPropertyAnimatorCompat;
 import android.support.v4.view.ViewPropertyAnimatorListener;
@@ -32,6 +33,7 @@ public class ClassifyItemAnimator extends SimpleItemAnimator {
     private ArrayList<RecyclerView.ViewHolder> mMoveAnimations = new ArrayList<>();
     private ArrayList<RecyclerView.ViewHolder> mRemoveAnimations = new ArrayList<>();
     private ArrayList<RecyclerView.ViewHolder> mChangeAnimations = new ArrayList<>();
+    private TimeInterpolator mDefaultInterpolator;
 
     private static class MoveInfo {
         public RecyclerView.ViewHolder holder;
@@ -492,7 +494,10 @@ public class ClassifyItemAnimator extends SimpleItemAnimator {
     }
 
     private void resetAnimation(RecyclerView.ViewHolder holder) {
-        AnimatorCompatHelper.clearInterpolator(holder.itemView);
+        if(mDefaultInterpolator == null){
+            mDefaultInterpolator = new ValueAnimator().getInterpolator();
+        }
+        holder.itemView.animate().setInterpolator(mDefaultInterpolator);
         endAnimation(holder);
     }
 
